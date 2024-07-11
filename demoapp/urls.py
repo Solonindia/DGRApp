@@ -5,6 +5,6 @@ from django.urls import path,include
 from . import views
 
 urlpatterns = [
-    path("DGR", views.index,name="index")
+    path("dgr", views.index,name="index")
 ]
 
