@@ -74,7 +74,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'demodjango.wsgi.application'
-CSRF_TRUSTED_ORIGINS = ['https://oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net/']
+CSRF_TRUSTED_ORIGINS = [
+    'https://oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
+    # Add other trusted origins here if needed
+]
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
