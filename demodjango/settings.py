@@ -74,7 +74,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'demodjango.wsgi.application'
-CSRF_TRUSTED_ORIGINS = ['https://dgrapp-prod.azurewebsites.net']
+CSRF_TRUSTED_ORIGINS = ['https://oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net/']
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -85,7 +85,7 @@ DATABASES = {
         'NAME': 'complaints',  # Your actual database name
         'USER': 'Solonindia',  # Your actual database user
         'PASSWORD': 'Sipl$2024',  # Your actual database password
-        'HOST': 'complaint.mysql.database.azure.com',  # Your Azure MySQL hostname
+        'HOST': 'complaints.mysql.database.azure.com',  # Your Azure MySQL hostname
         'PORT': '3306',  # Default MySQL port
     }
 }
