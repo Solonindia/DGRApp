@@ -52,9 +52,6 @@ def admin_page(request):
 def user_page(request):
     return render(request,'user.html')
     
-def complaint_form(request):
-    return render(request,'complaint.html')
-
 import pandas as pd
 from django.shortcuts import render
 from django.http import HttpResponse
