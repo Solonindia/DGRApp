@@ -15,7 +15,6 @@
             font-family: Georgia, 'Times New Roman', Times, serif;
             position: relative;
             text-align: center;
-
         }
 
         .background {
@@ -56,27 +55,32 @@
             z-index: 3; /* Ensure the form content is above the background */
             position: relative; /* Ensure the container is positioned correctly */
         }
+
         .signup-container h2 {
             text-align: center;
             margin-bottom: 10px; /* Reduced margin */
         }
+
         .signup-container form {
             display: flex;
             flex-direction: column;
         }
-        .signup-container form input[type="text"],
-        .signup-container form input[type="password"],
-        .signup-container form input[type="email"] {
-            padding: 8px; /* Reduced padding */
-            margin-bottom: 6px; /* Reduced margin */
+
+        .signup-container form div {
+            margin-bottom: 10px; /* Adjust spacing between fields */
+        }
+
+        .signup-container form input,
+        .signup-container form button {
+            padding: 8px; /* Adjusted padding */
+            margin: 0 auto; /* Centered elements */
             font-size: 14px; /* Reduced font size */
             border: 1px solid #070707;
             border-radius: 5px;
             width: 90%; 
-            margin: 0 auto; /* Centered inputs */
         }
+
         .signup-container form button[type="submit"] {
-            padding: 8px; /* Adjusted padding */
             background-color: #04035c;
             color: white;
             border: none;
@@ -86,21 +90,24 @@
             text-align: center;
             margin: 15px auto 0; /* Centered button and added margin to the top */
         }
+
         .signup-container a {
             color: #04035c;
             text-decoration: none;
         }
-        .bottom-left {
+
+        .bottom-left, .bottom-right {
             position: absolute;
             bottom: 30px; /* Distance from the bottom */
-            left: 10px; /* Distance from the left */
             z-index: 3; /* Ensure the link is above the background */
         }
+
+        .bottom-left {
+            left: 10px; /* Distance from the left */
+        }
+
         .bottom-right {
-            position: absolute;
-            bottom: 30px; /* Distance from the bottom */
             left: 100px; /* Distance from the left */
-            z-index: 3; /* Ensure the link is above the background */
         }
     </style>
 </head>
@@ -115,7 +122,12 @@
         {% else %}
             <form action="" method="post">
                 {% csrf_token %}
-                {{ form.as_p }}
+                {% for field in form %}
+                    <div>
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                {% endfor %}
                 <button type="submit">Register</button>
             </form>
         {% endif %}
