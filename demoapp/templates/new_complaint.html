@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Complaint</title>
+    <style>
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            height: 100vh; /* Ensure the body takes the full height of the viewport */
+            overflow: auto; /* Allows scrolling */
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 10%; /* 2px space at the top */
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
+            background-image: url('/static/images/sol.webp');
+            filter: blur(1px);
+            background-size: cover; /* Ensure the background image covers the entire area */
+            background-repeat: no-repeat; /* Prevents the image from repeating */
+            background-attachment: fixed; /* Keeps the background image fixed while scrolling */
+            background-position: center; /* Centers the background image */
+            z-index: -1; /* Places the blurred background behind the content */
+        }
+        .logo {
+            position: fixed; /* Fix the logo in place */
+            top: 10px;
+            left: 10px;
+            z-index: 2; /* Ensure it's above other content */
+        }
+        .logo img {
+            width: 100px;
+            height: auto;
+        }
+        h3 {
+            color: rgb(234, 234, 245);
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            width: 60%;
+            margin-left: 17%; 
+            border-radius: 2%;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            background-color:#1363AE;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(80, 68, 68, 0.1);
+            position: relative;
+            margin-top: 7%;
+            color:#e9ecef;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .form-column {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .form-left, .form-right {
+            flex: 1;
+        }
+
+        .form-group, .readonly-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label, .readonly-group label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea,
+        .readonly-group input,
+        .readonly-group select {
+            border: none;
+            border-bottom: 1px solid #000; /* Black underline */
+            outline: none;
+            width: 100%;
+            padding: 5px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .readonly-group input, .readonly-group select {
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            cursor: not-allowed;
+        }
+
+        .image-preview {
+            display: flex;
+            margin-top: 10px;
+            gap: 10px;
+        }
+
+        .image-preview img {
+            width: 100px;
+            height: auto;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+        .image-names {
+            margin-top: 10px;
+            list-style: none;
+            padding: 0;
+            font-size: 14px;
+        }
+
+        .image-names li {
+            padding: 4px 0;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .submit-button {
+            background-color: #011225;
+            color: #ffffff;
+            margin-left: 40%;
+        }
+
+        .submit-button:hover {
+            background-color: #ebf2f5;
+            transform: translateY(-2px);
+            color: black;
+        }
+
+        .error-message {
+            color: #dc3545;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .custom-input-container {
+            display: none;
+        }
+
+        .warning-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+        .button-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .btn {
+            background-color: #040952; /* Green */
+            border-radius: 5px;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+</style>
+</head>
+<body onload="setTodayDate()">    
+    <div class="container">
+    <div class="logo">
+        <img src="/static/Images/logo.jpg" alt="Footer Image">
+    </div>
+    <div class="button-container">
+        <a href="{% url 'existing_complaints' %}" class="btn">Existing Complaints</a>
+    </div>
+    <div class="form-wrapper">
+    <form id="complaintForm" method="post" enctype="multipart/form-data" action="{% url 'new_complaint' %}">
+    {% csrf_token %}
+    <h3>Register a New Complaint</h3>
+    <div class="form-group">
+        <label for="site_name"><b>Site Name *</b></label>
+        <select id="site_name" name="site_name" onchange="updateComplaintId()" required>
+            <option class="placeholder-option" value="" disabled selected>Select site name</option>
+            {% for site in custom_sites %}
+                <option value="{{ site }}">{{ site }}</option>
+            {% endfor %}
+            <option value="Other">Other</option>
+        </select>
+    </div>   
+    <div id="custom_site_container" class="custom-input-container">
+        <div class="form-group">
+            <label for="custom_site">Enter Custom Site Name:</label>
+            <input type="text" id="custom_site" name="custom_site" oninput="updateComplaintId()">
+        </div>
+    </div>             
+    <div class="form-group">
+        <label for="company_name"><b>Customer Name *</b></label>
+        <select id="company_name" name="company_name" onchange="updateComplaintId()" required>
+            <option class="placeholder-option" value="" disabled selected>Select customer name</option>
+            {% for cust in custom_customers %}
+                <option value="{{ cust }}">{{ cust }}</option>
+            {% endfor %}
+            <option value="Other">Other</option>
+        </select>
+    </div>
+    <div id="custom_company_container" class="custom-input-container">
+        <div class="form-group">
+            <label for="custom_company">Enter Custom Customer Name:</label>
+            <input type="text" id="custom_company" name="custom_company" oninput="updateComplaintId()">
+        </div>
+    </div>
+    <div class="form-row">
+    <div class="form-column form-left">
+        <div class="form-group">
+            <label for="complaint_id"><b>Complaint ID</b></label>
+            <input type="text" id="complaint_id" name="complaint_id" readonly>
+        </div>
+        <div class="form-group">
+            <label for="location"><b>Location *</b></label>
+            <select id="location" name="location" onchange="updateComplaintId()" required>
+                <option class="placeholder-option" value="" disabled selected>Enter location name</option>
+                {% for loc in custom_locations %}
+                    <option value="{{ loc }}">{{ loc }}</option>
+                {% endfor %}
+                <option value="Other">Other</option>
+            </select>
+        </div>
+    <div id="custom_location_container" class="custom-input-container">
+        <div class="form-group">
+            <label for="custom_location">Enter Custom Location:</label>
+            <input type="text" id="custom_location" name="custom_location" oninput="updateComplaintId()">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="equipment"><b>Product/Equipment *</b></label>
+        <input type="text" id="equipment" name="equipment" required>
+    </div>
+    <div class="form-group">
+        <label for="priority"><b>Priority *</b></label>
+        <select id="priority" name="priority" onchange="updateComplaintId()" required>
+            <option value="High">High</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Low">Low</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="complaint_raised_by"><b>Complaint Raised By *</b></label>
+        <input type="text" id="complaint_raised_by" name="complaint_raised_by" required>
+    </div> 
+    <div class="form-group">
+        <label for="nature_of_complaint"><b>Nature of Complaint *</b></label>
+        <textarea id="nature_of_complaint" name="nature_of_complaint" rows="4" maxlength="2000" required oninput="validateWordCount()"></textarea>
+        <div id="warningMessage" class="warning-message">Maximum word limit of 50 words exceeded.</div>
+    </div>
+        <div class="form-group">
+            <label for="start_date"><b>Start Date *</b></label>
+            <input type="date" id="start_date" name="start_date" required onchange="toggleEndDateInput()">
+        </div><br>
+            <div class="form-group">
+                <label for="images"><b>Upload 1 or 2 Images (Max 1MB each, JPEG only) *</b></label>
+                <input type="file" id="images" name="images" accept=".jpeg,.jpg" multiple required onchange="previewImages()">
+            </div>
+
+            <div class="image-preview" id="imagePreviewContainer"></div>
+            <ul class="image-names" id="imageNameContainer"></ul>
+
+            <div class="button-group">
+                <button type="submit" class="submit-button"><b>Register</b></button>
+            </div>
+        <div class="form-column form-right">
+            <h5 style=color:#b90404>(These details you will fill later)</h5>
+            <div class="readonly-group">
+                <label for="claim_type">Claim Type:</label>
+                <input type="text" id="claim_type" name="claim_type" value="{{ complaint.claim_type }}" readonly>
+            </div>
+
+            <div class="readonly-group">
+                <label for="summary_of_action_taken">Summary of Action Taken:</label>
+                <input type="text" id="summary_of_action_taken" name="summary_of_action_taken" value="{{ complaint.summary_of_action_taken }}" readonly>
+            </div>
+
+            <div class="readonly-group">
+                <label for="root_cause">Root Cause:</label>
+                <input type="text" id="root_cause" name="root_cause" value="{{ complaint.root_cause }}" readonly>
+            </div>
+
+            <div class="readonly-group">
+                <label for="preventive_action">Preventive Action:</label>
+                <input type="text" id="preventive_action" name="preventive_action" value="{{ complaint.preventive_action }}" readonly>
+            </div>
+
+            <div class="readonly-group">
+                <label for="parts_replaced_for_rectification">Parts Replaced for Rectification:</label>
+                <input type="text" id="parts_replaced_for_rectification" name="parts_replaced_for_rectification" value="{{ complaint.parts_replaced_for_rectification }}" readonly>
+            </div>
+
+            <div class="readonly-group">
+                <label for="attended_by">Attended By:</label>
+                <input type="text" id="attended_by" name="attended_by" value="" readonly>
+            </div>
+        </div>
+        </div>
+        {% if error %}
+            <div class="error-message">{{ error }}</div>
+        {% endif %}
+    </form>
+    </div>
+    </div>
+    <script>
+        document.getElementById('complaintForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Assuming the form is submitted via AJAX or similar
+        fetch(this.action, {
+            method: 'POST',
+            body: new FormData(this),
+            headers: {
+                'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Your complaint has been registered successfully!');
+                // Optionally, you can reset the form or handle other UI changes
+                this.reset(); // Reset the form fields
+            } else {
+                alert('There was an issue with your submission. Please try again.');
+            }
+        })
+        .catch(error => {
+            alert('An error occurred. Please try again.');
+            console.error('Error:', error);
+        });
+    });
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            const startDateInput = document.getElementById('start_date');
+            const endDateInput = document.getElementById('end_date');
+            startDateInput.value = today;
+            startDateInput.setAttribute('max', today);
+            endDateInput.setAttribute('min', today);
+        }
+
+        function toggleCustomInput(selectId, containerId, inputId) {
+            const selectElement = document.getElementById(selectId);
+            const customInputContainer = document.getElementById(containerId);
+            if (selectElement.value === 'Other') {
+                customInputContainer.style.display = 'block';
+            } else {
+                customInputContainer.style.display = 'none';
+                document.getElementById(inputId).value = ''; // Clear custom input when switching back
+            }
+            updateComplaintId(); // Update complaint ID on selection change
+        }
+
+        function generateComplaintId() {
+            const companyName = document.getElementById('company_name').value.trim();
+            const customCompanyName = document.getElementById('custom_company').value.trim();
+            const nameToUse = companyName === 'Other' && customCompanyName ? customCompanyName : companyName;
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const formattedDate = `${year}${month}${day}-${hours}${minutes}`;
+            const formattedCustomerName = nameToUse ? nameToUse.replace(/\s+/g, '-') : 'UNKNOWN';
+            return `${formattedCustomerName}-${formattedDate}`;
+        }
+
+        function updateComplaintId() {
+            document.getElementById('complaint_id').value = generateComplaintId();
+        }
+
+        function toggleEndDateInput() {
+            const startDate = document.getElementById('start_date').value;
+            if (startDate) {
+                document.getElementById('end_date').removeAttribute('readonly');
+                document.getElementById('end_date').setAttribute('min', startDate);
+            } else {
+                document.getElementById('end_date').setAttribute('readonly', 'true');
+            }
+        }
+
+        function previewImages() {
+            const input = document.getElementById('images');
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const nameContainer = document.getElementById('imageNameContainer');
+            previewContainer.innerHTML = '';
+            nameContainer.innerHTML = '';
+            
+            Array.from(input.files).forEach(file => {
+                if (file && file.type.startsWith('image/jpeg') && file.size <= 1 * 1024 * 1024) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                    const li = document.createElement('li');
+                    li.textContent = file.name;
+                    nameContainer.appendChild(li);
+                } else {
+                    alert('Please upload only JPEG images with a maximum size of 1MB.');
+                }
+            });
+        }
+
+        function validateWordCount() {
+            const textarea = document.getElementById('nature_of_complaint');
+            const warningMessage = document.getElementById('warningMessage');
+            const wordCount = textarea.value.split(/\s+/).filter(Boolean).length;
+            if (wordCount > 50) {
+                warningMessage.style.display = 'block';
+                textarea.value = textarea.value.split(/\s+/).slice(0, 50).join(' ');
+            } else {
+                warningMessage.style.display = 'none';
+            }
+        }
+
+        document.getElementById('company_name').addEventListener('change', function() {
+            toggleCustomInput('company_name', 'custom_company_container', 'custom_company');
+        });
+
+        document.getElementById('site_name').addEventListener('change', function() {
+            toggleCustomInput('site_name', 'custom_site_container', 'custom_site');
+        });
+
+        document.getElementById('location').addEventListener('change', function() {
+            toggleCustomInput('location', 'custom_location_container', 'custom_location');
+        });
+
+        document.getElementById('custom_company').addEventListener('input', updateComplaintId);
+        document.getElementById('custom_site').addEventListener('input', updateComplaintId);
+        document.getElementById('custom_location').addEventListener('input', updateComplaintId);
+    </script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Closed Complaints</title>
+    <style>
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            height: 100vh; /* Ensure the body takes the full height of the viewport */
+            overflow: auto; /* Allows scrolling */
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 10%; /* 2px space at the top */
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
+            background-image: url('/static/images/sol6.jpg');
+            filter: blur(1px);
+            background-size: cover; /* Ensure the background image covers the entire area */
+            background-repeat: no-repeat; /* Prevents the image from repeating */
+            background-attachment: fixed; /* Keeps the background image fixed while scrolling */
+            background-position: center; /* Centers the background image */
+            z-index: -1; /* Places the blurred background behind the content */
+        }
+        .logo {
+            position: fixed; /* Fix the logo in place */
+            top: 10px;
+            left: 10px;
+            z-index: 2; /* Ensure it's above other content */
+            margin-bottom: 10%;
+        }
+        .logo img {
+            width: 100px;
+            height: auto;
+        }
+        h3 {
+            color: rgb(3, 3, 65);
+            text-align: center;
+            margin-bottom: 5%;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color:#bcd8e4;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            color:#03056e;
+        }
+        .complaint-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .complaint-info {
+            display: flex;
+            gap: 20px;
+        }
+        .hidden-details {
+            display: none;
+            padding: 10px; /* Padding inside the border */
+            border-radius: 5px; /* Optional for rounded corners */
+        }
+
+        .nature-of-complaint-container {
+            display: flex;
+            align-items: flex-start; /* Align items at the start of the container */
+        }
+
+        .nature-of-complaint-label {
+            flex-basis: 30%; /* Adjust this to set the width of the label */
+            font-weight: bold;
+        }
+
+        .nature-of-complaint {
+            flex: 1; /* Takes the remaining space */
+            margin: 0; /* Remove margin */
+            padding: 0; /* Remove padding */
+            background-color:#bcd8e4; /* Light background color */
+            white-space: pre-wrap; /* Preserve whitespace and wrap text */
+            word-wrap: break-word; /* Break long words if needed */
+        }
+        .view-more {
+            cursor: pointer;
+            color: #03056e;
+            text-decoration: underline;
+        }
+
+        .image-container {
+            margin-top: 10px;
+        }
+
+        .image-container img {
+            width: 100px;
+            height: auto;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9);
+        }
+
+        .modal-content {
+            margin: 15% auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            color: #fff;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .hist{
+            color:#fcf7f7;
+        }
+        .bottom-left-links {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            z-index: 2; /* Ensure the links are above other content */
+            display: flex; /* Aligns links horizontally */
+            gap: 10px; /* Space between the links */
+        }
+
+        .bottom-left-link {
+            display: block;
+            color: rgb(56, 22, 247);
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            text-align: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .bottom-left-link:hover {
+            background-color: #fbfbfc;
+        }
+    </style>
+</head>
+<body>
+    <h3>
+    <div class="circle">
+        Closed Complaints
+    </div>
+</h3>
+    <div class="logo">
+        <img src="/static/Images/logo.jpg" alt="Footer Image">
+    </div>
+    <div class="hist">
+    <ul>
+        {% for complaint in accepted_complaints %}
+            <li>
+                <div class="complaint-summary">
+                    <div class="complaint-info">
+                        <strong style="color:#050505">Complaint ID:</strong> {{ complaint.complaint_id }}<br>
+                        <strong style="color:#050505">Location:</strong> 
+                            {% if complaint.location == 'Other' and complaint.custom_location %}
+                                {{ complaint.custom_location }}
+                            {% else %}
+                                {{ complaint.location }}
+                            {% endif %}<br>
+                        <strong style="color:#050505">Product/Equipment:</strong> {{ complaint.equipment }}<br>
+                    </div>
+                    <div class="view-more" onclick="toggleDetails(this)">View More</div>
+                </div>
+                <div class="hidden-details">
+                    <div>
+                        <strong style="color:#050505">Site Name:</strong>
+                        <span class="value">{{ complaint.site_name }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Company Name:</strong>
+                        <span class="value">{{ complaint.company_name }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Priority:</strong>
+                        <span class="value">{{ complaint.priority }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Complaint Raised by:</strong>
+                        <span class="value">{{ complaint.complaint_raised_by }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Nature of Complaint:</strong>
+                        <span><p class="nature-of-complaint">{{ complaint.nature_of_complaint }}</p></span> 
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Start Date:</strong>
+                        <span class="value">{{ complaint.start_date|date:"Y-m-d" }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Summary of Action Taken:</strong>
+                        <span class="value">{{ complaint.summary_of_action_taken|default:"No summary provided." }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Root Cause:</strong>
+                        <span class="value">{{ complaint.root_cause }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Preventive Action:</strong>
+                        <span class="value">{{ complaint.preventive_action }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Claim Type:</strong>
+                        <span class="value">{{ complaint.claim_type }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Parts Replaced for Rectification:</strong>
+                        <span class="value">{{ complaint.parts_replaced_for_rectification }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Attended By:</strong>
+                        <span class="value">{{ complaint.attended_by }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">End Date:</strong>
+                        <span class="value">{{ complaint.end_date|date:"Y-m-d" }}</span>
+                    </div>
+                    <div class="image-container">
+                        {% with images=complaint.get_images %}
+                            {% if images %}
+                                {% for image in images %}
+                                    <img src="{{ image }}" alt="Complaint Image" onclick="openModal('{{ image }}')">
+                                {% endfor %}
+                            {% else %}
+                                <p>No images uploaded.</p>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </li>
+        {% empty %}
+            <li>No closed complaints</li>
+        {% endfor %}
+    </ul>
+</div>
+<div class="bottom-left-links">
+    <a href="{% url 'approval_complaints' %}" class="bottom-left-link">Approvals</a>
+    <a href="{% url 'admin' %}" class="bottom-left-link">Home</a>
+</div>
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="img01">
+    </div>
+    <script>
+        function toggleDetails(element) {
+            const hiddenDetails = element.parentElement.nextElementSibling;
+            const isHidden = hiddenDetails.style.display === "none" || hiddenDetails.style.display === "";
+            hiddenDetails.style.display = isHidden ? "block" : "none";
+            element.textContent = isHidden ? "View Less" : "View More";
+        }
+
+        function openModal(imageSrc) {
+            const modal = document.getElementById("myModal");
+            const modalImg = document.getElementById("img01");
+            modal.style.display = "block";
+            modalImg.src = imageSrc;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        }
+    </script>
+</body>
+</html>

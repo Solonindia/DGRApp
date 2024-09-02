@@ -1349,3 +1349,181 @@ def add_plot(document, graph, fig):
     image_png = base64.b64decode(graph)
     image_stream = BytesIO(image_png)
     run_image.add_picture(image_stream, width=Inches(6.0), height=Inches(3.0))
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.core.files.storage import FileSystemStorage
+from .models import Complaint
+import json
+from django.utils import timezone
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+
+def complaint_form(request):
+    if request.method == "POST":
+        # Get form data
+        company_name = request.POST.get('company_name')
+        site_name = request.POST.get('site_name')
+        priority = request.POST.get('priority')
+        claim_type = request.POST.get('claim_type')
+        nature_of_complaint = request.POST.get('nature_of_complaint')
+        location = request.POST.get('location')
+        custom_location = request.POST.get('custom_location', '').strip()
+        custom_site_name = request.POST.get('custom_site', '').strip()
+        custom_company = request.POST.get('custom_company', '').strip()
+        equipment = request.POST.get('equipment', '').strip()
+        complaint_raised_by = request.POST.get('complaint_raised_by', '').strip()
+        images = request.FILES.getlist('images')
+        start_date = request.POST.get('start_date')
+
+        complaint = Complaint(
+            company_name=company_name,
+            site_name=site_name,
+            priority=priority,
+            claim_type=claim_type,
+            nature_of_complaint=nature_of_complaint,
+            location=location,
+            start_date=start_date,
+            equipment=equipment,
+            complaint_raised_by=complaint_raised_by
+        )
+
+        if custom_location and location == 'Other':
+            complaint.custom_location = custom_location
+            complaint.location = custom_location
+
+        if custom_site_name and site_name == 'Other':
+            complaint.custom_site_name = custom_site_name
+            complaint.site_name = custom_site_name
+
+        if custom_company and company_name == 'Other':
+            complaint.custom_company = custom_company
+            complaint.company_name = custom_company
+
+        complaint.save()
+
+        # Handle image uploads
+        image_urls = []
+        for image in images:
+            if image.size > 1024 * 1024:
+                continue
+            if not image.name.endswith('.jpeg') and not image.name.endswith('.jpg'):
+                continue
+
+            fs = FileSystemStorage()
+            filename = fs.save(f'images/{image.name}', image)
+            image_url = fs.url(filename)
+            image_urls.append(image_url)
+
+        complaint.images = json.dumps(image_urls[:2])
+        complaint.save()
+
+        # Return data as JSON
+        return JsonResponse({
+            'success': True,
+            'data': {
+                'company_name': company_name,
+                'site_name': site_name,
+                'priority': priority,
+                'claim_type': claim_type,
+                'nature_of_complaint': nature_of_complaint,
+                'location': location,
+                'custom_location': custom_location,
+                'custom_site_name': custom_site_name,
+                'custom_company': custom_company,
+                'equipment': equipment,
+                'complaint_raised_by': complaint_raised_by,
+                'start_date': start_date,
+                'images': image_urls[:2]
+            }
+        })
+
+    # Get custom locations, sites, and companies
+    custom_locations = sorted(
+        Complaint.objects.exclude(custom_location__isnull=True).values_list('custom_location', flat=True).distinct()
+    )
+
+    custom_sites = sorted(
+        Complaint.objects.exclude(custom_site_name__isnull=True).values_list('custom_site_name', flat=True).distinct()
+    )
+
+    custom_customers = sorted(
+        Complaint.objects.exclude(custom_company__isnull=True).values_list('custom_company', flat=True).distinct()
+    )
+
+    return render(request, 'new_complaint.html', {
+        'custom_locations': custom_locations,
+        'custom_sites': custom_sites,
+        'custom_customers': custom_customers,
+    })
+
+def approval_complaints(request):
+    # Use the method to order complaints
+    complaints_list = Complaint.objects.filter(status='Pending').order_by('-created_at')
+    paginator = Paginator(complaints_list, 3)  # Show 3 complaints per page
+    page_number = request.GET.get('page')
+    complaints = paginator.get_page(page_number)
+    return render(request, 'approval_complaints.html', {'complaints': complaints})
+
+def accept_complaint(request, complaint_id):
+    complaint = get_object_or_404(Complaint, id=complaint_id)
+    complaint.status = 'Accepted'
+    complaint.save()
+    complaints = Complaint.objects.filter(status='Pending')
+    return render(request,'approval_complaints.html', {'complaints': complaints})
+
+def existing_complaints(request):
+    # Order complaints by 'created_at' in descending order
+    complaints_list = Complaint.objects.filter(status='Accepted').order_by('-created_at')
+    paginator = Paginator(complaints_list, 3)  # Show 10 complaints per page
+    page_number = request.GET.get('page')
+    complaints = paginator.get_page(page_number)
+    return render(request, 'existing_complaints.html', {'complaints': complaints})
+
+def edit_complaint(request, complaint_id):
+    complaint = get_object_or_404(Complaint, id=complaint_id)
+
+    if request.method == "POST":
+        attended_by = request.POST.get('attended_by')
+        end_date = request.POST.get('end_date')
+        claim_type = request.POST.get('claim_type')  # Get the claim type from the form
+        summary_of_action_taken = request.POST.get('summary_of_action_taken')
+        root_cause = request.POST.get('root_cause')
+        preventive_action = request.POST.get('preventive_action')
+        parts_replaced_for_rectification = request.POST.get('parts_replaced_for_rectification')
+
+        # Update complaint fields
+        complaint.attended_by = attended_by
+        complaint.end_date = end_date  # Update the end date
+        complaint.claim_type = claim_type  # Update the claim type
+        complaint.summary_of_action_taken = summary_of_action_taken
+        complaint.root_cause = root_cause
+        complaint.preventive_action = preventive_action
+        complaint.parts_replaced_for_rectification = parts_replaced_for_rectification
+
+        # Validate end date
+        if end_date:
+            end_date = timezone.datetime.strptime(end_date, '%Y-%m-%d').date()
+            if end_date < complaint.start_date:
+                return render(request, 'edit_complaint.html', {
+                    'complaint': complaint,
+                    'error': 'End date cannot be before start date.',
+                    'attended_by': attended_by,
+                    'end_date': end_date,  # Show the entered end_date
+                    'claim_type': claim_type,
+                    'summary_of_action_taken': summary_of_action_taken,
+                    'root_cause': root_cause,
+                    'preventive_action': preventive_action,
+                    'parts_replaced_for_rectification':parts_replaced_for_rectification
+                })
+        complaint.status = 'Update'
+        complaint.save()
+        return redirect('existing_complaints')
+    return render(request, 'edit_complaint.html', {'complaint': complaint})
+
+def final_complaints(request):
+    accepted_complaints = Complaint.objects.filter(status='Update').order_by('-created_at')
+    #rejected_complaints = Complaint.objects.filter(status='Rejected')
+    return render(request, 'final_complaints.html', {
+        'accepted_complaints': accepted_complaints#,
+        #'rejected_complaints': rejected_complaints
+    })

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Complaint</title>
+    <style>
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            height: 100vh; /* Ensure the body takes the full height of the viewport */
+            overflow: auto; /* Allows scrolling */
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 10%; /* 2px space at the top */
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
+            background-image: url('/static/images/sol1.jpg');
+            filter: blur(1px);
+            background-size: cover; /* Ensure the background image covers the entire area */
+            background-repeat: no-repeat; /* Prevents the image from repeating */
+            background-attachment: fixed; /* Keeps the background image fixed while scrolling */
+            background-position: center; /* Centers the background image */
+            z-index: -1; /* Places the blurred background behind the content */
+        }
+        .logo {
+            position: fixed; /* Fix the logo in place */
+            top: 10px;
+            left: 10px;
+            z-index: 2; /* Ensure it's above other content */
+        }
+        .logo img {
+            width: 100px;
+            height: auto;
+        }
+        h3 {
+            color: #030b58;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            background-color: cadetblue;
+            border: 2px solid #000000;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+            color:#f1f1f1;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            font-size:large;
+        }
+        .image-container {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .image-container img {
+            width: 18%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .image-container img:hover {
+            transform: scale(1.05);
+        }
+        textarea {
+            resize: vertical; /* Allow vertical resizing */
+        }
+        button {
+            background-color: #080808;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            font-size: 16px;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            background-color: #080257;
+        }
+        .error {
+            color: red;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .back-button {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background-color 0.2s ease;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 60px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+
+        .modal-content img {
+            width: 100%;
+            height: auto;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        p.nature-of-complaint {
+            word-wrap: break-word;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script>
+        // Function to restrict textarea input to a maximum of 50 words
+        function validateWordCount(textareaId, maxWords) {
+            const textarea = document.getElementById(textareaId);
+            const words = textarea.value.trim().split(/\s+/).filter(function(word) {
+                return word.length > 0; // Filter out empty words
+            });
+            const wordCount = words.length;
+
+            // Prevent exceeding the maximum word count
+            if (wordCount > maxWords) {
+                textarea.value = words.slice(0, maxWords).join(' '); // Trim to maxWords
+                alert(`Maximum word limit of ${maxWords} reached. Further input will be ignored.`);
+            }
+        }
+
+        // Function to validate the form before submission
+        function validateForm(event) {
+            const endDate = document.getElementById('end_date').value;
+            const rootCause = document.getElementById('root_cause').value;
+            const preventiveAction = document.getElementById('preventive_action').value;
+            const partsreplacedforRectification = document.getElementById('parts_replaced_for_rectification').value;
+            if (!endDate) {
+                alert("Please fill in the End Date field."); // Alert user to fill the field
+                event.preventDefault(); // Prevent form submission
+            }
+            if (!rootCause) {
+                alert("Please fill in the Root Cause field."); // Alert user to fill the field
+                event.preventDefault(); // Prevent form submission
+            }
+            if (!preventiveAction) {
+                alert("Please fill in the Preventive Action field."); // Alert user to fill the field
+                event.preventDefault(); // Prevent form submission
+            }
+            if (!partsreplacedforRectification) {
+                alert("Please fill in the Parts Replaced for Rectification field."); // Alert user to fill the field
+                event.preventDefault(); // Prevent form submission
+            }
+        }
+
+        // Function to open modal and display the clicked image
+        function openModal(imageUrl) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = "block";
+            modalImg.src = imageUrl;
+        }
+
+        // Function to close the modal
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = "none";
+        }
+    </script>
+</head>
+<body>
+    <h3>Add all the Details</h3>
+    <div class="logo">
+        <img src="/static/Images/logo.jpg" alt="Footer Image">
+    </div>
+    <form method="post" id="edit_form" onsubmit="validateForm(event)"> <!-- Call validateForm on submit -->
+        {% csrf_token %}
+        <div class="form-fields">
+        <strong style="color:#0a0a0a">Site Name:</strong> {{ complaint.site_name }}<br>
+        <strong style="color:#0a0a0a">Customer Name:</strong> {{ complaint.company_name }}<br>
+        <strong style="color:#0a0a0a">Complaint ID:</strong> {{ complaint.complaint_id }}<br>
+        <strong style="color:#0a0a0a">Location:</strong> {% if complaint.location == 'Other' and complaint.custom_location %}
+        {{ complaint.custom_location }}
+        {% else %}
+            {{ complaint.location }}
+        {% endif %}<br>
+        <strong style="color:#0a0a0a">Product/Equipment:</strong> {{ complaint.equipment}}  <br>
+        <strong style="color:#0a0a0a">Priority:</strong> {{ complaint.priority }}<br>
+        <strong style="color:#0a0a0a">Complaint Raised by:</strong> {{ complaint.complaint_raised_by }} <br>
+        <span><strong style="color:#0a0a0a">Nature of Complaint:</strong> <p class="nature-of-complaint">{{ complaint.nature_of_complaint|default:"N/A" }}</p></span><br>
+        <strong style="color:#0a0a0a">Start Date:</strong> {{ complaint.start_date|date:"Y-m-d" }}<br>
+        <div class="image-container">
+            {% with images=complaint.get_images %}
+                {% if images %}
+                    {% for image in images %}
+                        <img src="{{ image }}" alt="Complaint Image" onclick="openModal('{{ image }}')">
+                    {% endfor %}
+                {% else %}
+                    <p>No images uploaded.</p>
+                {% endif %}
+            {% endwith %}
+        </div>
+        <label for="summary_of_action_taken">
+            <strong style="color:#0a0a0a">Summary of Action Taken:</strong>
+        </label>
+        <textarea id="summary_of_action_taken" name="summary_of_action_taken" oninput="validateWordCount('summary_of_action_taken', 50)">
+            {{ complaint.summary_of_action_taken|default:'' }}
+        </textarea>
+        
+        <label for="root_cause">
+            <strong style="color:#0a0a0a">Root Cause:</strong>
+        </label>
+        <textarea id="root_cause" name="root_cause" oninput="validateWordCount('root_cause', 50)">
+            {{ complaint.root_cause|default:'' }}
+        </textarea>
+        
+        <label for="preventive_action">
+            <strong style="color:#0a0a0a">Preventive Action:</strong>
+        </label>
+        <textarea id="preventive_action" name="preventive_action" oninput="validateWordCount('preventive_action', 50)">
+            {{ complaint.preventive_action|default:'' }}
+        </textarea>
+        
+        <label for="claim_type">
+            <strong style="color:#0a0a0a">Claim Type:</strong>
+        </label>
+        <select id="claim_type" name="claim_type" required>
+            <option value="" disabled {% if not complaint.claim_type %}selected{% endif %}>Select Claim Type</option>
+            <option value="Under Warranty" {% if complaint.claim_type == 'Under Warranty' %}selected{% endif %}>Under Warranty</option>
+            <option value="Chargeable" {% if complaint.claim_type == 'Chargeable' %}selected{% endif %}>Chargeable</option>
+        </select>
+        
+        <label for="parts_replaced_for_rectification">
+            <strong style="color:#0a0a0a">Parts Replaced for Rectification:</strong>
+        </label>
+        <textarea id="parts_replaced_for_rectification" name="parts_replaced_for_rectification" oninput="validateWordCount('parts_replaced_for_rectification', 50)">
+            {{ complaint.parts_replaced_for_rectification|default:''}}
+        </textarea>
+        
+        <label for="attended_by">
+            <strong style="color:#0a0a0a">Attended By:</strong>
+        </label>
+        <input type="text" id="attended_by" name="attended_by" value="{{ complaint.attended_by|default:'' }}">
+        
+        <label for="end_date"><strong style="color:#0a0a0a">End Date:</strong></label>
+        <input type="date" id="end_date" name="end_date" value="{{ complaint.end_date|date:'Y-m-d' }}">
+        {% if error_message %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+    </div>
+        <button type="submit">Close Complaint</button>
+    </form>
+    <!-- Modal for displaying images -->
+    <div id="imageModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" alt="Complaint Image">
+        </div>
+    </div>
+</body>
+</html>

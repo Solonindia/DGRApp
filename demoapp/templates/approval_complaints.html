@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approval Complaints</title>
+    <style>
+    body {
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        color: #333;
+        height: 100vh; /* Ensure the body takes the full height of the viewport */
+        overflow: auto; /* Allows scrolling */
+        position: relative;
+    }
+    body::before {
+        content: "";
+        position: fixed;
+        top: 10%; /* 2px space at the top */
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
+        background-image: url('/static/images/sol1.jpg');
+        filter: blur(1px);
+        background-size: cover; /* Ensure the background image covers the entire area */
+        background-repeat: no-repeat; /* Prevents the image from repeating */
+        background-attachment: fixed; /* Keeps the background image fixed while scrolling */
+        background-position: center; /* Centers the background image */
+        z-index: -1; /* Places the blurred background behind the content */
+    }
+    .logo {
+        position: fixed; /* Fix the logo in place */
+        top: 10px;
+        left: 10px;
+        z-index: 2; /* Ensure it's above other content */
+    }
+    .logo img {
+        width: 100px;
+        height: auto;
+    }
+    h3 {
+        color: rgb(3, 3, 65);
+        text-align: center;
+        margin-bottom: 5%;
+    }
+
+    .complaints-container {
+        width: 80%;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        margin-left: 10%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .complaint-card {
+        background-color: #f0f8ff; /* Light blue background for each complaint card */
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        min-height: 120px;
+        transition: height 0.3s ease;
+        margin-bottom: 0px;
+        border-radius: 8px; /* Rounded corners for complaint cards */
+        border: 1px solid #080808; 
+    }
+    .complaint-header {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 30px;
+        margin-bottom: 10px;
+    }
+    .complaint-header div {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .complaint-header div strong {
+        display: block;
+    }
+    .view-more-link {
+        text-align: right;
+        color: darkblue;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .view-more-link:hover {
+        text-decoration: underline;
+    }
+    .complaint-details,
+    .image-container,
+    .approve-button {
+        display: none;
+    }
+
+    .complaint-details {
+        grid-template-columns: 160px 1fr;
+        row-gap: 8px;
+        margin-top: 10px;
+    }
+
+    .complaint-details p {
+        margin: 0;
+        white-space: pre-wrap;
+    }
+
+    .nature-of-complaint {
+        max-height: 150px;
+        overflow-y: auto;
+        word-wrap: break-word;
+    }
+    .image-container {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    display: none; /* Hide images initially */
+    }
+    .image-container img {
+        width: 120px;
+        height: auto;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .image-container img:hover {
+        transform: scale(1.05);
+    }
+
+    .approve-button {
+        background-color: #020202;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        width: 19%;
+        margin-left: 40%;
+        margin-top: 15px;
+    }
+
+    .approve-button:hover {
+        background-color: #01125a;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-content {
+        margin: 5% auto;
+        display: block;
+        width: 80%;
+        max-width: 800px;
+    }
+
+    .close {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        color: #fff;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover {
+        color: #f1c40f;
+    }
+
+    .no-complaints {
+        text-align: center;
+        font-size: 18px;
+        color: #e61414;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .pagination a,
+    .pagination span {
+        margin: 0 5px;
+        padding: 8px 16px;
+        text-decoration: none;
+        background-color: #f4f4f9;
+        color: #007bff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .pagination a:hover {
+        background-color: #ddd;
+    }
+
+    .pagination .current {
+        font-weight: bold;
+        background-color: #007bff;
+        color: white;
+    }
+
+    .pagination .disabled {
+        color: #999;
+        cursor: not-allowed;
+    }
+
+    .complaint-serial-number {
+        font-size: 18px;
+        font-weight: bold;
+        color: #003366; /* Dark blue for serial numbers */
+    }
+    .btn {
+        background-color: #040952;
+        border-radius: 5px;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        position: fixed; /* Fixed position */
+        top: 10px; /* Distance from the top */
+        right: 10px; /* Distance from the right */
+    }
+</style>
+</head>
+<body>
+    <h3>Pending Complaints for Approval</h3>
+    <div class="complaints-container">
+        <div class="logo">
+            <img src="/static/Images/logo.jpg" alt="Footer Image">
+        </div>
+        <a href="{% url 'final_complaints' %}" class="btn">Closed Complaints</a>
+        
+        {% if complaints %}
+            {% for complaint in complaints %}
+                <div class="complaint-card">
+                    <!-- Display Serial Number -->
+                    <div class="complaint-serial-number">{{ forloop.counter }}</div>
+                    <div class="complaint-header">
+                        <div>
+                            <strong>Complaint ID:</strong> {{ complaint.complaint_id }}
+                        </div>
+                        <div>
+                            <strong>Location:</strong>
+                            {% if complaint.location == 'Other' and complaint.custom_location %}
+                                {{ complaint.custom_location }}
+                            {% else %}
+                                {{ complaint.location }}
+                            {% endif %}
+                        </div>
+                        <div>
+                            <strong>Product/Equipment:</strong> {{ complaint.equipment }}
+                        </div>
+                        <div class="view-more-link" onclick="toggleDetails(this)">View More</div>
+                    </div>
+                    <div class="complaint-details">
+                        <div><strong>Site Name:</strong></div> <div>{{ complaint.site_name }}</div>
+                        <div><strong>Customer Name:</strong></div> <div>{{ complaint.company_name }}</div>
+                        <div><strong>Priority:</strong></div> <div>{{ complaint.priority }}</div>
+                        <div><strong>Complaint Raised by:</strong></div> <div>{{ complaint.complaint_raised_by }}</div>
+                        <div><strong>Nature of Complaint:</strong></div> 
+                        <div class="nature-of-complaint">
+                            <p>{{ complaint.nature_of_complaint|default:"N/A" }}</p>
+                        </div>
+                        <div><strong>Start Date:</strong></div> <div>{{ complaint.start_date|date:"Y-m-d" }}</div>
+                    </div>
+                    <div class="image-container">
+                        {% with images=complaint.get_images %}
+                            {% if images %}
+                                {% for image in images %}
+                                    <img src="{{ image }}" alt="Complaint Image" onclick="openModal('{{ image }}')">
+                                {% endfor %}
+                            {% else %}
+                                <p>No images uploaded.</p>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    <button class="approve-button" onclick="location.href=`{% url 'accept_complaint' complaint.id %}`"><b>APPROVE</b></button>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-complaints">No complaints are pending for approval.</div>
+        {% endif %}
+    </div>
+
+    {% if complaints %}
+        <div class="pagination">
+            {% if complaints.has_previous %}
+                <a href="?page=1">&laquo; First</a>
+                <a href="?page={{ complaints.previous_page_number }}">&lsaquo; Previous</a>
+            {% else %}
+                <span class="disabled">&laquo; First</span>
+                <span class="disabled">&lsaquo; Previous</span>
+            {% endif %}
+
+            {% for num in complaints.paginator.page_range %}
+                {% if complaints.number == num %}
+                    <span class="current">{{ num }}</span>
+                {% elif num > complaints.number|add:'-3' and num < complaints.number|add:'3' %}
+                    <a href="?page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if complaints.has_next %}
+                <a href="?page={{ complaints.next_page_number }}">Next &rsaquo;</a>
+                <a href="?page={{ complaints.paginator.num_pages }}">Last &raquo;</a>
+            {% else %}
+                <span class="disabled">Next &rsaquo;</span>
+                <span class="disabled">Last &raquo;</span>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- Modal Structure -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modal-img">
+    </div>
+    <script>
+        function openModal(src) {
+            document.getElementById("modal-img").src = src;
+            document.getElementById("myModal").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("myModal").style.display = "none";
+        }
+
+        function toggleDetails(element) {
+            var card = element.closest('.complaint-card');
+            var details = card.querySelector('.complaint-details');
+            var images = card.querySelector('.image-container');
+            var button = card.querySelector('.approve-button');
+            var isHidden = details.style.display === 'none';
+
+            details.style.display = isHidden ? 'grid' : 'none';
+            images.style.display = isHidden ? 'flex' : 'none';
+            button.style.display = isHidden ? 'block' : 'none';
+            element.textContent = isHidden ? 'View Less' : 'View More';
+        }
+    </script>
+</body>
+</html>

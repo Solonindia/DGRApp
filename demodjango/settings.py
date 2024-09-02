@@ -14,7 +14,8 @@ from pathlib import Path
 import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -80,8 +81,12 @@ CSRF_TRUSTED_ORIGINS = ['https://dgrapp-prod.azurewebsites.net']
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'complaints',  # Your actual database name
+        'USER': 'Solonindia',  # Your actual database user
+        'PASSWORD': 'Sipl$2024',  # Your actual database password
+        'HOST': 'complaint.mysql.database.azure.com',  # Your Azure MySQL hostname
+        'PORT': '3306',  # Default MySQL port
     }
 }
 
@@ -127,6 +132,4 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
-
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
