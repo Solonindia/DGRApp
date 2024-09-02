@@ -23,16 +23,20 @@ def login_view(request):
             return render(request, 'user_login.html', {'error_message': 'Invalid credentials'})
     return render(request, 'user_login.html')
 
+FIXED_USERNAME = 'Solonindia'
+FIXED_PASSWORD = 'Sipl$2024'
+
 def login1_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            #return render(request, 'success.html', {'username': username})
-            return redirect('admin')
+
+        # Check if the provided username and password match the fixed ones
+        if username == FIXED_USERNAME and password == FIXED_PASSWORD:
+            # Redirect to the admin page or any other page you want
+            return redirect('admin')  # Adjust this to the correct URL name for the admin page
         else:
+            # If credentials do not match
             return render(request, 'admin_login.html', {'error_message': 'Invalid credentials'})
     return render(request, 'admin_login.html')
 
