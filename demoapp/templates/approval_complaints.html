@@ -243,6 +243,22 @@
         top: 10px; /* Distance from the top */
         right: 10px; /* Distance from the right */
     }
+    .bottom-links {
+        position: fixed;
+        bottom: 10px; /* Adjust the distance from the bottom */
+        left: 10px; /* Adjust the distance from the left */
+        z-index: 2;
+    }
+
+    .bottom-links a {
+        color: rgb(56, 22, 247);/* Link color */
+        margin-right: 15px;
+        text-decoration:solid;
+        font-size: 18px;
+    }
+    .bottom-links a:hover {
+        text-decoration: underline;
+    }
 </style>
 </head>
 <body>
@@ -332,7 +348,10 @@
             {% endif %}
         </div>
     {% endif %}
-
+    <div class="bottom-links">
+        <a href="{% url 'home' %}"><b>Home</b></a>
+        <a href="{% url 'admin' %}"><b>Dashboard</b></a>
+    </div>
     <!-- Modal Structure -->
     <div id="myModal" class="modal">
         <span class="close" onclick="closeModal()">&times;</span>

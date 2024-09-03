@@ -193,6 +193,7 @@
 
         .bottom-left-link {
             display: block;
+            background-color: #fbfbfc;
             color: rgb(56, 22, 247);
             padding: 10px 20px;
             border-radius: 5px;
@@ -200,10 +201,6 @@
             font-weight: bold;
             text-align: center;
             transition: background-color 0.2s ease;
-        }
-
-        .bottom-left-link:hover {
-            background-color: #fbfbfc;
         }
     </style>
 </head>
@@ -284,7 +281,7 @@
     </div>
     <div class="bottom-left-links">
         <a href="{% url 'complaint_form' %}" class="bottom-left-link">New Complaint</a>
-        <a href="{% url 'user' %}" class="bottom-left-link">Home</a>
+        <a href="{% url 'user' %}" class="bottom-left-link">Dashboard</a>
     </div>
     <!-- The Modal -->
     <div id="myModal" class="modal">

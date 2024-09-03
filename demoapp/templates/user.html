@@ -54,6 +54,7 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Optional shadow for depth */
             z-index: 1; /* Ensure the button is above other elements */
         }
+
         .complaint-button {
             position: absolute;
             top: 200px;
@@ -65,6 +66,7 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Optional shadow for depth */
             z-index: 1; /* Ensure the button is above other elements */
         }
+
         .button1 {
             display: inline-block;
             padding: 10px 20px;
@@ -77,10 +79,12 @@
             text-decoration: none;
             text-align: center;
         }
+
         .button1:hover {
             background-color: #04055a;
             color: rgb(253, 246, 246);
         }
+
         .button1, .button {
             padding: 8px 16px; /* Reduced padding */
             margin-left: 5px;
@@ -96,47 +100,78 @@
             line-height: 40px; /* Adjusted line height */
             text-decoration: none;
         }
+
         .button1 {
             background-color: #11d0f1;
             color: black;
             width:80%;
         }
+
         .button {
             background-color: #04055a;
         }
+
         .register-btn {
             background-color: #f1c40f; /* Yellow background for the Register button */
             color: black;
         }
+
         .button:hover {
             background-color: #11d0f1;
             color: black;
         }
+
         .button1:hover {
             background-color: #04055a;
             color: rgb(253, 246, 246);
         }
+
         .register-btn:hover {
             background-color: #f39c12; /* Darker yellow on hover */
         }
+
         .content {
             display: flex;
             justify-content: center; /* Center horizontally */
             align-items: center; /* Center vertically */
             height: calc(100vh - 100px); /* Adjusted height for vertical centering */
         }
+
         .center-buttons {
             text-align: center; 
         }
+
         .center-buttons .button1 {
             margin: 0 100px; 
         }
+
         .bottom-left {
             position: absolute;
             bottom: 30px; /* Distance from the bottom */
             left: 10px; /* Distance from the left */
             z-index: 3; /* Ensure the link is above the background */
         }
+
+        /* Logout button in the top right corner */
+        .logout-button {
+            position: absolute;
+            top: 10px; /* Distance from the top */
+            right: 10px; /* Distance from the right */
+            z-index: 3; /* Ensure the button is above other elements */
+            border: 2px solid #007bff; /* Border color and width */
+            border-radius: 10px; /* Rounded corners */
+            padding: 10px 20px; /* Padding inside the button */
+            background-color: #f8f9fa; /* Background color */
+            color: #000; /* Text color */
+            text-decoration: none; /* Remove underline */
+            font-size: 16px; /* Font size */
+        }
+
+        .logout-button:hover {
+            background-color: #bfd4eb; /* Background color on hover */
+            color: #fff; /* Text color on hover */
+        }
+
     </style>    
 </head>
 <body>
@@ -151,7 +186,10 @@
         <a href="{% url 'complaint_form' %}" class="button">Complaint</a> 
     </div>
     <div class="bottom-left">
-        <a href="{% url 'home' %}"><b>Go to Home</b></a>
+        <a href="{% url 'home' %}"><b>Home</b></a>
+    </div>
+    <div class="logout-button">
+        <a href="{% url 'home' %}">Logout</a>
     </div>
 </body>
 </html>

@@ -22,6 +22,13 @@
             left: 0;
             width: 100%;
             height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
+            background-image: url('/static/images/solar8.jpg');
+            filter: blur(1px);
+            background-size: cover; /* Ensure the background image covers the entire area */
+            background-repeat: no-repeat; /* Prevents the image from repeating */
+            background-attachment: fixed; /* Keeps the background image fixed while scrolling */
+            background-position: center; /* Centers the background image */
+            z-index: -1;
         }
         .logo {
             position: fixed; /* Fix the logo in place */
@@ -46,11 +53,9 @@
         }
 
         li {
-            background-color:#bcd8e4;
-            border: 1px solid #ddd;
             padding: 10px;
-            border-radius: 5px;
-            color:#03056e;
+            color:#f30e06;
+            text-align: center;
         }
         .complaint-summary {
             display: flex;
@@ -146,6 +151,7 @@
         .bottom-left-link {
             display: block;
             color: rgb(56, 22, 247);
+            background-color: #fbfbfc;
             padding: 10px 20px;
             border-radius: 5px;
             text-decoration: none;
@@ -153,13 +159,26 @@
             text-align: center;
             transition: background-color 0.2s ease;
         }
+        .logout {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 2; /* Ensure it stays on top of other content */
+            color: rgb(16, 2, 95);
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
 
-        .bottom-left-link:hover {
-            background-color: #fbfbfc;
+        .logout:hover {
+            background-color: #9797f3;
         }
     </style>
 </head>
 <body>
+    <a href="{% url 'home' %}" class="logout">Logout</a>
     <h3>
     <div class="circle">
         Closed Complaints

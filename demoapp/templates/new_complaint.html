@@ -202,6 +202,22 @@
             margin: 4px 2px;
             cursor: pointer;
         }
+        .dashboard-link {
+            position: fixed;
+            bottom: 20px; /* Adjust as needed */
+            left: 20px; /* Adjust as needed */
+            z-index: 3;
+        }
+
+        .dashboard-link a {
+            background-color: #fcfdff;
+            color: #050505;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
 </style>
 </head>
 <body onload="setTodayDate()">    
@@ -337,6 +353,9 @@
                 <label for="attended_by">Attended By:</label>
                 <input type="text" id="attended_by" name="attended_by" value="" readonly>
             </div>
+        </div>
+        <div class="dashboard-link">
+            <a href="{% url 'user' %}"><b>Dashboard</b></a>
         </div>
         </div>
         {% if error %}
