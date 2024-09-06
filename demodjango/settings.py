@@ -26,16 +26,6 @@ SECRET_KEY = '+g=3l70v^508@gpg22o#d_@5kf5lj8&)_r&x#-u4mm&(p856ht'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'battery-bom-bda9awg6gfbcfybm.eastus-01.azurewebsites.net',  # Add your Azure domain
-    '127.0.0.1',  # Include localhost for development
-    'localhost',
-    # Add any other domains if necessary
-]
-
-
-# Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
