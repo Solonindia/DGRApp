@@ -47,14 +47,14 @@
             margin-bottom: 20px;
         }
         form {
-            background-color: cadetblue;
+            background-color: rgb(10, 129, 133);
             border: 2px solid #000000;
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             max-width: 800px;
             margin: 0 auto;
-            color:#f1f1f1;
+            color:#020475;
         }
         label {
             display: block;
@@ -89,9 +89,6 @@
         }
         .image-container img:hover {
             transform: scale(1.05);
-        }
-        textarea {
-            resize: vertical; /* Allow vertical resizing */
         }
         button {
             background-color: #080808;
@@ -273,23 +270,23 @@
         <label for="summary_of_action_taken">
             <strong style="color:#0a0a0a">Summary of Action Taken:</strong>
         </label>
-        <textarea id="summary_of_action_taken" name="summary_of_action_taken" oninput="validateWordCount('summary_of_action_taken', 50)">
+        <input type="text" id="summary_of_action_taken" name="summary_of_action_taken" oninput="validateWordCount('summary_of_action_taken', 50)">
         {{ complaint.summary_of_action_taken|default_if_none:''|slice:":" }}
-        </textarea>
+        </input>
         
         <label for="root_cause">
             <strong style="color:#0a0a0a">Root Cause:</strong>
         </label>
-        <textarea id="root_cause" name="root_cause" oninput="validateWordCount('root_cause', 50)">
+        <input type="text" id="root_cause" name="root_cause" oninput="validateWordCount('root_cause', 50)">
         {{ complaint.root_cause|default_if_none:''|slice:":" }}
-        </textarea>
+        </input>
         
         <label for="preventive_action">
             <strong style="color:#0a0a0a">Preventive Action:</strong>
         </label>
-        <textarea id="preventive_action" name="preventive_action" oninput="validateWordCount('preventive_action', 50)">
+        <input type="text" id="preventive_action" name="preventive_action" oninput="validateWordCount('preventive_action', 50)">
         {{ complaint.preventive_action|default_if_none:''|slice:":" }}
-        </textarea>
+        </input>
         
         <label for="claim_type">
             <strong style="color:#0a0a0a">Claim Type:</strong>
@@ -303,9 +300,9 @@
         <label for="parts_replaced_for_rectification">
             <strong style="color:#0a0a0a">Parts Replaced for Rectification:</strong>
         </label>
-        <textarea id="parts_replaced_for_rectification" name="parts_replaced_for_rectification" oninput="validateWordCount('parts_replaced_for_rectification', 50)">
+        <input type="text" id="parts_replaced_for_rectification" name="parts_replaced_for_rectification" oninput="validateWordCount('parts_replaced_for_rectification', 50)">
         {{ complaint.parts_replaced_for_rectification|default_if_none:''|slice:":" }}
-        </textarea>
+    </input>
         
         <label for="attended_by">
             <strong style="color:#0a0a0a">Attended By:</strong>

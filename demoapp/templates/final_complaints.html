@@ -22,7 +22,7 @@
             left: 0;
             width: 100%;
             height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
-            background-image: url('/static/images/solar8.jpg');
+            background-color: rgb(10, 129, 133);
             filter: blur(1px);
             background-size: cover; /* Ensure the background image covers the entire area */
             background-repeat: no-repeat; /* Prevents the image from repeating */
@@ -54,8 +54,8 @@
 
         li {
             padding: 10px;
-            color:#f30e06;
-            text-align: center;
+            color:#300379;
+            text-align:left;
         }
         .complaint-summary {
             display: flex;
@@ -74,7 +74,7 @@
         }
         .nature-of-complaint-container {
             display: flex;
-            align-items: flex-start; /* Align items at the start of the container */
+            text-align:left;
         }
 
         .nature-of-complaint-label {
@@ -86,7 +86,6 @@
             flex: 1; /* Takes the remaining space */
             margin: 0; /* Remove margin */
             padding: 0; /* Remove padding */
-            background-color:#bcd8e4; /* Light background color */
             white-space: pre-wrap; /* Preserve whitespace and wrap text */
             word-wrap: break-word; /* Break long words if needed */
         }
