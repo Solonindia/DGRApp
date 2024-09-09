@@ -22,8 +22,8 @@
             left: 0;
             width: 100%;
             height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
-            background-image: url('/static/images/solar.jpg');
-            filter: blur(1px);
+            filter: blur(3px);
+            background-image: url('/static/Images/solar8.jpg');
             background-size: cover; /* Ensure the background image covers the entire area */
             background-repeat: no-repeat; /* Prevents the image from repeating */
             background-attachment: fixed; /* Keeps the background image fixed while scrolling */
@@ -41,30 +41,28 @@
             height: auto;
         }
         h3 {
-            color: rgb(234, 234, 245);
+            color: rgb(1, 1, 95);
             margin: 10px 0;
             text-align: center;
         }
 
         .container {
             display: flex;
-            justify-content: center;
-            padding: 20px;
-            width: 60%;
-            margin-left: 17%; 
-            border-radius: 2%;
+            justify-content: flex-end; /* Move the form to the right corner */
+            width: 100%; /* Set to 100% to ensure it occupies the full width */
         }
 
         .form-wrapper {
-            width: 100%;
-            max-width: 1000px;
-            background-color:#1363AE;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(80, 68, 68, 0.1);
+            width: 40%; /* Adjust the width as needed */
+            padding: 70px;
             position: relative;
-            margin-top: 7%;
-            color:#e9ecef;
+            top: 0;
+            color: #050775;
+            border: 2px solid white; /* White border around the form */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for better emphasis */
+            overflow-y: auto; /* Add scrolling within the form if the content overflows */
+            max-height: calc(100vh - 20px); /* Ensure the form doesn't overflow vertically */
+            border-radius: 2%;
         }
 
         .form-row {
@@ -92,10 +90,24 @@
             margin-bottom: 8px;
             display: block;
         }
-
         .form-group input,
         .form-group select,
-        .form-group textarea,
+        .form-group textarea {
+            border: none;
+            border-bottom: 3px solid #ffffff; /* White underline */
+            outline: none;
+            width: 100%;
+            padding: 5px;
+            background-color: transparent; /* Makes background transparent */
+            color: #000; /* Text color */
+            font-size: 14px;
+        }
+
+        .form-group input::placeholder,
+        .form-group select::placeholder,
+        .form-group textarea::placeholder {
+            color: #ccc; /* Placeholder color for better visibility */
+        }
         .readonly-group input,
         .readonly-group select {
             border: none;
@@ -186,37 +198,35 @@
             display: none;
         }
         .button-container {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-        .btn {
-            background-color: #040952; /* Green */
-            border-radius: 5px;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-        }
-        .dashboard-link {
+            text-align: left;
             position: fixed;
-            bottom: 20px; /* Adjust as needed */
-            left: 20px; /* Adjust as needed */
-            z-index: 3;
+            top: 11%; /* Adjust to set vertical position */
+            left: 0; /* Adjust to set horizontal position */
+            background-color: rgba(2, 37, 70, 0.7); /* Semi-transparent blue background */
+            height: 90%; /* Adjust height as needed */
+            padding: 10px; /* Padding around the container */
+            border-radius: 5px; /* Rounded corners for the container */
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            gap: 10px; /* Space between the buttons */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for visual effect */
+            backdrop-filter: blur(1px); /* Optional: Blurs the area behind the container */
         }
 
-        .dashboard-link a {
-            background-color: #fcfdff;
-            color: #050505;
+        /* Button styling */
+        .button-container a {
+            color: white; /* Text color */
             padding: 10px 20px;
+            text-align: left;
             text-decoration: none;
-            border-radius: 5px;
             font-size: 16px;
-            transition: background-color 0.3s ease;
+            border-radius: 5px; /* Rounded corners for the buttons */
+            display: block; /* Ensures the link takes up full width */
+            transition: background-color 0.3s, text-decoration 0.3s; /* Smooth transition */
+        }
+
+        .button-container a:hover {
+            text-decoration: underline; /* Underline on hover */
         }
 </style>
 </head>
@@ -226,43 +236,20 @@
         <img src="/static/Images/logo.jpg" alt="Footer Image">
     </div>
     <div class="button-container">
-        <a href="{% url 'existing_complaints' %}" class="btn">Existing Complaints</a>
-    </div>
+        <a href="{% url 'existing_complaints' %}"><b>Existing Complaints</b></a>
+        <a href="{% url 'user' %}"><b>Dashboard</b></a>
+    </div>    
     <div class="form-wrapper">
     <form id="complaintForm" method="post" enctype="multipart/form-data" action="{% url 'new_complaint' %}">
     {% csrf_token %}
     <h3>Register a New Complaint</h3>
     <div class="form-group">
         <label for="site_name"><b>Site Name *</b></label>
-        <select id="site_name" name="site_name" onchange="updateComplaintId()" required>
-            <option class="placeholder-option" value="" disabled selected>Select site name</option>
-            {% for site in custom_sites %}
-                <option value="{{ site }}">{{ site }}</option>
-            {% endfor %}
-            <option value="Other">Other</option>
-        </select>
-    </div>   
-    <div id="custom_site_container" class="custom-input-container">
-        <div class="form-group">
-            <label for="custom_site">Enter Custom Site Name:</label>
-            <input type="text" id="custom_site" name="custom_site" oninput="updateComplaintId()">
-        </div>
-    </div>             
+        <input type="text" id="site_name" name="site_name"></input>
+    </div>              
     <div class="form-group">
-        <label for="company_name"><b>Customer Name *</b></label>
-        <select id="company_name" name="company_name" onchange="updateComplaintId()" required>
-            <option class="placeholder-option" value="" disabled selected>Select customer name</option>
-            {% for cust in custom_customers %}
-                <option value="{{ cust }}">{{ cust }}</option>
-            {% endfor %}
-            <option value="Other">Other</option>
-        </select>
-    </div>
-    <div id="custom_company_container" class="custom-input-container">
-        <div class="form-group">
-            <label for="custom_company">Enter Custom Customer Name:</label>
-            <input type="text" id="custom_company" name="custom_company" oninput="updateComplaintId()">
-        </div>
+        <label for="company_name"><b>Company Name *</b></label>
+        <input type="text" id="company_name" name="company_name" oninput="updateComplaintId()"></input>
     </div>
     <div class="form-row">
     <div class="form-column form-left">
@@ -272,20 +259,9 @@
         </div>
         <div class="form-group">
             <label for="location"><b>Location *</b></label>
-            <select id="location" name="location" onchange="updateComplaintId()" required>
-                <option class="placeholder-option" value="" disabled selected>Enter location name</option>
-                {% for loc in custom_locations %}
-                    <option value="{{ loc }}">{{ loc }}</option>
-                {% endfor %}
-                <option value="Other">Other</option>
+            <input type="text" id="location" name="location"></input>
             </select>
         </div>
-    <div id="custom_location_container" class="custom-input-container">
-        <div class="form-group">
-            <label for="custom_location">Enter Custom Location:</label>
-            <input type="text" id="custom_location" name="custom_location" oninput="updateComplaintId()">
-        </div>
-    </div>
     <div class="form-group">
         <label for="equipment"><b>Product/Equipment *</b></label>
         <input type="text" id="equipment" name="equipment" required>
@@ -308,7 +284,7 @@
         <div id="warningMessage" class="warning-message">Maximum word limit of 50 words exceeded.</div>
     </div>
         <div class="form-group">
-            <label for="start_date"><b>Start Date *</b></label>
+            <label for="start_date"><b>Complaint raised Date *</b></label>
             <input type="date" id="start_date" name="start_date" required onchange="toggleEndDateInput()">
         </div><br>
             <div class="form-group">
@@ -325,15 +301,9 @@
         <div class="form-column form-right">
             <h5 style=color:#b90404>(These details you will fill later)</h5>
             <div class="readonly-group">
-                <label for="claim_type">Claim Type:</label>
-                <input type="text" id="claim_type" name="claim_type" value="{{ complaint.claim_type }}" readonly>
-            </div>
-
-            <div class="readonly-group">
                 <label for="summary_of_action_taken">Summary of Action Taken:</label>
                 <input type="text" id="summary_of_action_taken" name="summary_of_action_taken" value="{{ complaint.summary_of_action_taken }}" readonly>
             </div>
-
             <div class="readonly-group">
                 <label for="root_cause">Root Cause:</label>
                 <input type="text" id="root_cause" name="root_cause" value="{{ complaint.root_cause }}" readonly>
@@ -342,6 +312,10 @@
             <div class="readonly-group">
                 <label for="preventive_action">Preventive Action:</label>
                 <input type="text" id="preventive_action" name="preventive_action" value="{{ complaint.preventive_action }}" readonly>
+            </div>
+            <div class="readonly-group">
+                <label for="claim_type">Claim Type:</label>
+                <input type="text" id="claim_type" name="claim_type" value="{{ complaint.claim_type }}" readonly>
             </div>
 
             <div class="readonly-group">
@@ -353,10 +327,11 @@
                 <label for="attended_by">Attended By:</label>
                 <input type="text" id="attended_by" name="attended_by" value="" readonly>
             </div>
-        </div>
-        <div class="dashboard-link">
-            <a href="{% url 'user' %}"><b>Dashboard</b></a>
-        </div>
+            <div class="readonly-group">
+                <label for="end_date"><b>Complaint Closed Date *</b></label>
+                <input type="date" id="end_date" name="end_date" readonly>
+            </div><br>
+    </div>
         </div>
         {% if error %}
             <div class="error-message">{{ error }}</div>
@@ -414,8 +389,6 @@
 
         function generateComplaintId() {
             const companyName = document.getElementById('company_name').value.trim();
-            const customCompanyName = document.getElementById('custom_company').value.trim();
-            const nameToUse = companyName === 'Other' && customCompanyName ? customCompanyName : companyName;
             const now = new Date();
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -423,10 +396,18 @@
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const formattedDate = `${year}${month}${day}-${hours}${minutes}`;
-            const formattedCustomerName = nameToUse ? nameToUse.replace(/\s+/g, '-') : 'UNKNOWN';
-            return `${formattedCustomerName}-${formattedDate}`;
+            const formattedCompanyName = companyName ? companyName.replace(/\s+/g, '-') : 'UNKNOWN';
+            return `${formattedCompanyName}-${formattedDate}`;
         }
 
+        // Function to update the complaint ID field
+        function updateComplaintId() {
+            const complaintIdField = document.getElementById('complaint_id');
+            complaintIdField.value = generateComplaintId();
+        }
+
+        // Call updateComplaintId when the company name is entered or modified
+        document.getElementById('company_name').addEventListener('input', updateComplaintId);
         function updateComplaintId() {
             document.getElementById('complaint_id').value = generateComplaintId();
         }
@@ -477,22 +458,6 @@
                 warningMessage.style.display = 'none';
             }
         }
-
-        document.getElementById('company_name').addEventListener('change', function() {
-            toggleCustomInput('company_name', 'custom_company_container', 'custom_company');
-        });
-
-        document.getElementById('site_name').addEventListener('change', function() {
-            toggleCustomInput('site_name', 'custom_site_container', 'custom_site');
-        });
-
-        document.getElementById('location').addEventListener('change', function() {
-            toggleCustomInput('location', 'custom_location_container', 'custom_location');
-        });
-
-        document.getElementById('custom_company').addEventListener('input', updateComplaintId);
-        document.getElementById('custom_site').addEventListener('input', updateComplaintId);
-        document.getElementById('custom_location').addEventListener('input', updateComplaintId);
     </script>
 </body>
 </html>

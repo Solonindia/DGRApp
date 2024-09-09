@@ -96,7 +96,7 @@
         }
 
         .image-container {
-            margin-top: 10px;
+            margin-top: 1px;
         }
 
         .image-container img {
@@ -173,6 +173,13 @@
 
         .logout:hover {
             background-color: #9797f3;
+        }
+        .delete-btn{
+            background-color: red;
+            height:20%;
+            width:7%;
+            color:white;
+            border-radius: 1%;
         }
     </style>
 </head>
@@ -266,7 +273,11 @@
                                 <p>No images uploaded.</p>
                             {% endif %}
                         {% endwith %}
-                    </div>
+                    </div><br>
+                    <form action="{% url 'delete_complaint' complaint.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-btn">Delete</button>
+                    </form>
                 </div>
             </li>
         {% empty %}

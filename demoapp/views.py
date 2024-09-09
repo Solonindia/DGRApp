@@ -1371,9 +1371,6 @@ def complaint_form(request):
         claim_type = request.POST.get('claim_type')
         nature_of_complaint = request.POST.get('nature_of_complaint')
         location = request.POST.get('location')
-        custom_location = request.POST.get('custom_location', '').strip()
-        custom_site_name = request.POST.get('custom_site', '').strip()
-        custom_company = request.POST.get('custom_company', '').strip()
         equipment = request.POST.get('equipment', '').strip()
         complaint_raised_by = request.POST.get('complaint_raised_by', '').strip()
         images = request.FILES.getlist('images')
@@ -1390,19 +1387,6 @@ def complaint_form(request):
             equipment=equipment,
             complaint_raised_by=complaint_raised_by
         )
-
-        if custom_location and location == 'Other':
-            complaint.custom_location = custom_location
-            complaint.location = custom_location
-
-        if custom_site_name and site_name == 'Other':
-            complaint.custom_site_name = custom_site_name
-            complaint.site_name = custom_site_name
-
-        if custom_company and company_name == 'Other':
-            complaint.custom_company = custom_company
-            complaint.company_name = custom_company
-
         complaint.save()
 
         # Handle image uploads
@@ -1431,9 +1415,6 @@ def complaint_form(request):
                 'claim_type': claim_type,
                 'nature_of_complaint': nature_of_complaint,
                 'location': location,
-                'custom_location': custom_location,
-                'custom_site_name': custom_site_name,
-                'custom_company': custom_company,
                 'equipment': equipment,
                 'complaint_raised_by': complaint_raised_by,
                 'start_date': start_date,
@@ -1441,24 +1422,8 @@ def complaint_form(request):
             }
         })
 
-    # Get custom locations, sites, and companies
-    custom_locations = sorted(
-        Complaint.objects.exclude(custom_location__isnull=True).values_list('custom_location', flat=True).distinct()
-    )
 
-    custom_sites = sorted(
-        Complaint.objects.exclude(custom_site_name__isnull=True).values_list('custom_site_name', flat=True).distinct()
-    )
-
-    custom_customers = sorted(
-        Complaint.objects.exclude(custom_company__isnull=True).values_list('custom_company', flat=True).distinct()
-    )
-
-    return render(request, 'new_complaint.html', {
-        'custom_locations': custom_locations,
-        'custom_sites': custom_sites,
-        'custom_customers': custom_customers,
-    })
+    return render(request, 'new_complaint.html', {})
 
 def approval_complaints(request):
     # Use the method to order complaints
@@ -1531,3 +1496,11 @@ def final_complaints(request):
         'accepted_complaints': accepted_complaints#,
         #'rejected_complaints': rejected_complaints
     })
+
+def delete_complaint(request, complaint_id):
+    if request.method == "POST":
+        # Get the complaint object and delete it
+        complaint = get_object_or_404(Complaint, id=complaint_id)
+        complaint.delete()
+    # Redirect back to the final_complaints page after deletion
+    return redirect('final_complaints')
