@@ -20,4 +20,5 @@ urlpatterns = [
     path('user/edit/<int:complaint_id>/', views.edit_complaint, name='edit_complaint'),
     path('superuser/history/', views.final_complaints, name='final_complaints'),
     path('delete_complaint/<int:complaint_id>/', views.delete_complaint, name='delete_complaint'),
+    path('complaint_analysis/', views.complaint_analysis, name='complaint_analysis'),
 ]

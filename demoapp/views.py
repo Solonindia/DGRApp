@@ -1503,3 +1503,59 @@ def delete_complaint(request, complaint_id):
         complaint.delete()
     # Redirect back to the final_complaints page after deletion
     return redirect('final_complaints')
+
+from django.db.models import Count
+from django.db.models.functions import ExtractYear
+
+def complaint_analysis(request):
+    site_name = request.GET.get('site_name', 'All')  # Get the selected site name from query parameters
+
+    if site_name == 'All':
+        open_complaints = Complaint.objects.filter(status__in=['Accepted', 'Pending'])
+        closed_complaints = Complaint.objects.filter(status='Update')
+    else:
+        open_complaints = Complaint.objects.filter(status__in=['Accepted', 'Pending'], site_name=site_name)
+        closed_complaints = Complaint.objects.filter(status='Update', site_name=site_name)
+
+    # Aggregate by year for open complaints
+    open_complaints_per_year = open_complaints.annotate(year=ExtractYear('start_date')) \
+                                              .values('year') \
+                                              .annotate(count=Count('id')) \
+                                              .order_by('year')
+    
+    # Aggregate by year for closed complaints
+    closed_complaints_per_year = closed_complaints.annotate(year=ExtractYear('start_date')) \
+                                                  .values('year') \
+                                                  .annotate(count=Count('id')) \
+                                                  .order_by('year')
+
+    # Prepare data for charts
+    years_open = [str(item['year']) for item in open_complaints_per_year]
+    counts_open = [item['count'] for item in open_complaints_per_year]
+    
+    years_closed = [str(item['year']) for item in closed_complaints_per_year]
+    counts_closed = [item['count'] for item in closed_complaints_per_year]
+
+    # Merge years to ensure both open and closed data cover all years
+    all_years = sorted(set(years_open) | set(years_closed))
+
+    # Ensure counts are aligned with years
+    open_counts_dict = dict(zip(years_open, counts_open))
+    closed_counts_dict = dict(zip(years_closed, counts_closed))
+    
+    open_counts = [open_counts_dict.get(year, 0) for year in all_years]
+    closed_counts = [closed_counts_dict.get(year, 0) for year in all_years]
+
+    # Total counts for pie chart
+    total_open = open_complaints.count()
+    total_closed = closed_complaints.count()
+
+    return render(request, 'complaint_analysis.html', {
+        'years_json': json.dumps(all_years),
+        'open_counts_json': json.dumps(open_counts),
+        'closed_counts_json': json.dumps(closed_counts),
+        'total_open': total_open,
+        'total_closed': total_closed,
+        'selected_site': site_name,
+        'sites': Complaint.objects.values_list('site_name', flat=True).distinct()
+    })

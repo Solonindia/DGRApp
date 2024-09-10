@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 20px;
+            color: #444;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #fff;
+        }
+
+        .chart-container {
+            margin-bottom: 40px;
+            position: relative;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Define specific sizes for bar charts and pie chart */
+        .chart-container.bar-chart {
+            width: 100%;
+            max-width: 600px; /* Adjust this value as needed */
+            margin: 0 auto; /* Center align */
+        }
+
+        .chart-container.canvas-pie {
+            width: 300px; /* Set width for pie chart */
+            height: 300px; /* Set height for pie chart */
+            margin: 0 auto; /* Center align the pie chart */
+        }
+
+        .chart-container canvas {
+            background-color: #fff;
+            border-radius: 8px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            margin: 20px 0;
+            color: #666;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Complaint Analysis</h1>
+
+        <form method="get" action="{% url 'complaint_analysis' %}">
+            <label for="site_name">Select Site:</label>
+            <select id="site_name" name="site_name" onchange="this.form.submit()">
+                <option value="All" {% if selected_site == 'All' %}selected{% endif %}>All Sites</option>
+                {% for site in sites %}
+                    <option value="{{ site }}" {% if selected_site == site %}selected{% endif %}>{{ site }}</option>
+                {% endfor %}
+            </select>
+        </form>
+
+        <!-- Bar Chart for Open Complaints -->
+        <div class="chart-container bar-chart">
+            <div class="chart-title">Open Complaints Over Time</div>
+            <canvas id="openComplaintsChart"></canvas>
+        </div>
+
+        <!-- Bar Chart for Closed Complaints -->
+        <div class="chart-container bar-chart">
+            <div class="chart-title">Closed Complaints Over Time</div>
+            <canvas id="closedComplaintsChart"></canvas>
+        </div>
+
+        <!-- Pie Chart for Total Complaints -->
+        <div class="chart-container canvas-pie">
+            <div class="chart-title">Total Complaints Distribution</div>
+            <canvas id="totalComplaintsPieChart"></canvas>
+        </div>
+
+        <a href="{% url 'home' %}" class="back-button">Back to Home</a>
+    </div>
+
+    <script>
+        // Prepare data for Chart.js
+        const years = JSON.parse('{{ years_json|escapejs }}');
+        const openCounts = JSON.parse('{{ open_counts_json|escapejs }}');
+        const closedCounts = JSON.parse('{{ closed_counts_json|escapejs }}');
+        const totalOpen = parseInt('{{ total_open|default:"0" }}', 10);
+        const totalClosed = parseInt('{{ total_closed|default:"0" }}', 10);
+
+        // Bar chart for open complaints
+        const ctxOpen = document.getElementById('openComplaintsChart').getContext('2d');
+        new Chart(ctxOpen, {
+            type: 'bar',
+            data: {
+                labels: years,
+                datasets: [{
+                    label: 'Open Complaints',
+                    data: openCounts,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return 'Complaints: ' + tooltipItem.raw;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Complaints'
+                        },
+                        ticks: {
+                            stepSize: 1
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Year'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Bar chart for closed complaints
+        const ctxClosed = document.getElementById('closedComplaintsChart').getContext('2d');
+        new Chart(ctxClosed, {
+            type: 'bar',
+            data: {
+                labels: years,
+                datasets: [{
+                    label: 'Closed Complaints',
+                    data: closedCounts,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return 'Complaints: ' + tooltipItem.raw;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Complaints'
+                        },
+                        ticks: {
+                            stepSize: 1
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Year'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Pie chart for total complaints
+        const ctxPie = document.getElementById('totalComplaintsPieChart').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: ['Open Complaints', 'Closed Complaints'],
+                datasets: [{
+                    label: 'Total Complaints',
+                    data: [totalOpen, totalClosed],
+                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                // Calculate percentage
+                                const total = totalOpen + totalClosed;
+                                const value = tooltipItem.raw;
+                                const percentage = ((value / total) * 100).toFixed(2);
+                                return `${tooltipItem.label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

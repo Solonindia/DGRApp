@@ -52,8 +52,8 @@
         }
 
         li {
-            background-color:rgb(214, 248, 248);
-            border: 1px solid #ddd;
+            background-color:#bed2e4;
+            border: 1px solid #030303;
             padding: 5px;
             border-radius: 15px;
             color:#020363;
@@ -190,25 +190,33 @@
             color: #999;
             cursor: not-allowed;
         }
-        .bottom-left-links {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            z-index: 2; /* Ensure the links are above other content */
-            display: flex; /* Aligns links horizontally */
-            gap: 10px; /* Space between the links */
+        .button-container {
+        text-align: left;
+        position: fixed;
+        top: 11%; /* Adjust to set vertical position */
+        left: 0; /* Adjust to set horizontal position */
+        background-color: rgba(2, 37, 70, 0.7); /* Semi-transparent blue background */
+        height: 90%; /* Adjust height as needed */
+        padding: 10px; /* Padding around the container */
+        border-radius: 5px; /* Rounded corners for the container */
+        display: flex;
+        flex-direction: column; /* Stack items vertically */
+        gap: 10px; /* Space between the buttons */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for visual effect */
+        backdrop-filter: blur(1px); /* Optional: Blurs the area behind the container */
         }
-
-        .bottom-left-link {
-            display: block;
-            background-color: #fbfbfc;
-            color: rgb(56, 22, 247);
+        .button-container a {
+            color: white; /* Text color */
             padding: 10px 20px;
-            border-radius: 5px;
+            text-align: left;
             text-decoration: none;
-            font-weight: bold;
-            text-align: center;
-            transition: background-color 0.2s ease;
+            font-size: 16px;
+            border-radius: 5px; /* Rounded corners for the buttons */
+            display: block; /* Ensures the link takes up full width */
+            transition: background-color 0.3s, text-decoration 0.3s; /* Smooth transition */
+        }
+        .button-container a:hover {
+            text-decoration: underline; /* Underline on hover */
         }
     </style>
 </head>
@@ -216,6 +224,10 @@
     <h3>Accepted Complaints</h3>
     <div class="logo">
         <img src="/static/Images/logo.jpg" alt="Footer Image">
+    </div>
+    <div class="button-container">
+        <a href="{% url 'complaint_form' %}" class="bottom-left-link">New Complaint</a>
+        <a href="{% url 'user' %}" class="bottom-left-link">Dashboard</a>
     </div>
     <ul>
         {% for complaint in complaints %}
@@ -287,10 +299,6 @@
                 <span class="pagination-link disabled">Last</span>
             {% endif %}
         {% endif %}
-    </div>
-    <div class="bottom-left-links">
-        <a href="{% url 'complaint_form' %}" class="bottom-left-link">New Complaint</a>
-        <a href="{% url 'user' %}" class="bottom-left-link">Dashboard</a>
     </div>
     <!-- The Modal -->
     <div id="myModal" class="modal">

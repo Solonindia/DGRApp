@@ -261,8 +261,9 @@
         </div>
         <div class="button-container">
             <a href="{% url 'final_complaints' %}"><b>Closed Complaints</b></a>
-            <a href="{% url 'home' %}"><b>Home</b></a>
+            <a href="{% url 'complaint_analysis' %}"><b>Analysis</b></a>
             <a href="{% url 'admin' %}"><b>Dashboard</b></a>
+            <a href="{% url 'home' %}"><b>Home</b></a>
         </div>
         {% if complaints %}
             {% for complaint in complaints %}
