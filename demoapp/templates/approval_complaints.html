@@ -55,14 +55,16 @@
     }
 
     .complaint-card {
-        background-color: #f0f8ff; /* Light blue background for each complaint card */
-        padding: 20px;
+        margin-left: 16%;
+        margin-right: 36%;
+        background-color: #bed2e4; /* Light blue background for each complaint card */
+        padding: 2%;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         overflow: hidden;
-        min-height: 120px;
+        width:87%;
         transition: height 0.3s ease;
         margin-bottom: 0px;
         border-radius: 8px; /* Rounded corners for complaint cards */
@@ -83,26 +85,24 @@
         display: block;
     }
     .view-more-link {
-        text-align: right;
         color: darkblue;
         cursor: pointer;
         font-weight: bold;
-    }
-    .view-more-link:hover {
-        text-decoration: underline;
+        display: inline; /* Ensure the link behaves as an inline element */
+        margin: 0; /* Remove any margin */
+        padding: 0; /* Remove any padding */
+        text-decoration: none; /* Ensure no underlining is applied initially */
     }
     .complaint-details,
     .image-container,
     .approve-button {
         display: none;
     }
-
     .complaint-details {
         grid-template-columns: 160px 1fr;
         row-gap: 8px;
         margin-top: 10px;
     }
-
     .complaint-details p {
         margin: 0;
         white-space: pre-wrap;
@@ -192,9 +192,8 @@
     .pagination {
         display: flex;
         justify-content: center;
-        margin-top: 20px;
+        margin-top: 3%;
     }
-
     .pagination a,
     .pagination span {
         margin: 0 5px;
@@ -207,57 +206,50 @@
         cursor: pointer;
         transition: background-color 0.3s;
     }
-
     .pagination a:hover {
         background-color: #ddd;
     }
-
     .pagination .current {
         font-weight: bold;
         background-color: #007bff;
         color: white;
     }
-
     .pagination .disabled {
         color: #999;
         cursor: not-allowed;
     }
-
     .complaint-serial-number {
         font-size: 18px;
         font-weight: bold;
         color: #003366; /* Dark blue for serial numbers */
     }
-    .btn {
-        background-color: #040952;
-        border-radius: 5px;
-        color: white;
-        padding: 10px 20px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        margin: 4px 2px;
-        cursor: pointer;
-        position: fixed; /* Fixed position */
-        top: 10px; /* Distance from the top */
-        right: 10px; /* Distance from the right */
-    }
-    .bottom-links {
+    .button-container {
+        text-align: left;
         position: fixed;
-        bottom: 10px; /* Adjust the distance from the bottom */
-        left: 10px; /* Adjust the distance from the left */
-        z-index: 2;
+        top: 11%; /* Adjust to set vertical position */
+        left: 0; /* Adjust to set horizontal position */
+        background-color: rgba(2, 37, 70, 0.7); /* Semi-transparent blue background */
+        height: 90%; /* Adjust height as needed */
+        padding: 10px; /* Padding around the container */
+        border-radius: 5px; /* Rounded corners for the container */
+        display: flex;
+        flex-direction: column; /* Stack items vertically */
+        gap: 10px; /* Space between the buttons */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for visual effect */
+        backdrop-filter: blur(1px); /* Optional: Blurs the area behind the container */
     }
-
-    .bottom-links a {
-        color: rgb(56, 22, 247);/* Link color */
-        margin-right: 15px;
-        text-decoration:solid;
-        font-size: 18px;
+    .button-container a {
+        color: white; /* Text color */
+        padding: 10px 20px;
+        text-align: left;
+        text-decoration: none;
+        font-size: 16px;
+        border-radius: 5px; /* Rounded corners for the buttons */
+        display: block; /* Ensures the link takes up full width */
+        transition: background-color 0.3s, text-decoration 0.3s; /* Smooth transition */
     }
-    .bottom-links a:hover {
-        text-decoration: underline;
+    .button-container a:hover {
+        text-decoration: underline; /* Underline on hover */
     }
 </style>
 </head>
@@ -265,10 +257,13 @@
     <h3>Pending Complaints for Approval</h3>
     <div class="complaints-container">
         <div class="logo">
-            <img src="/static/Images/logo.jpg" alt="Footer Image">
+            <img src="/static/Images/logo.jpg" alt="Logo">
         </div>
-        <a href="{% url 'final_complaints' %}" class="btn">Closed Complaints</a>
-        
+        <div class="button-container">
+            <a href="{% url 'final_complaints' %}"><b>Closed Complaints</b></a>
+            <a href="{% url 'home' %}"><b>Home</b></a>
+            <a href="{% url 'admin' %}"><b>Dashboard</b></a>
+        </div>
         {% if complaints %}
             {% for complaint in complaints %}
                 <div class="complaint-card">
@@ -280,11 +275,7 @@
                         </div>
                         <div>
                             <strong>Location:</strong>
-                            {% if complaint.location == 'Other' and complaint.custom_location %}
-                                {{ complaint.custom_location }}
-                            {% else %}
                                 {{ complaint.location }}
-                            {% endif %}
                         </div>
                         <div>
                             <strong>Product/Equipment:</strong> {{ complaint.equipment }}
@@ -292,8 +283,8 @@
                         <div class="view-more-link" onclick="toggleDetails(this)">View More</div>
                     </div>
                     <div class="complaint-details">
+                        <div><strong>Project Honor:</strong></div> <div>{{ complaint.company_name }}</div>
                         <div><strong>Site Name:</strong></div> <div>{{ complaint.site_name }}</div>
-                        <div><strong>Customer Name:</strong></div> <div>{{ complaint.company_name }}</div>
                         <div><strong>Priority:</strong></div> <div>{{ complaint.priority }}</div>
                         <div><strong>Complaint Raised by:</strong></div> <div>{{ complaint.complaint_raised_by }}</div>
                         <div><strong>Nature of Complaint:</strong></div> 
@@ -320,37 +311,32 @@
             <div class="no-complaints">No complaints are pending for approval.</div>
         {% endif %}
     </div>
-
-    {% if complaints %}
-        <div class="pagination">
+    <div class="pagination">
+        {% if complaints.has_other_pages %}
             {% if complaints.has_previous %}
-                <a href="?page=1">&laquo; First</a>
-                <a href="?page={{ complaints.previous_page_number }}">&lsaquo; Previous</a>
+                <a href="?page=1" class="pagination-link">First</a>
+                <a href="?page={{ complaints.previous_page_number }}" class="pagination-link">Previous</a>
             {% else %}
-                <span class="disabled">&laquo; First</span>
-                <span class="disabled">&lsaquo; Previous</span>
+                <span class="pagination-link disabled">First</span>
+                <span class="pagination-link disabled">Previous</span>
             {% endif %}
 
             {% for num in complaints.paginator.page_range %}
                 {% if complaints.number == num %}
-                    <span class="current">{{ num }}</span>
-                {% elif num > complaints.number|add:'-3' and num < complaints.number|add:'3' %}
-                    <a href="?page={{ num }}">{{ num }}</a>
+                    <span class="pagination-link current">{{ num }}</span>
+                {% else %}
+                    <a href="?page={{ num }}" class="pagination-link">{{ num }}</a>
                 {% endif %}
             {% endfor %}
 
             {% if complaints.has_next %}
-                <a href="?page={{ complaints.next_page_number }}">Next &rsaquo;</a>
-                <a href="?page={{ complaints.paginator.num_pages }}">Last &raquo;</a>
+                <a href="?page={{ complaints.next_page_number }}" class="pagination-link">Next</a>
+                <a href="?page={{ complaints.paginator.num_pages }}" class="pagination-link">Last</a>
             {% else %}
-                <span class="disabled">Next &rsaquo;</span>
-                <span class="disabled">Last &raquo;</span>
+                <span class="pagination-link disabled">Next</span>
+                <span class="pagination-link disabled">Last</span>
             {% endif %}
-        </div>
-    {% endif %}
-    <div class="bottom-links">
-        <a href="{% url 'home' %}"><b>Home</b></a>
-        <a href="{% url 'admin' %}"><b>Dashboard</b></a>
+        {% endif %}
     </div>
     <!-- Modal Structure -->
     <div id="myModal" class="modal">

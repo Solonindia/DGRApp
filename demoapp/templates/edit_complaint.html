@@ -243,8 +243,8 @@
     <form method="post" id="edit_form" onsubmit="validateForm(event)"> <!-- Call validateForm on submit -->
         {% csrf_token %}
         <div class="form-fields">
+        <strong style="color:#0a0a0a">Project Honor:</strong> {{ complaint.company_name }}<br>
         <strong style="color:#0a0a0a">Site Name:</strong> {{ complaint.site_name }}<br>
-        <strong style="color:#0a0a0a">Customer Name:</strong> {{ complaint.company_name }}<br>
         <strong style="color:#0a0a0a">Complaint ID:</strong> {{ complaint.complaint_id }}<br>
         <strong style="color:#0a0a0a">Location:</strong> {% if complaint.location == 'Other' and complaint.custom_location %}
         {{ complaint.custom_location }}

@@ -227,8 +227,8 @@
                     <a href="javascript:void(0);" onclick="toggleDetails(this);">View More</a>
                 </div></span><br>
                 <div class="complaint-details">
+                    <strong style="color:#0a0a0a">Project Honor:</strong> {{ complaint.company_name }}<br>
                     <strong style="color:#0a0a0a">Site Name:</strong> {{ complaint.site_name }}<br>
-                    <strong style="color:#0a0a0a">Customer Name:</strong> {{ complaint.company_name }}<br>
                     <strong style="color:#0a0a0a">Priority:</strong> {{ complaint.priority }}<br>
                     <strong style="color:#0a0a0a">Complaint Raised by:</strong> {{ complaint.complaint_raised_by }} <br>
                     <span><strong style="color:#0a0a0a">Nature of Complaint:</strong> <p class="nature-of-complaint">{{ complaint.nature_of_complaint|default:"N/A" }}</p></span><br>

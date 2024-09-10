@@ -59,9 +59,9 @@ class Complaint(models.Model):
         now = now.astimezone(ist_tz)
         date_str = now.strftime('%Y%m%d')
         time_str = now.strftime('%H%M')
-        company_name = self.company_name.strip().replace(' ', '-') if self.company_name else 'UNKNOWN'
+        site_name = self.site_name.strip().replace(' ', '-') if self.site_name else 'UNKNOWN'
         
-        base_id = f"{company_name}-{date_str}-{time_str}"
+        base_id = f"{site_name}-{date_str}-{time_str}"
 
         # Check if the ID already exists and handle collisions
         count = 1

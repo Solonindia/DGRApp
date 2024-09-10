@@ -22,7 +22,7 @@
             left: 0;
             width: 100%;
             height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
-            background-color: rgb(10, 129, 133);
+            background-image: url('/static/Images/solar8.jpg');
             filter: blur(1px);
             background-size: cover; /* Ensure the background image covers the entire area */
             background-repeat: no-repeat; /* Prevents the image from repeating */
@@ -181,6 +181,18 @@
             color:white;
             border-radius: 3%;
         }
+        .no {
+            color: red;
+            font-size: xx-large;
+            text-align: center;
+            animation: blink-animation 1s step-start infinite;
+        }
+
+        @keyframes blink-animation {
+            50% {
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -199,7 +211,7 @@
             <li>
                 <div class="complaint-summary">
                     <div class="complaint-info">
-                        <strong style="color:#050505">Complaint ID:</strong> {{ complaint.complaint_id }}<br>
+                   <strong style="color:#050505">Complaint ID:</strong> {{ complaint.complaint_id }}<br>
                         <strong style="color:#050505">Location:</strong> 
                             {% if complaint.location == 'Other' and complaint.custom_location %}
                                 {{ complaint.custom_location }}
@@ -212,12 +224,12 @@
                 </div>
                 <div class="hidden-details">
                     <div>
-                        <strong style="color:#050505">Site Name:</strong>
-                        <span class="value">{{ complaint.site_name }}</span>
+                        <strong style="color:#050505">Project Honor:</strong>
+                        <span class="value">{{ complaint.company_name }}</span>
                     </div>
                     <div>
-                        <strong style="color:#050505">Company Name:</strong>
-                        <span class="value">{{ complaint.company_name }}</span>
+                        <strong style="color:#050505">Site Name:</strong>
+                        <span class="value">{{ complaint.site_name }}</span>
                     </div>
                     <div>
                         <strong style="color:#050505">Priority:</strong>
@@ -281,7 +293,7 @@
                 </div>
             </li>
         {% empty %}
-            <li>No closed complaints</li>
+            <li class="no">No closed complaints</li>
         {% endfor %}
     </ul>
 </div>

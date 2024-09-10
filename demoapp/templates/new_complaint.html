@@ -212,8 +212,6 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for visual effect */
             backdrop-filter: blur(1px); /* Optional: Blurs the area behind the container */
         }
-
-        /* Button styling */
         .button-container a {
             color: white; /* Text color */
             padding: 10px 20px;
@@ -244,13 +242,13 @@
     {% csrf_token %}
     <h3>Register a New Complaint</h3>
     <div class="form-group">
-        <label for="site_name"><b>Site Name *</b></label>
-        <input type="text" id="site_name" name="site_name"></input>
-    </div>              
-    <div class="form-group">
-        <label for="company_name"><b>Company Name *</b></label>
-        <input type="text" id="company_name" name="company_name" oninput="updateComplaintId()"></input>
+        <label for="company_name"><b>Project Honor *</b></label>
+        <input type="text" id="company_name" name="company_name" ></input>
     </div>
+    <div class="form-group">
+        <label for="site_name"><b>Site Name *</b></label>
+        <input type="text" id="site_name" name="site_name" oninput="updateComplaintId()"></input>
+    </div>              
     <div class="form-row">
     <div class="form-column form-left">
         <div class="form-group">
@@ -386,18 +384,17 @@
             }
             updateComplaintId(); // Update complaint ID on selection change
         }
-
         function generateComplaintId() {
-            const companyName = document.getElementById('company_name').value.trim();
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const formattedDate = `${year}${month}${day}-${hours}${minutes}`;
-            const formattedCompanyName = companyName ? companyName.replace(/\s+/g, '-') : 'UNKNOWN';
-            return `${formattedCompanyName}-${formattedDate}`;
+        const siteName = document.getElementById('site_name').value.trim();
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const formattedDate = `${year}${month}${day}-${hours}${minutes}`;
+        const formattedSiteName = siteName ? siteName.replace(/\s+/g, '-') : 'UNKNOWN';
+        return `${formattedSiteName}-${formattedDate}`;
         }
 
         // Function to update the complaint ID field
@@ -406,11 +403,11 @@
             complaintIdField.value = generateComplaintId();
         }
 
-        // Call updateComplaintId when the company name is entered or modified
-        document.getElementById('company_name').addEventListener('input', updateComplaintId);
-        function updateComplaintId() {
-            document.getElementById('complaint_id').value = generateComplaintId();
-        }
+        // Call updateComplaintId when the site name is entered or modified
+        document.getElementById('site_name').addEventListener('input', updateComplaintId);
+
+        // Initialize the complaint ID field on page load
+        window.addEventListener('load', updateComplaintId);
 
         function toggleEndDateInput() {
             const startDate = document.getElementById('start_date').value;
