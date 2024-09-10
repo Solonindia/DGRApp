@@ -22,7 +22,7 @@
         left: 0;
         width: 100%;
         height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
-        background-image: url('/static/images/solar9.jpg');
+        background-image: url('/static/Images/solar9.jpg');
         filter: blur(1px);
         background-size: cover; /* Ensure the background image covers the entire area */
         background-repeat: no-repeat; /* Prevents the image from repeating */
@@ -320,15 +320,15 @@
                 <span class="pagination-link disabled">First</span>
                 <span class="pagination-link disabled">Previous</span>
             {% endif %}
-
+    
             {% for num in complaints.paginator.page_range %}
                 {% if complaints.number == num %}
                     <span class="pagination-link current">{{ num }}</span>
-                {% else %}
+                {% elif num > complaints.number|add:'-3' and num < complaints.number|add:'3' %}
                     <a href="?page={{ num }}" class="pagination-link">{{ num }}</a>
                 {% endif %}
             {% endfor %}
-
+    
             {% if complaints.has_next %}
                 <a href="?page={{ complaints.next_page_number }}" class="pagination-link">Next</a>
                 <a href="?page={{ complaints.paginator.num_pages }}" class="pagination-link">Last</a>
@@ -337,7 +337,7 @@
                 <span class="pagination-link disabled">Last</span>
             {% endif %}
         {% endif %}
-    </div>
+    </div>    
     <!-- Modal Structure -->
     <div id="myModal" class="modal">
         <span class="close" onclick="closeModal()">&times;</span>

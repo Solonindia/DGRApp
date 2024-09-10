@@ -1426,7 +1426,6 @@ def complaint_form(request):
     return render(request, 'new_complaint.html', {})
 
 def approval_complaints(request):
-    # Use the method to order complaints
     complaints_list = Complaint.objects.filter(status='Pending').order_by('-created_at')
     paginator = Paginator(complaints_list, 3)  # Show 3 complaints per page
     page_number = request.GET.get('page')
