@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Complaint Analysis</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <style>
         body {
             font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -76,44 +77,47 @@
         }
         .top-right-form {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 10;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 5px;
+            top: 10%;
+            right: 5%;
+            z-index: 1000; /* Ensures the form stays on top */
         }
-        form {
-            margin: 0 0 20px 0;
-            text-align: center;
+
+        .top-right-form label {
+            margin-right: 8px;
+            font-weight: bold;
         }
-        select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-            background-color: #fff;
+
+        .top-right-form select {
+            padding: 5px;
+            font-size: 14px;
         }
         label {
             font-size: 16px;
+            color:darkblue;
         }
         .chart-container1, .chart-container2, .chart-container3 {
             position: relative;
             width: 80%;
             max-width: 600px; /* Adjust as needed */
             margin: 20px auto; /* Center the container */
-            margin-bottom: 2%;
-            margin-top: 2%;
+            margin-bottom: 5%;
+            margin-top: 5%;
+            background-color: #f4f4f4ad;
+            border: 1px solid black;
+            padding-top: 40px; /* Add padding to create space for the title */
         }
 
         .chart-title {
             position: absolute;
-            top: -10px; /* Position the title above the chart */
-            left: 10%;
-            transform: translateX(-50%); /* Center the title horizontally */
+            top: -40px; /* Position the title well above the chart container */
+            left: 50%; /* Center the title horizontally */
+            transform: translateX(-50%);
             font-size: 18px;
             font-weight: bold;
-            color: #000; /* Color of the title text */
+            color: #012a66; /* Color of the title text */
+            padding: 5px 10px; /* Padding inside the title box */
+            border-radius: 5px; /* Optional: Rounded corners for the title border */
+            white-space: nowrap; /* Prevent the title from wrapping */
         }
     </style>
 </head>
@@ -125,11 +129,11 @@
         <h1>Complaint Analysis</h1>
         <div class="button-container">
             <a href="{% url 'approval_complaints' %}"><b>Approvals</b></a>
-            <a href="{% url 'complaint_analysis' %}"><b>Analysis</b></a>
+            <a href="{% url 'final_complaints' %}"><b>Closed Complaints</b></a>
             <a href="{% url 'admin' %}"><b>Dashboard</b></a>
             <a href="{% url 'home' %}"><b>Home</b></a>
         </div>
-        <form method="get" action="{% url 'complaint_analysis' %}">
+        <form method="get" action="{% url 'complaint_analysis' %}" class="top-right-form">
             <label for="site_name">Select Site:</label>
             <select id="site_name" name="site_name" onchange="this.form.submit()">
                 <option value="All" {% if selected_site == 'All' %}selected{% endif %}>All Sites</option>
@@ -167,14 +171,15 @@ const ctxOpen = document.getElementById('openComplaintsChart').getContext('2d');
 new Chart(ctxOpen, {
     type: 'bar',
     data: {
-        labels: years,
+        labels: years, // X-axis labels (years)
         datasets: [{
             label: 'Open Complaints',
             data: openCounts,
             backgroundColor: 'rgba(255, 99, 132)', // Slightly transparent for better visibility
             borderColor: '#000000', // Brighter border for contrast
             borderWidth: 2, // Thicker border
-            barThickness: 30, // Wider bars for better visibility
+            barThickness: 25, // Adjust bar width (smaller value for more compact bars)
+            maxBarThickness: 30, // Maximum bar width
             hoverBackgroundColor: 'rgba(255, 99, 132)', // Slightly more visible on hover
             hoverBorderColor: '#000000', // Brighter border on hover
             hoverBorderWidth: 3 // Thicker border on hover
@@ -220,7 +225,7 @@ new Chart(ctxOpen, {
                 title: {
                     display: true,
                     text: 'Number of Complaints',
-                    color: '#000', // Color of the title text
+                    color: '#000000', // Color of the title text
                     font: {
                         size: 14,
                         weight: 'bold'
@@ -231,13 +236,17 @@ new Chart(ctxOpen, {
                 },
                 ticks: {
                     stepSize: 1,
-                    color: '#333', // Color of the y-axis labels
+                    color: '#000000', // Black color for the y-axis labels (1, 2, 3)
                     font: {
-                        size: 15 // Font size for y-axis labels
+                        size: 15, // Font size for y-axis labels (points)
+                        weight: 'bold' // Make the points bold and clear
                     }
                 },
                 grid: {
-                    color: 'rgba(0, 0, 0)' // Light grid lines
+                    drawOnChartArea: false, // Do not show horizontal grid lines (except axis line)
+                    drawBorder: true, // Show border on the left side
+                    color: '#000000', // Black color for the left axis line
+                    borderWidth: 3 // Make the left axis line thicker
                 }
             },
             x: {
@@ -254,18 +263,26 @@ new Chart(ctxOpen, {
                     }
                 },
                 ticks: {
-                    color: '#333', // Color of the x-axis labels
+                    color: '#000000', // Black color for the x-axis labels (years)
                     font: {
-                        size: 14 // Font size for x-axis labels
+                        size: 14, // Font size for x-axis labels
+                        weight: 'bold' // Make the years bold and clear
                     }
                 },
                 grid: {
-                    color: 'rgba(0, 0, 0)'
-                }
+                    drawOnChartArea: false, // Do not show vertical grid lines (except axis line)
+                    drawBorder: true, // Show border on the bottom side
+                    color: '#000000', // Black color for the bottom axis line
+                    borderWidth: 3 // Make the bottom axis line thicker
+                },
+                // Reduce spacing between bars
+                categoryPercentage: 0.1, // Decrease to reduce the width between categories
+                barPercentage: 0.2 // Decrease to reduce the width of bars themselves
             }
         }
     }
 });
+
 // Bar chart for closed complaints
 const ctxClosed = document.getElementById('closedComplaintsChart').getContext('2d');
 new Chart(ctxClosed, {
@@ -279,19 +296,22 @@ new Chart(ctxClosed, {
             borderColor: '#000000', // Black border for contrast
             borderWidth: 3, // Thicker border for better visibility
             barThickness: 30, // Adjust the bar width here
+            maxBarThickness: 30, // Maximum bar width
+            hoverBackgroundColor: 'rgba(54, 162, 235)', 
+            hoverBorderColor: '#000000', // Brighter border on hover
+            hoverBorderWidth: 3 // Thicker border on hover
         }]
     },
     options: {
         responsive: true,
         plugins: {
             legend: {
-                display: true, // Ensure the legend is displayed
+                display: true,
                 position: 'top',
                 labels: {
-                    color: '#000000', // Black color for the legend labels
                     font: {
-                        size: 16, // Font size for legend labels
-                        weight: 'bold' // Font weight for better visibility
+                        size: 16, // Font size for legend
+                        weight: 'bold' // Bold text for legend
                     }
                 }
             },
@@ -310,10 +330,10 @@ new Chart(ctxClosed, {
         },
         layout: {
             padding: {
-                left: 20,
-                right: 20,
-                top: 50,
-                bottom: 20
+                left: 2,
+                right: 2,
+                top: 3,
+                bottom: 2
             }
         },
         scales: {
@@ -322,9 +342,9 @@ new Chart(ctxClosed, {
                 title: {
                     display: true,
                     text: 'Number of Complaints',
-                    color: '#000', // Color of the title text
+                    color: '#000000', // Color of the title text
                     font: {
-                        size: 18,
+                        size: 14,
                         weight: 'bold'
                     },
                     padding: {
@@ -333,20 +353,24 @@ new Chart(ctxClosed, {
                 },
                 ticks: {
                     stepSize: 1,
-                    color: '#333', // Color of the y-axis labels
+                    color: '#000000', // Color of the y-axis labels (1, 2, 3...)
                     font: {
-                        size: 14 // Font size for y-axis labels
+                        size: 15, // Font size for y-axis labels
+                        weight: 'bold' // Make y-axis labels bold
                     }
                 },
                 grid: {
-                    color: 'rgba(0, 0, 0, 0.1)' // Light grid lines
+                    drawOnChartArea: false, // Do not show horizontal grid lines (except axis line)
+                    drawBorder: true, // Show border on the left side
+                    color: '#000000', // Color for the left axis line
+                    borderWidth: 3 // Make the left axis line thicker
                 }
             },
             x: {
                 title: {
                     display: true,
                     text: 'Year',
-                    color: '#000', // Color of the title text
+                    color: '#000000', // Color of the title text
                     font: {
                         size: 18,
                         weight: 'bold'
@@ -356,19 +380,26 @@ new Chart(ctxClosed, {
                     }
                 },
                 ticks: {
-                    color: '#333', // Color of the x-axis labels
+                    color: '#000000', // Color of the x-axis labels (years)
                     font: {
-                        size: 14 // Font size for x-axis labels
+                        size: 14, // Font size for x-axis labels
+                        weight: 'bold' // Make x-axis labels bold
                     }
                 },
                 grid: {
-                    display: false // Hide x-axis grid lines if not needed
-                }
+                    drawOnChartArea: false, // Do not show vertical grid lines (except axis line)
+                    drawBorder: true, // Show border on the bottom side
+                    color: '#000000', // Color for the bottom axis line
+                    borderWidth: 3 // Make the bottom axis line thicker
+                },
+                // Reduce spacing between bars
+                categoryPercentage: 0.1, // Decrease to reduce the width between categories
+                barPercentage: 0.2 // Decrease to reduce the width of bars themselves
             }
         }
     }
 });
-// Pie chart for total complaints
+
 const ctxPie = document.getElementById('totalComplaintsPieChart').getContext('2d');
 new Chart(ctxPie, {
     type: 'pie',
@@ -378,36 +409,66 @@ new Chart(ctxPie, {
             label: 'Total Complaints',
             data: [totalOpen, totalClosed],
             backgroundColor: ['rgba(255, 99, 132)', 'rgba(54, 162, 235)'],
-            borderColor: ['rgba(#000000)', 'rgba(#000000)'],
+            borderColor: ['#000000', '#000000'],
             borderWidth: 2
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false, // Allows the chart to resize according to the container
+        layout: {
+            padding: {
+                bottom: 15 // Add extra space at the bottom to accommodate labels
+            }
+        },
         plugins: {
             legend: {
                 display: true,
                 position: 'top',
                 labels: {
                     font: {
-                        size: 14, // Smaller font size for legend
-                        weight: 'bold',
-                        border:'#000000'
+                        size: 14, // Font size for legend
+                        weight: 'bold'
                     }
                 }
             },
             tooltip: {
                 callbacks: {
                     label: function(tooltipItem) {
-                        return tooltipItem.label + ': ' + tooltipItem.raw + ' complaints';
-                    }
+                        // Calculate percentage
+                        const total = totalOpen + totalClosed;
+                        const value = tooltipItem.raw;
+                        const percentage = ((value / total) * 100).toFixed(2);
+                        return `${tooltipItem.label}: ${value} (${percentage}%)`;
+                    },
                 },
                 backgroundColor: 'rgba(0, 0, 0)',
                 titleColor: '#fff',
                 bodyColor: '#fff',
                 borderColor: '#000000',
                 borderWidth: 1
+            },
+            datalabels: {
+                color: function(context) {
+                    // Set color based on the data index
+                    return context.dataIndex === 0 ? 'blue' : 'pink'; // Colors for percentages
+                },
+                formatter: function(value, context) {
+                    const dataset = context.dataset;
+                    const total = dataset.data.reduce((acc, val) => acc + val, 0);
+                    const percentage = (value / total * 100).toFixed(2) + '%';
+                    return percentage;
+                },
+                anchor: 'center',
+                align: 'center',
+                font: {
+                    size: 16,
+                    weight: 'bold'
+                },
+                padding: {
+                    top: 30, // Add space above the label
+                    bottom: 10 // Add space below the label
+                }
             }
         },
         animation: {
@@ -416,6 +477,7 @@ new Chart(ctxPie, {
         }
     }
 });
+
 </script>
 </body>
 </html>

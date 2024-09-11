@@ -385,16 +385,22 @@
             updateComplaintId(); // Update complaint ID on selection change
         }
         function generateComplaintId() {
-        const siteName = document.getElementById('site_name').value.trim();
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const formattedDate = `${year}${month}${day}-${hours}${minutes}`;
-        const formattedSiteName = siteName ? siteName.replace(/\s+/g, '-') : 'UNKNOWN';
-        return `${formattedSiteName}-${formattedDate}`;
+            const siteName = document.getElementById('site_name').value.trim();
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const formattedDate = `${year}${month}${day}-${hours}${minutes}`;
+            
+            // Only generate complaint ID when the site name is provided
+            if (siteName) {
+                const formattedSiteName = siteName.replace(/\s+/g, '-');
+                return `${formattedSiteName}-${formattedDate}`;
+            }
+            
+            return ''; // Return an empty string if site name is not entered
         }
 
         // Function to update the complaint ID field
@@ -406,8 +412,12 @@
         // Call updateComplaintId when the site name is entered or modified
         document.getElementById('site_name').addEventListener('input', updateComplaintId);
 
-        // Initialize the complaint ID field on page load
-        window.addEventListener('load', updateComplaintId);
+        // Initialize the complaint ID field on page load with no value
+        window.addEventListener('load', function() {
+            const complaintIdField = document.getElementById('complaint_id');
+            complaintIdField.value = ''; // Ensure it's empty on load
+        });
+
 
         function toggleEndDateInput() {
             const startDate = document.getElementById('start_date').value;
