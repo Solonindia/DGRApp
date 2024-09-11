@@ -22,8 +22,8 @@
             left: 0;
             width: 100%;
             height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
-            background-image: url('/static/Images/solar8.jpg');
-            filter: blur(1px);
+            background-image: url('/static/Images/solon2.jpg');
+            filter: blur(3px);
             background-size: cover; /* Ensure the background image covers the entire area */
             background-repeat: no-repeat; /* Prevents the image from repeating */
             background-attachment: fixed; /* Keeps the background image fixed while scrolling */
@@ -54,7 +54,7 @@
 
         li {
             padding: 10px;
-            color:#300379;
+            color:#0202d4;
             text-align:left;
         }
         .complaint-summary {
@@ -76,7 +76,10 @@
             display: flex;
             text-align:left;
         }
-
+        .complaint-serial-number{
+            color:brown;
+            text-decoration: double;
+        }
         .nature-of-complaint-label {
             flex-basis: 30%; /* Adjust this to set the width of the label */
             font-weight: bold;
@@ -91,7 +94,7 @@
         }
         .view-more {
             cursor: pointer;
-            color: #03056e;
+            color: #492a02;
             text-decoration: underline;
         }
 
@@ -135,28 +138,23 @@
             font-weight: bold;
             cursor: pointer;
         }
-        .hist{
-            color:#fcf7f7;
-        }
-        .bottom-left-links {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            z-index: 2; /* Ensure the links are above other content */
-            display: flex; /* Aligns links horizontally */
-            gap: 10px; /* Space between the links */
+        .hist ul {
+            list-style-type: none; /* Removes default bullets */
+            padding: 0;
+            margin: 0;
         }
 
-        .bottom-left-link {
-            display: block;
-            color: rgb(56, 22, 247);
-            background-color: #fbfbfc;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            text-align: center;
-            transition: background-color 0.2s ease;
+        .hist li {
+            border: 1px solid black;
+            background-color: aliceblue;
+            border-radius: 5%;
+            margin-bottom: 15px; /* Space between individual items */
+            padding: 10px;
+            color: #050505;
+            background-color: aliceblue;
+            border-radius: 5%;
+            margin-left: 18%;
+            margin-right:2%;
         }
         .logout {
             position: fixed;
@@ -193,6 +191,35 @@
                 opacity: 0;
             }
         }
+        .button-container {
+            text-align: left;
+            position: fixed;
+            top: 11%; /* Adjust to set vertical position */
+            left: 0; /* Adjust to set horizontal position */
+            background-color: rgba(2, 37, 70, 0.7); /* Semi-transparent blue background */
+            height: 90%; /* Adjust height as needed */
+            width:15%;
+            padding: 10px; /* Padding around the container */
+            border-radius: 5px; /* Rounded corners for the container */
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            gap: 10px; /* Space between the buttons */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for visual effect */
+            backdrop-filter: blur(1px); /* Optional: Blurs the area behind the container */
+        }
+        .button-container a {
+            color: white; /* Text color */
+            padding: 10px 20px;
+            text-align: left;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px; /* Rounded corners for the buttons */
+            display: block; /* Ensures the link takes up full width */
+            transition: background-color 0.3s, text-decoration 0.3s; /* Smooth transition */
+        }
+        .button-container a:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
     </style>
 </head>
 <body>
@@ -205,12 +232,19 @@
     <div class="logo">
         <img src="/static/Images/logo.jpg" alt="Footer Image">
     </div>
+    <div class="button-container">
+        <a href="{% url 'approval_complaints' %}"><b>Approvals</b></a>
+        <a href="{% url 'complaint_analysis' %}"><b>Analysis</b></a>
+        <a href="{% url 'admin' %}"><b>Dashboard</b></a>
+        <a href="{% url 'home' %}"><b>Home</b></a>
+    </div>
     <div class="hist">
     <ul>
         {% for complaint in accepted_complaints %}
             <li>
                 <div class="complaint-summary">
                     <div class="complaint-info">
+                    <div class="complaint-serial-number">{{ forloop.counter }}</div>
                    <strong style="color:#050505">Complaint ID:</strong> {{ complaint.complaint_id }}<br>
                         <strong style="color:#050505">Location:</strong> 
                             {% if complaint.location == 'Other' and complaint.custom_location %}
@@ -220,11 +254,11 @@
                             {% endif %}<br>
                         <strong style="color:#050505">Product/Equipment:</strong> {{ complaint.equipment }}<br>
                     </div>
-                    <div class="view-more" onclick="toggleDetails(this)">View More</div>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<div class="view-more" onclick="toggleDetails(this)">View More</div>
                 </div>
                 <div class="hidden-details">
                     <div>
-                        <strong style="color:#050505">Project Honor:</strong>
+                        <strong style="color:#050505">Project Owner:</strong>
                         <span class="value">{{ complaint.company_name }}</span>
                     </div>
                     <div>
@@ -286,6 +320,7 @@
                             {% endif %}
                         {% endwith %}
                     </div><br>
+                    <hr>
                     <form action="{% url 'delete_complaint' complaint.id %}" method="post" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" class="delete-btn">Delete</button>
@@ -296,10 +331,6 @@
             <li class="no">No closed complaints</li>
         {% endfor %}
     </ul>
-</div>
-<div class="bottom-left-links">
-    <a href="{% url 'approval_complaints' %}" class="bottom-left-link">Approvals</a>
-    <a href="{% url 'admin' %}" class="bottom-left-link">Home</a>
 </div>
     <div id="myModal" class="modal">
         <span class="close" onclick="closeModal()">&times;</span>

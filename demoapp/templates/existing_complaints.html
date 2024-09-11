@@ -23,8 +23,8 @@
             left: 0;
             width: 100%;
             height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
-            background-image: url('/static/Images/solar8.jpg');
-            filter: blur(1px);
+            background-image: url('/static/Images/solon1.jpg');
+            filter: blur(3px);
             background-size: cover; /* Ensure the background image covers the entire area */
             background-repeat: no-repeat; /* Prevents the image from repeating */
             background-attachment: fixed; /* Keeps the background image fixed while scrolling */
@@ -52,12 +52,12 @@
         }
 
         li {
-            background-color:#bed2e4;
+            background-color:aliceblue;
             border: 1px solid #030303;
             padding: 5px;
             border-radius: 15px;
-            color:#020363;
-            margin-left:10%;
+            color:rgb(4, 98, 160);
+            margin-left:20%;
             margin-right: 10%;
         }
         li span {
@@ -69,7 +69,7 @@
         }
         a.button-link {
             display: inline-block;
-            background-color:rgb(17, 17, 17);
+            background-color:rgb(4, 98, 160);
             color: white;
             padding: 10px 20px;
             border-radius: 5px;
@@ -79,22 +79,9 @@
             transition: background-color 0.2s ease;
         }
         a.button-link:hover {
-            background-color: #030125;
-        }
-        button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
-            cursor: pointer;
-            display: block;
-            margin: 20px auto;
-            font-size: 16px;
-            transition: background-color 0.2s ease;
-        }
-        button:hover {
-            background-color: #218838;
+            background-color: #6558f8;
+            color:#030303;
+            border:black;
         }
         .image-container {
             margin-top: 10px;
@@ -218,6 +205,18 @@
         .button-container a:hover {
             text-decoration: underline; /* Underline on hover */
         }
+        .no {
+            color: red;
+            font-size: x-large;
+            text-align: center;
+            animation: blink-animation 1s step-start infinite;
+        }
+
+        @keyframes blink-animation {
+            50% {
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -229,6 +228,7 @@
         <a href="{% url 'complaint_form' %}" class="bottom-left-link">New Complaint</a>
         <a href="{% url 'user' %}" class="bottom-left-link">Dashboard</a>
     </div>
+    <div class="hist">
     <ul>
         {% for complaint in complaints %}
             <li>
@@ -247,7 +247,7 @@
                     <a href="javascript:void(0);" onclick="toggleDetails(this);">View More</a>
                 </div></span><br>
                 <div class="complaint-details">
-                    <strong style="color:#0a0a0a">Project Honor:</strong> {{ complaint.company_name }}<br>
+                    <strong style="color:#0a0a0a">Project Owner:</strong> {{ complaint.company_name }}<br>
                     <strong style="color:#0a0a0a">Site Name:</strong> {{ complaint.site_name }}<br>
                     <strong style="color:#0a0a0a">Priority:</strong> {{ complaint.priority }}<br>
                     <strong style="color:#0a0a0a">Complaint Raised by:</strong> {{ complaint.complaint_raised_by }} <br>
@@ -269,10 +269,10 @@
                 </div>
             </li>
         {% empty %}
-            <li>No accepted complaints found.</li>
+            <li class="no">No accepted complaints found.</li>
         {% endfor %}
     </ul>
-
+</div>
     <div class="pagination">
         {% if complaints.has_other_pages %}
             {% if complaints.has_previous %}

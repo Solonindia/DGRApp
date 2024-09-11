@@ -7,34 +7,86 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
             color: #333;
+            height: 100vh;
+            overflow: auto;
+            position: relative;
         }
-
+        body::before {
+            content: "";
+            position: fixed;
+            top: 10%;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 4px);
+            background-image: url('/static/Images/solon2.jpg');
+            filter: blur(3px);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            z-index: -1;
+        }
+        .button-container {
+            text-align: left;
+            position: fixed;
+            top: 11%;
+            left: 0;
+            background-color: rgba(2, 37, 70, 0.7);
+            height: 90%;
+            width: 15%;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(1px);
+        }
+        .button-container a {
+            color: white;
+            padding: 10px 20px;
+            text-align: left;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            display: block;
+            transition: background-color 0.3s, text-decoration 0.3s;
+        }
+        .button-container a:hover {
+            text-decoration: underline;
+        }
+        .logo {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 2;
+            margin-bottom: 10%;
+        }
+        .logo img {
+            width: 100px;
+            height: auto;
+        }
         h1 {
             text-align: center;
-            padding: 20px;
-            color: #444;
         }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .top-right-form {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
         }
-
         form {
-            margin-bottom: 30px;
+            margin: 0 0 20px 0;
             text-align: center;
         }
-
         select {
             padding: 10px;
             border: 1px solid #ddd;
@@ -42,60 +94,41 @@
             font-size: 16px;
             background-color: #fff;
         }
-
-        .chart-container {
-            margin-bottom: 40px;
+        label {
+            font-size: 16px;
+        }
+        .chart-container1, .chart-container2, .chart-container3 {
             position: relative;
-            width: 100%;
-            text-align: center;
-        }
-
-        /* Define specific sizes for bar charts and pie chart */
-        .chart-container.bar-chart {
-            width: 100%;
-            max-width: 600px; /* Adjust this value as needed */
-            margin: 0 auto; /* Center align */
-        }
-
-        .chart-container.canvas-pie {
-            width: 300px; /* Set width for pie chart */
-            height: 300px; /* Set height for pie chart */
-            margin: 0 auto; /* Center align the pie chart */
-        }
-
-        .chart-container canvas {
-            background-color: #fff;
-            border-radius: 8px;
+            width: 80%;
+            max-width: 600px; /* Adjust as needed */
+            margin: 20px auto; /* Center the container */
+            margin-bottom: 2%;
+            margin-top: 2%;
         }
 
         .chart-title {
+            position: absolute;
+            top: -10px; /* Position the title above the chart */
+            left: 10%;
+            transform: translateX(-50%); /* Center the title horizontally */
             font-size: 18px;
-            margin: 20px 0;
-            color: #666;
-        }
-
-        .back-button {
-            display: inline-block;
-            padding: 10px 20px;
-            margin-top: 20px;
-            font-size: 16px;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 4px;
-            text-decoration: none;
-            text-align: center;
-        }
-
-        .back-button:hover {
-            background-color: #0056b3;
+            font-weight: bold;
+            color: #000; /* Color of the title text */
         }
     </style>
 </head>
 <body>
+    <div class="logo">
+        <img src="/static/Images/logo.jpg" alt="Footer Image">
+    </div>
     <div class="container">
         <h1>Complaint Analysis</h1>
-
+        <div class="button-container">
+            <a href="{% url 'approval_complaints' %}"><b>Approvals</b></a>
+            <a href="{% url 'complaint_analysis' %}"><b>Analysis</b></a>
+            <a href="{% url 'admin' %}"><b>Dashboard</b></a>
+            <a href="{% url 'home' %}"><b>Home</b></a>
+        </div>
         <form method="get" action="{% url 'complaint_analysis' %}">
             <label for="site_name">Select Site:</label>
             <select id="site_name" name="site_name" onchange="this.form.submit()">
@@ -105,171 +138,284 @@
                 {% endfor %}
             </select>
         </form>
-
         <!-- Bar Chart for Open Complaints -->
-        <div class="chart-container bar-chart">
+        <div class="chart-container1">
             <div class="chart-title">Open Complaints Over Time</div>
             <canvas id="openComplaintsChart"></canvas>
         </div>
-
         <!-- Bar Chart for Closed Complaints -->
-        <div class="chart-container bar-chart">
+        <div class="chart-container2">
             <div class="chart-title">Closed Complaints Over Time</div>
             <canvas id="closedComplaintsChart"></canvas>
         </div>
-
         <!-- Pie Chart for Total Complaints -->
-        <div class="chart-container canvas-pie">
+        <div class="chart-container3">
             <div class="chart-title">Total Complaints Distribution</div>
             <canvas id="totalComplaintsPieChart"></canvas>
-        </div>
-
-        <a href="{% url 'home' %}" class="back-button">Back to Home</a>
+        </div>        
     </div>
-
     <script>
         // Prepare data for Chart.js
         const years = JSON.parse('{{ years_json|escapejs }}');
         const openCounts = JSON.parse('{{ open_counts_json|escapejs }}');
         const closedCounts = JSON.parse('{{ closed_counts_json|escapejs }}');
-        const totalOpen = parseInt('{{ total_open|default:"0" }}', 10);
-        const totalClosed = parseInt('{{ total_closed|default:"0" }}', 10);
+        const totalOpen = parseInt('{{ total_open|default:"0" }}');
+        const totalClosed = parseInt('{{ total_closed|default:"0" }}');
 
-        // Bar chart for open complaints
-        const ctxOpen = document.getElementById('openComplaintsChart').getContext('2d');
-        new Chart(ctxOpen, {
-            type: 'bar',
-            data: {
-                labels: years,
-                datasets: [{
-                    label: 'Open Complaints',
-                    data: openCounts,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }]
+// Bar chart for open complaints
+const ctxOpen = document.getElementById('openComplaintsChart').getContext('2d');
+new Chart(ctxOpen, {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [{
+            label: 'Open Complaints',
+            data: openCounts,
+            backgroundColor: 'rgba(255, 99, 132)', // Slightly transparent for better visibility
+            borderColor: '#000000', // Brighter border for contrast
+            borderWidth: 2, // Thicker border
+            barThickness: 30, // Wider bars for better visibility
+            hoverBackgroundColor: 'rgba(255, 99, 132)', // Slightly more visible on hover
+            hoverBorderColor: '#000000', // Brighter border on hover
+            hoverBorderWidth: 3 // Thicker border on hover
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                    font: {
+                        size: 16, // Font size for legend
+                        weight: 'bold' // Bold text for legend
+                    }
+                }
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return 'Complaints: ' + tooltipItem.raw;
-                            }
-                        }
+            tooltip: {
+                callbacks: {
+                    label: function(tooltipItem) {
+                        return 'Complaints: ' + tooltipItem.raw;
                     }
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Number of Complaints'
-                        },
-                        ticks: {
-                            stepSize: 1
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Year'
-                        }
-                    }
-                }
+                backgroundColor: 'rgba(0, 0, 0)', // Dark background for tooltips
+                titleColor: '#fff', // White title text
+                bodyColor: '#fff', // White body text
+                borderColor: '#000000', // Light border around tooltip
+                borderWidth: 1
             }
-        });
-
-        // Bar chart for closed complaints
-        const ctxClosed = document.getElementById('closedComplaintsChart').getContext('2d');
-        new Chart(ctxClosed, {
-            type: 'bar',
-            data: {
-                labels: years,
-                datasets: [{
-                    label: 'Closed Complaints',
-                    data: closedCounts,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
+        },
+        layout: {
+            padding: {
+                left: 2,
+                right: 2,
+                top: 3,
+                bottom: 2
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Number of Complaints',
+                    color: '#000', // Color of the title text
+                    font: {
+                        size: 14,
+                        weight: 'bold'
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return 'Complaints: ' + tooltipItem.raw;
-                            }
-                        }
+                    padding: {
+                        top: 10 // Space above the title
                     }
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Number of Complaints'
-                        },
-                        ticks: {
-                            stepSize: 1
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Year'
-                        }
+                ticks: {
+                    stepSize: 1,
+                    color: '#333', // Color of the y-axis labels
+                    font: {
+                        size: 15 // Font size for y-axis labels
                     }
+                },
+                grid: {
+                    color: 'rgba(0, 0, 0)' // Light grid lines
                 }
-            }
-        });
-
-        // Pie chart for total complaints
-        const ctxPie = document.getElementById('totalComplaintsPieChart').getContext('2d');
-        new Chart(ctxPie, {
-            type: 'pie',
-            data: {
-                labels: ['Open Complaints', 'Closed Complaints'],
-                datasets: [{
-                    label: 'Total Complaints',
-                    data: [totalOpen, totalClosed],
-                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
-                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
-                    borderWidth: 1
-                }]
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
+            x: {
+                title: {
+                    display: true,
+                    text: 'Year',
+                    color: '#000000', // Color of the title text
+                    font: {
+                        size: 18,
+                        weight: 'bold'
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                // Calculate percentage
-                                const total = totalOpen + totalClosed;
-                                const value = tooltipItem.raw;
-                                const percentage = ((value / total) * 100).toFixed(2);
-                                return `${tooltipItem.label}: ${value} (${percentage}%)`;
-                            }
-                        }
+                    padding: {
+                        top: 10 // Space above the title
                     }
+                },
+                ticks: {
+                    color: '#333', // Color of the x-axis labels
+                    font: {
+                        size: 14 // Font size for x-axis labels
+                    }
+                },
+                grid: {
+                    color: 'rgba(0, 0, 0)'
                 }
             }
-        });
-    </script>
+        }
+    }
+});
+// Bar chart for closed complaints
+const ctxClosed = document.getElementById('closedComplaintsChart').getContext('2d');
+new Chart(ctxClosed, {
+    type: 'bar',
+    data: {
+        labels: years,
+        datasets: [{
+            label: 'Closed Complaints',
+            data: closedCounts,
+            backgroundColor: 'rgba(54, 162, 235)', // Slightly transparent blue for visibility
+            borderColor: '#000000', // Black border for contrast
+            borderWidth: 3, // Thicker border for better visibility
+            barThickness: 30, // Adjust the bar width here
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true, // Ensure the legend is displayed
+                position: 'top',
+                labels: {
+                    color: '#000000', // Black color for the legend labels
+                    font: {
+                        size: 16, // Font size for legend labels
+                        weight: 'bold' // Font weight for better visibility
+                    }
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(tooltipItem) {
+                        return 'Complaints: ' + tooltipItem.raw;
+                    }
+                },
+                backgroundColor: 'rgba(0, 0, 0)', // Dark background for tooltips
+                titleColor: '#fff', // White title text
+                bodyColor: '#fff', // White body text
+                borderColor: '#000000', // Light border around tooltip
+                borderWidth: 1
+            }
+        },
+        layout: {
+            padding: {
+                left: 20,
+                right: 20,
+                top: 50,
+                bottom: 20
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Number of Complaints',
+                    color: '#000', // Color of the title text
+                    font: {
+                        size: 18,
+                        weight: 'bold'
+                    },
+                    padding: {
+                        top: 10 // Space above the title
+                    }
+                },
+                ticks: {
+                    stepSize: 1,
+                    color: '#333', // Color of the y-axis labels
+                    font: {
+                        size: 14 // Font size for y-axis labels
+                    }
+                },
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.1)' // Light grid lines
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Year',
+                    color: '#000', // Color of the title text
+                    font: {
+                        size: 18,
+                        weight: 'bold'
+                    },
+                    padding: {
+                        top: 10 // Space above the title
+                    }
+                },
+                ticks: {
+                    color: '#333', // Color of the x-axis labels
+                    font: {
+                        size: 14 // Font size for x-axis labels
+                    }
+                },
+                grid: {
+                    display: false // Hide x-axis grid lines if not needed
+                }
+            }
+        }
+    }
+});
+// Pie chart for total complaints
+const ctxPie = document.getElementById('totalComplaintsPieChart').getContext('2d');
+new Chart(ctxPie, {
+    type: 'pie',
+    data: {
+        labels: ['Open Complaints', 'Closed Complaints'],
+        datasets: [{
+            label: 'Total Complaints',
+            data: [totalOpen, totalClosed],
+            backgroundColor: ['rgba(255, 99, 132)', 'rgba(54, 162, 235)'],
+            borderColor: ['rgba(#000000)', 'rgba(#000000)'],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false, // Allows the chart to resize according to the container
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                    font: {
+                        size: 14, // Smaller font size for legend
+                        weight: 'bold',
+                        border:'#000000'
+                    }
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(tooltipItem) {
+                        return tooltipItem.label + ': ' + tooltipItem.raw + ' complaints';
+                    }
+                },
+                backgroundColor: 'rgba(0, 0, 0)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: '#000000',
+                borderWidth: 1
+            }
+        },
+        animation: {
+            animateScale: true,
+            animateRotate: true
+        }
+    }
+});
+</script>
 </body>
 </html>
