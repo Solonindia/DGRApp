@@ -235,8 +235,10 @@
     </div>
     <div class="button-container">
         <a href="{% url 'existing_complaints' %}"><b>Existing Complaints</b></a>
+        <a href="{% url 'final_complaints_user' %}"><b>Closed Complaints</b></a>
         <a href="{% url 'user' %}"><b>Dashboard</b></a>
     </div>    
+    
     <div class="form-wrapper">
     <form id="complaintForm" method="post" enctype="multipart/form-data" action="{% url 'new_complaint' %}">
     {% csrf_token %}

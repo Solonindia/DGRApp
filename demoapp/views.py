@@ -1496,6 +1496,14 @@ def final_complaints(request):
         #'rejected_complaints': rejected_complaints
     })
 
+def final_complaints_user(request):
+    accepted_complaints = Complaint.objects.filter(status='Update').order_by('-created_at')
+    #rejected_complaints = Complaint.objects.filter(status='Rejected')
+    return render(request, 'final_complaints_user.html', {
+        'accepted_complaints': accepted_complaints#,
+        #'rejected_complaints': rejected_complaints
+    })
+
 def delete_complaint(request, complaint_id):
     if request.method == "POST":
         # Get the complaint object and delete it

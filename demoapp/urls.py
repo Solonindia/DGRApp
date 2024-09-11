@@ -14,6 +14,7 @@ urlpatterns = [
     path('user/DGR/', views.generate_word1, name='generate_word'),
     path('superuser/DGR/', views.generate_word, name='generate_word1'),
     path('user/new/', views.complaint_form, name='new_complaint'),
+    path('user/history/', views.final_complaints_user, name='final_complaints_user'),
     path('superuser/approval/', views.approval_complaints, name='approval_complaints'),
     path('superuser/approve_complaint/<int:complaint_id>/', views.accept_complaint, name='accept_complaint'),
     path('user/existing/', views.existing_complaints, name='existing_complaints'),

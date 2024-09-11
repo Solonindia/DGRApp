@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Closed Complaints</title>
+    <style>
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            height: 100vh; /* Ensure the body takes the full height of the viewport */
+            overflow: auto; /* Allows scrolling */
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 10%; /* 2px space at the top */
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
+            background-image: url('/static/Images/solon2.jpg');
+            filter: blur(3px);
+            background-size: cover; /* Ensure the background image covers the entire area */
+            background-repeat: no-repeat; /* Prevents the image from repeating */
+            background-attachment: fixed; /* Keeps the background image fixed while scrolling */
+            background-position: center; /* Centers the background image */
+            z-index: -1;
+        }
+        .logo {
+            position: fixed; /* Fix the logo in place */
+            top: 10px;
+            left: 10px;
+            z-index: 2; /* Ensure it's above other content */
+            margin-bottom: 10%;
+        }
+        .logo img {
+            width: 100px;
+            height: auto;
+        }
+        h3 {
+            color: rgb(3, 3, 65);
+            text-align: center;
+            margin-bottom: 5%;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 10px;
+            color:#0202d4;
+            text-align:left;
+        }
+        .complaint-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .complaint-info {
+            display: flex;
+            gap: 20px;
+        }
+        .hidden-details {
+            display: none;
+            padding: 10px; /* Padding inside the border */
+            border-radius: 5px; /* Optional for rounded corners */
+        }
+        .nature-of-complaint-container {
+            display: flex;
+            text-align:left;
+        }
+        .complaint-serial-number{
+            color:brown;
+            text-decoration: double;
+        }
+        .nature-of-complaint-label {
+            flex-basis: 30%; /* Adjust this to set the width of the label */
+            font-weight: bold;
+        }
+
+        .nature-of-complaint {
+            flex: 1; /* Takes the remaining space */
+            margin: 0; /* Remove margin */
+            padding: 0; /* Remove padding */
+            white-space: pre-wrap; /* Preserve whitespace and wrap text */
+            word-wrap: break-word; /* Break long words if needed */
+        }
+        .view-more {
+            cursor: pointer;
+            color: #492a02;
+            text-decoration: underline;
+        }
+
+        .image-container {
+            margin-top: 1px;
+        }
+
+        .image-container img {
+            width: 100px;
+            height: auto;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9);
+        }
+
+        .modal-content {
+            margin: 15% auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            color: #fff;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .hist ul {
+            list-style-type: none; /* Removes default bullets */
+            padding: 0;
+            margin: 0;
+        }
+
+        .hist li {
+            border: 1px solid black;
+            background-color: aliceblue;
+            border-radius: 5%;
+            margin-bottom: 15px; /* Space between individual items */
+            padding: 10px;
+            color: #050505;
+            background-color: aliceblue;
+            border-radius: 5%;
+            margin-left: 18%;
+            margin-right:2%;
+        }
+        .logout {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 2; /* Ensure it stays on top of other content */
+            color: rgb(16, 2, 95);
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .logout:hover {
+            background-color: #9797f3;
+        }
+        .delete-btn{
+            background-color: red;
+            height:20%;
+            width:7%;
+            color:white;
+            border-radius: 3%;
+        }
+        .no {
+            color: red;
+            font-size: xx-large;
+            text-align: center;
+            animation: blink-animation 1s step-start infinite;
+        }
+
+        @keyframes blink-animation {
+            50% {
+                opacity: 0;
+            }
+        }
+        .button-container {
+            text-align: left;
+            position: fixed;
+            top: 11%; /* Adjust to set vertical position */
+            left: 0; /* Adjust to set horizontal position */
+            background-color: rgba(2, 37, 70, 0.7); /* Semi-transparent blue background */
+            height: 90%; /* Adjust height as needed */
+            width:15%;
+            padding: 10px; /* Padding around the container */
+            border-radius: 5px; /* Rounded corners for the container */
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            gap: 10px; /* Space between the buttons */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for visual effect */
+            backdrop-filter: blur(1px); /* Optional: Blurs the area behind the container */
+        }
+        .button-container a {
+            color: white; /* Text color */
+            padding: 10px 20px;
+            text-align: left;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px; /* Rounded corners for the buttons */
+            display: block; /* Ensures the link takes up full width */
+            transition: background-color 0.3s, text-decoration 0.3s; /* Smooth transition */
+        }
+        .button-container a:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+    </style>
+</head>
+<body>
+    <a href="{% url 'home' %}" class="logout">Logout</a>
+    <h3>
+    <div class="circle">
+        Closed Complaints
+    </div>
+</h3>
+    <div class="logo">
+        <img src="/static/Images/logo.jpg" alt="Footer Image">
+    </div>
+    <div class="button-container">
+        <a href="{% url 'new_complaint' %}"><b>New Complaint</b></a>
+        <a href="{% url 'existing_complaints' %}"><b>Existing Complaints</b></a>
+        <a href="{% url 'user' %}"><b>Dashboard</b></a>
+    </div> 
+    <div class="hist">
+    <ul>
+        {% for complaint in accepted_complaints %}
+            <li>
+                <div class="complaint-summary">
+                    <div class="complaint-info">
+                    <div class="complaint-serial-number">{{ forloop.counter }}</div>
+                   <strong style="color:#050505">Complaint ID:</strong> {{ complaint.complaint_id }}<br>
+                        <strong style="color:#050505">Location:</strong> 
+                            {% if complaint.location == 'Other' and complaint.custom_location %}
+                                {{ complaint.custom_location }}
+                            {% else %}
+                                {{ complaint.location }}
+                            {% endif %}<br>
+                        <strong style="color:#050505">Product/Equipment:</strong> {{ complaint.equipment }}<br>
+                    </div>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<div class="view-more" onclick="toggleDetails(this)">View More</div>
+                </div>
+                <div class="hidden-details">
+                    <div>
+                        <strong style="color:#050505">Project Owner:</strong>
+                        <span class="value">{{ complaint.company_name }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Site Name:</strong>
+                        <span class="value">{{ complaint.site_name }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Priority:</strong>
+                        <span class="value">{{ complaint.priority }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Complaint Raised by:</strong>
+                        <span class="value">{{ complaint.complaint_raised_by }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Nature of Complaint:</strong>
+                        <span><p class="nature-of-complaint">{{ complaint.nature_of_complaint }}</p></span> 
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Start Date:</strong>
+                        <span class="value">{{ complaint.start_date|date:"Y-m-d" }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Summary of Action Taken:</strong>
+                        <span class="value">{{ complaint.summary_of_action_taken|default:"No summary provided." }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Root Cause:</strong>
+                        <span class="value">{{ complaint.root_cause }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Preventive Action:</strong>
+                        <span class="value">{{ complaint.preventive_action }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Claim Type:</strong>
+                        <span class="value">{{ complaint.claim_type }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Parts Replaced for Rectification:</strong>
+                        <span class="value">{{ complaint.parts_replaced_for_rectification }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">Attended By:</strong>
+                        <span class="value">{{ complaint.attended_by }}</span>
+                    </div>
+                    <div>
+                        <strong style="color:#050505">End Date:</strong>
+                        <span class="value">{{ complaint.end_date|date:"Y-m-d" }}</span>
+                    </div>
+                    <div class="image-container">
+                        {% with images=complaint.get_images %}
+                            {% if images %}
+                                {% for image in images %}
+                                    <img src="{{ image }}" alt="Complaint Image" onclick="openModal('{{ image }}')">
+                                {% endfor %}
+                            {% else %}
+                                <p>No images uploaded.</p>
+                            {% endif %}
+                        {% endwith %}
+                    </div><br>
+                    <hr>
+                </div>
+            </li>
+        {% empty %}
+            <li class="no">No closed complaints</li>
+        {% endfor %}
+    </ul>
+</div>
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="img01">
+    </div>
+    <script>
+        function toggleDetails(element) {
+            const hiddenDetails = element.parentElement.nextElementSibling;
+            const isHidden = hiddenDetails.style.display === "none" || hiddenDetails.style.display === "";
+            hiddenDetails.style.display = isHidden ? "block" : "none";
+            element.textContent = isHidden ? "View Less" : "View More";
+        }
+
+        function openModal(imageSrc) {
+            const modal = document.getElementById("myModal");
+            const modalImg = document.getElementById("img01");
+            modal.style.display = "block";
+            modalImg.src = imageSrc;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        }
+    </script>
+</body>
+</html>
