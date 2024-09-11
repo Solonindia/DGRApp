@@ -4,7 +4,6 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
 from .forms import CustomUserCreationForm  # Make sure LoginForm is imported from the correct path
 
-
 def home_page(request):
     return render(request, 'home_page.html')
 
