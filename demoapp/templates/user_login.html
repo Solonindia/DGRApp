@@ -7,8 +7,7 @@
     <style>
         body {
             display: flex;
-            justify-content: center;
-            align-items: center;
+            justify-content: right;
             height: 100vh;
             margin: 0;
             background-color: white;
@@ -41,54 +40,69 @@
             height: auto;
         }
 
-        .signup-container {
+        .login-container {
+            margin-top: 5%;
             max-width: 400px;
-            width: 100%;
+            width:100%;
+            height:69%;
             padding: 40px;
-            border: 1px solid #0c0c0c;
-            border-radius: 8px;
-            background-color: #11d0f1; /* Slightly transparent background */
+            background-color: #fdfdfdd7;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             z-index: 1;
             text-align: center;
+            text-align: left;
         }
 
-        .signup-container h2 {
+        .login-container h2 {
             margin-bottom: 20px;
         }
 
-        .signup-container form {
+        .login-container form {
             display: flex;
             flex-direction: column;
         }
 
-        .signup-container form input[type="text"],
-        .signup-container form input[type="password"],
-        .signup-container form input[type="email"] {
-            padding: 10px;
-            margin-bottom: 10px;
+        .login-container form input[type="text"],
+        .login-container form input[type="password"] {
+            border: none;
+            border-bottom: 2px solid #2b62c9;
+            padding: 10px 5px;
+            margin-bottom: 20px;
             font-size: 16px;
-            border: 3px solid #2b62c9;;
-            border-radius: 5px;
             width: 100%;
+            background-color: transparent;
         }
 
-        .signup-container form button[type="submit"] {
-            padding: 10px;
+        /* Change underline color on focus */
+        .login-container form input[type="text"]:focus,
+        .login-container form input[type="password"]:focus {
+            outline: none;
+            border-bottom: 2px solid #04035c;
+        }
+
+        .login-container form button[type="submit"] {
+            padding: 0px;
             background-color: #04035c;
-            color: white;
+            color: rgba(255, 255, 255, 0.897);
             border: none;
             cursor: pointer;
-            width: 28%;
+            width: 25%;
             border-radius: 5px;
             text-align: center;
             margin-left: 37%;
         }
+
         .bottom-left {
             position: absolute;
-            bottom: 30px; /* Distance from the bottom */
-            left: 10px; /* Distance from the left */
-            z-index: 3; /* Ensure the link is above the background */
+            bottom: 30px;
+            left: 10px;
+            z-index: 3;
+        }
+
+        /* Customize placeholder style */
+        ::placeholder {
+            color: #a0a0a0;
+            opacity: 1; /* Ensures placeholder visibility */
         }
     </style>
 </head>
@@ -97,23 +111,23 @@
     <div class="logo">
         <img src="/static/Images/logo.jpg" alt="Footer Image">
     </div>
-    <div class="signup-container">        
+    <div class="login-container">        
         {% if error_message %}
             <p class="error-message">{{ error_message }}</p>
         {% endif %}
-        
+        <h3 style="text-align: center;color:rgb(10, 1, 122);">User Login</h3>
         <form action="" method="post">
             {% csrf_token %}
-            <label for="username">Username:</label>
+            <label for="username"><h3>Username:</h3></label>
             <input type="text" id="username" name="username" required><br>
-            <label for="password">Password:</label>
+            <label for="password"><h3>Password:</h3></label>
             <input type="password" id="password" name="password" required><br>
-            <button type="submit">Login</button>
+            <button type="submit"><h3>Login</h3></button>
         </form>
         <br>
     </div>
     <div class="bottom-left">
-        <a href="{% url 'home' %}"><b>Go to Home</b></a>
+        <a href="{% url 'home' %}"><b>Home</b></a>
     </div>
 </body>
 </html>

@@ -7,8 +7,6 @@
     <style>
         body {
             display: flex;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
             margin: 0;
             background-color: white;
@@ -41,94 +39,30 @@
             width: 100px;
             height: auto;
         }
-
-        .dgr-button {
-            position: absolute;
-            top: 200px; 
-            left: 200px;
-            border: 2px solid #007bff; /* Border color and width */
-            border-radius: 10px; /* Rounded corners */
-            padding: 20px; /* Space inside the border */
-            background-color: #f8f9fa; /* Background color for contrast */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Optional shadow for depth */
-            z-index: 1; /* Ensure the button is above other elements */
+        .menu-bar {
+            margin-top: 5%;
+            height: 8%;
+            display: flex;
+            width: 100%;
+            background-color: rgba(2, 37, 70, 0.7); /* Semi-transparent blue background */
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for visual effect */
+            z-index: 5;
+            justify-content: center; /* Center the menu items */
         }
 
-        .dgr-button p {
-            margin: 0 0 10px 0; /* Space between paragraphs and the button */
-            font-size: 16px; /* Adjust text size */
-            color: #0c0341; /* Text color */
-        }
-
-        .button1,.button{
-            display: inline-block;
+        .menu-bar a {
+            color: white; /* Text color */
             padding: 10px 20px;
-            font-size: 16px;
-            color: rgb(8, 8, 8);
-            background-color: #11d0f1;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
             text-decoration: none;
-            text-align: center;
+            font-size: 16px;
+            border-radius: 5px; /* Rounded corners for the buttons */
+            transition: background-color 0.3s, text-decoration 0.3s; /* Smooth transition */
         }
 
-        .button1:hover {
-            background-color: #04055a;
-            color:aliceblue;
-        }
-        .button:hover {
-            background-color: #04055a;
-            color:aliceblue;
-        }
-
-        .complaint-button {
-            position: absolute;
-            top: 200px; 
-            right: 200px;
-            border: 2px solid #007bff; /* Border color and width */
-            border-radius: 10px; /* Rounded corners */
-            padding: 20px; /* Space inside the border */
-            background-color: #f8f9fa; /* Background color for contrast */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Optional shadow for depth */
-            z-index: 1; /* Ensure the button is above other elements */
-        }
-
-        .complaint-button p {
-            margin: 0 0 10px 0; /* Space between paragraphs and the button */
-            font-size: 16px; /* Adjust text size */
-            color: #0c0341; /* Text color */
-        }
-
-        .register-button, .logout-button {
-            position: absolute;
-            top: 20px; /* Distance from the top */
-            font-size: 20px; /* Adjust text size if needed */
-            z-index: 2; /* Ensure the text is above the background */
-        }
-
-        .register-button {
-            right: 120px; /* Adjust distance from the right for Register */
-        }
-
-        .logout-button {
-            right: 40px; /* Adjust distance from the right for Logout */
-        }
-
-        .register-button a, .logout-button a {
-            color: #007bff; /* Text color */
-            text-decoration: none; /* Remove underline */
-        }
-
-        .register-button a:hover, .logout-button a:hover {
+        .menu-bar a:hover {
             text-decoration: underline; /* Underline on hover */
-        }
-
-        .bottom-left {
-            position: absolute;
-            bottom: 30px; /* Distance from the bottom */
-            left: 10px; /* Distance from the left */
-            z-index: 3; /* Ensure the link is above the background */
+            color:cornflowerblue;
         }
     </style>    
 </head>
@@ -137,20 +71,11 @@
     <div class="logo">
         <img src="/static/Images/logo.jpg" alt="Footer Image">
     </div>
-    <div class="register-button">
-        <a href="{% url 'signup' %}">Register</a>
-    </div>
-    <div class="logout-button">
-        <a href="{% url 'home' %}">Logout</a>
-    </div>
-    <div class="dgr-button">
-        <a href="{% url 'generate_word1' %}" class="button1">Annual Report</a> 
-    </div>
-    <div class="complaint-button">
-        <a href="{% url 'approval_complaints' %}" class="button">Complaint</a> 
-    </div>
-    <div class="bottom-left">
-        <a href="{% url 'home' %}"><b>Home</b></a>
-    </div>
+    <div class="menu-bar">
+        <a href="{% url 'generate_word1' %}" class="button1"><h3>Annual Report</h3></a> 
+        <a href="{% url 'approval_complaints' %}" class="button"><h3>Complaints</h3></a>
+        <a href="{% url 'signup' %}"><h3>Register</h3></a>
+        <a href="{% url 'home' %}"><h3>Home</h3></a>
+    </div>    
 </body>
 </html>
