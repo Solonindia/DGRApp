@@ -7,8 +7,6 @@
     <style>
         body {
             display: flex;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
             margin: 0;
             background-color: white;
@@ -41,137 +39,31 @@
             width: 100px;
             height: auto;
         }
-
-        .dgr-button {
-            position: absolute;
-            top: 200px; 
-            left: 200px;
-            width:12%;
-            border: 2px solid #007bff; /* Border color and width */
-            border-radius: 10px; /* Rounded corners */
-            padding: 30px; /* Space inside the border */
-            background-color: #f8f9fa; /* Background color for contrast */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Optional shadow for depth */
-            z-index: 1; /* Ensure the button is above other elements */
-        }
-
-        .complaint-button {
-            position: absolute;
-            top: 200px;
-            right: 200px;
-            border: 2px solid #007bff; /* Border color and width */
-            border-radius: 10px; /* Rounded corners */
-            padding: 20px; /* Space inside the border */
-            background-color: #f8f9fa; /* Background color for contrast */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Optional shadow for depth */
-            z-index: 1; /* Ensure the button is above other elements */
-        }
-
-        .button1 {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #11d0f1;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            text-align: center;
-        }
-
-        .button1:hover {
-            background-color: #04055a;
-            color: rgb(253, 246, 246);
-        }
-
-        .button1, .button {
-            padding: 8px 16px; /* Reduced padding */
-            margin-left: 5px;
-            color: rgb(247, 238, 238);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px; /* Reduced font size */
-            width: 100px; /* Reduced width */
-            height: 40px; /* Reduced height */
-            display: inline-block;
-            text-align: center;
-            line-height: 40px; /* Adjusted line height */
-            text-decoration: none;
-        }
-
-        .button1 {
-            background-color: #11d0f1;
-            color: black;
-            width:80%;
-        }
-
-        .button {
-            background-color: #04055a;
-        }
-
-        .register-btn {
-            background-color: #f1c40f; /* Yellow background for the Register button */
-            color: black;
-        }
-
-        .button:hover {
-            background-color: #11d0f1;
-            color: black;
-        }
-
-        .button1:hover {
-            background-color: #04055a;
-            color: rgb(253, 246, 246);
-        }
-
-        .register-btn:hover {
-            background-color: #f39c12; /* Darker yellow on hover */
-        }
-
-        .content {
+        .menu-bar {
+            margin-top: 5%;
+            height: 8%;
             display: flex;
-            justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
-            height: calc(100vh - 100px); /* Adjusted height for vertical centering */
+            width: 100%;
+            background-color: rgba(2, 37, 70, 0.7); /* Semi-transparent blue background */
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for visual effect */
+            z-index: 5;
+            justify-content: center; /* Center the menu items */
         }
 
-        .center-buttons {
-            text-align: center; 
+        .menu-bar a {
+            color: white; /* Text color */
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px; /* Rounded corners for the buttons */
+            transition: background-color 0.3s, text-decoration 0.3s; /* Smooth transition */
         }
 
-        .center-buttons .button1 {
-            margin: 0 100px; 
+        .menu-bar a:hover {
+            text-decoration: underline; /* Underline on hover */
+            color:cornflowerblue;
         }
-
-        .bottom-left {
-            position: absolute;
-            bottom: 30px; /* Distance from the bottom */
-            left: 10px; /* Distance from the left */
-            z-index: 3; /* Ensure the link is above the background */
-        }
-
-        /* Logout button in the top right corner */
-        .logout-button {
-            position: absolute;
-            top: 10px; /* Distance from the top */
-            right: 10px; /* Distance from the right */
-            z-index: 3; /* Ensure the button is above other elements */
-            border: 2px solid #007bff; /* Border color and width */
-            border-radius: 10px; /* Rounded corners */
-            padding: 10px 20px; /* Padding inside the button */
-            background-color: #f8f9fa; /* Background color */
-            color: #000; /* Text color */
-            text-decoration: none; /* Remove underline */
-            font-size: 16px; /* Font size */
-        }
-
-        .logout-button:hover {
-            background-color: #bfd4eb; /* Background color on hover */
-            color: #fff; /* Text color on hover */
-        }
-
     </style>    
 </head>
 <body>
@@ -179,17 +71,10 @@
     <div class="logo">
         <img src="/static/Images/logo.jpg" alt="Footer Image">
     </div>
-    <div class="dgr-button">
-        <a href="{% url 'generate_word' %}" class="button1">Annual Report</a> 
-    </div>
-    <div class="complaint-button">
-        <a href="{% url 'complaint_form' %}" class="button">Complaint</a> 
-    </div>
-    <div class="bottom-left">
-        <a href="{% url 'home' %}"><b>Home</b></a>
-    </div>
-    <div class="logout-button">
-        <a href="{% url 'home' %}">Logout</a>
-    </div>
+    <div class="menu-bar">
+        <a href="{% url 'generate_word1' %}" class="button1"><h3>Annual Report</h3></a> 
+        <a href="{% url 'approval_complaints' %}" class="button"><h3>Complaints</h3></a>
+        <a href="{% url 'home' %}"><h3>Home</h3></a>
+    </div>    
 </body>
 </html>
