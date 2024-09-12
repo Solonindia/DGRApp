@@ -3,6 +3,7 @@ from django.utils import timezone
 import pytz
 import json
 from datetime import datetime
+from django.contrib.auth.models import User
 
 class Complaint(models.Model):
     STATUS_CHOICES = [
@@ -20,6 +21,7 @@ class Complaint(models.Model):
         ('Under Warranty', 'Under Warranty'),
         ('Chargeable', 'Chargeable'),
     ]
+    dup_username = models.CharField(max_length=255, blank=True, null=True)
     id = models.BigAutoField(primary_key=True)
     equipment = models.CharField(max_length=255, blank=True, null=True)
     complaint_raised_by = models.CharField(max_length=255, blank=True, null=True)

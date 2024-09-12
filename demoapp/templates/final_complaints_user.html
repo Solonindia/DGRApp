@@ -181,7 +181,7 @@
         }
         .no {
             color: red;
-            font-size: xx-large;
+            font-size:larger;
             text-align: center;
             animation: blink-animation 1s step-start infinite;
         }
@@ -225,10 +225,8 @@
 <body>
     <a href="{% url 'home' %}" class="logout">Logout</a>
     <h3>
-    <div class="circle">
-        Closed Complaints
-    </div>
-</h3>
+    <div class="circle">Closed Complaints</div>
+    </h3>
     <div class="logo">
         <img src="/static/Images/logo.jpg" alt="Footer Image">
     </div>
@@ -240,7 +238,7 @@
     </div> 
     <div class="hist">
     <ul>
-        {% for complaint in accepted_complaints %}
+        {% for complaint in accepted_usercomplaints %}
             <li>
                 <div class="complaint-summary">
                     <div class="complaint-info">

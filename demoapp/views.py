@@ -1360,8 +1360,11 @@ import json
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def complaint_form(request):
+    username = request.user.username
     if request.method == "POST":
         # Get form data
         company_name = request.POST.get('company_name')
@@ -1384,11 +1387,12 @@ def complaint_form(request):
             location=location,
             start_date=start_date,
             equipment=equipment,
-            complaint_raised_by=complaint_raised_by
+            complaint_raised_by=complaint_raised_by,
+            dup_username = username
         )
         complaint.save()
 
-        # Handle image uploads
+        # Handle image uploads (same as before)
         image_urls = []
         for image in images:
             if image.size > 1024 * 1024:
@@ -1404,7 +1408,6 @@ def complaint_form(request):
         complaint.images = json.dumps(image_urls[:2])
         complaint.save()
 
-        # Return data as JSON
         return JsonResponse({
             'success': True,
             'data': {
@@ -1420,8 +1423,6 @@ def complaint_form(request):
                 'images': image_urls[:2]
             }
         })
-
-
     return render(request, 'new_complaint.html', {})
 
 def approval_complaints(request):
@@ -1438,10 +1439,11 @@ def accept_complaint(request, complaint_id):
     complaints = Complaint.objects.filter(status='Pending')
     return render(request,'approval_complaints.html', {'complaints': complaints})
 
+@login_required
 def existing_complaints(request):
-    # Order complaints by 'created_at' in descending order
-    complaints_list = Complaint.objects.filter(status='Accepted').order_by('-created_at')
-    paginator = Paginator(complaints_list, 3)  # Show 10 complaints per page
+    username = request.user.username
+    complaints_list = Complaint.objects.filter(status='Accepted', dup_username=username).order_by('-created_at')
+    paginator = Paginator(complaints_list, 3)
     page_number = request.GET.get('page')
     complaints = paginator.get_page(page_number)
     return render(request, 'existing_complaints.html', {'complaints': complaints})
@@ -1489,18 +1491,16 @@ def edit_complaint(request, complaint_id):
 
 def final_complaints(request):
     accepted_complaints = Complaint.objects.filter(status='Update').order_by('-created_at')
-    #rejected_complaints = Complaint.objects.filter(status='Rejected')
     return render(request, 'final_complaints.html', {
         'accepted_complaints': accepted_complaints#,
-        #'rejected_complaints': rejected_complaints
     })
 
+@login_required
 def final_complaints_user(request):
-    accepted_complaints = Complaint.objects.filter(status='Update').order_by('-created_at')
-    #rejected_complaints = Complaint.objects.filter(status='Rejected')
+    username = request.user.username
+    accepted_usercomplaints = Complaint.objects.filter(status='Update', dup_username=username).order_by('-created_at')
     return render(request, 'final_complaints_user.html', {
-        'accepted_complaints': accepted_complaints#,
-        #'rejected_complaints': rejected_complaints
+        'accepted_usercomplaints': accepted_usercomplaints
     })
 
 def delete_complaint(request, complaint_id):
