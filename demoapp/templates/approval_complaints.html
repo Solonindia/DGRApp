@@ -185,10 +185,18 @@
 
     .no-complaints {
         text-align: center;
-        font-size: 18px;
-        color: #e61414;
+        font-size: 20px;
+        color: #f73d0e;
+        background-color: #f4f4f4;
+        height: 20%;
+        margin-left: 20%;
+        animation: blink-animation 1s step-start infinite;
     }
-
+    @keyframes blink-animation {
+            50% {
+                opacity: 0;
+            }
+        }
     .pagination {
         display: flex;
         justify-content: center;
