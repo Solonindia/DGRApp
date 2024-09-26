@@ -80,6 +80,7 @@ def complaint_form(request):
         complaint_raised_by = request.POST.get('complaint_raised_by', '').strip()
         images = request.FILES.getlist('images')
         start_date = request.POST.get('start_date')
+        pdf_file = request.FILES.get('pdf_upload')
 
         complaint = Complaint(
             company_name=company_name,
@@ -111,6 +112,14 @@ def complaint_form(request):
         complaint.images = json.dumps(image_urls[:2])
         complaint.save()
 
+        # Handle PDF upload
+        if pdf_file:
+            if pdf_file.size <= 3 * 1024 * 1024:  # Limit to 3MB
+                fs = FileSystemStorage()
+                pdf_filename = fs.save(f'pdfs/{pdf_file.name}', pdf_file)
+                complaint.pdf_upload = pdf_filename  # Save the PDF file path
+                complaint.save()
+
         return JsonResponse({
             'success': True,
             'data': {
@@ -123,7 +132,8 @@ def complaint_form(request):
                 'equipment': equipment,
                 'complaint_raised_by': complaint_raised_by,
                 'start_date': start_date,
-                'images': image_urls[:2]
+                'images': image_urls[:2],
+                'pdf_upload': complaint.pdf_upload.url if complaint.pdf_upload else None  # Return PDF URL if exists
             }
         })
     return render(request, 'new_complaint.html', {})
@@ -139,6 +149,10 @@ def approval_complaints(request):
 @login_required
 def accept_complaint(request, complaint_id):
     complaint = get_object_or_404(Complaint, id=complaint_id)
+    if request.method == 'POST':
+        remarks = request.POST.get('remarks')
+        #print(remarks)
+        complaint.remarks = remarks
     complaint.status = 'Accepted'
     complaint.save()
     complaints = Complaint.objects.filter(status='Pending')
@@ -157,6 +171,7 @@ def edit_complaint(request, complaint_id):
     complaint = get_object_or_404(Complaint, id=complaint_id)
 
     if request.method == "POST":
+        
         attended_by = request.POST.get('attended_by')
         end_date = request.POST.get('end_date')
         claim_type = request.POST.get('claim_type')  # Get the claim type from the form
@@ -164,6 +179,7 @@ def edit_complaint(request, complaint_id):
         root_cause = request.POST.get('root_cause')
         preventive_action = request.POST.get('preventive_action')
         parts_replaced_for_rectification = request.POST.get('parts_replaced_for_rectification')
+        nature_of_complaint = request.POST.get('nature_of_complaint') 
 
         # Update complaint fields
         complaint.attended_by = attended_by
@@ -173,6 +189,7 @@ def edit_complaint(request, complaint_id):
         complaint.root_cause = root_cause
         complaint.preventive_action = preventive_action
         complaint.parts_replaced_for_rectification = parts_replaced_for_rectification
+        complaint.nature_of_complaint = nature_of_complaint
 
         # Validate end date
         if end_date:
@@ -187,7 +204,8 @@ def edit_complaint(request, complaint_id):
                     'summary_of_action_taken': summary_of_action_taken,
                     'root_cause': root_cause,
                     'preventive_action': preventive_action,
-                    'parts_replaced_for_rectification':parts_replaced_for_rectification
+                    'parts_replaced_for_rectification':parts_replaced_for_rectification,
+                    'nature_of_complaint': nature_of_complaint 
                 })
         complaint.status = 'Update'
         complaint.save()
@@ -208,13 +226,45 @@ def final_complaints_user(request):
         'accepted_usercomplaints': accepted_usercomplaints
     })
 
+# def delete_complaint(request, complaint_id):
+#     if request.method == "POST":
+#         # Get the complaint object and delete it
+#         complaint = get_object_or_404(Complaint, id=complaint_id)
+#         complaint.delete()
+#     # Redirect back to the final_complaints page after deletion
+#     return redirect('final_complaints')
+
+from django.shortcuts import get_object_or_404, redirect
+from django.core.files.storage import default_storage
+import json
+import os
+
 def delete_complaint(request, complaint_id):
     if request.method == "POST":
-        # Get the complaint object and delete it
+        # Get the complaint object
         complaint = get_object_or_404(Complaint, id=complaint_id)
+
+        # Delete images if they exist
+        if complaint.images:
+            image_list = json.loads(complaint.images)
+            for image_url in image_list:
+                # Extract the path from the URL
+                image_path = image_url.replace('/media/', '')  # Adjust this based on your media URL settings
+                # Use Django's default storage to delete the file
+                if default_storage.exists(image_path):
+                    default_storage.delete(image_path)
+
+        # Delete the PDF file if it exists
+        if complaint.pdf_upload:
+            complaint.pdf_upload.delete(save=False)
+
+        # Delete the complaint instance
         complaint.delete()
-    # Redirect back to the final_complaints page after deletion
-    return redirect('final_complaints')
+
+        # Redirect back to the final_complaints page after deletion
+        return redirect('final_complaints')
+
+
 
 from django.db.models import Count
 from django.db.models.functions import ExtractYear

@@ -307,6 +307,15 @@
                         <strong style="color:#050505">End Date:</strong>
                         <span class="value">{{ complaint.end_date|date:"Y-m-d" }}</span>
                     </div>
+
+                    <!-- Display PDF if it exists -->
+                    {% if complaint.pdf_upload %}
+                    <div class="pdf-container">
+                        <strong>Uploaded PDF:</strong>
+                        <a href="{{ complaint.pdf_upload.url }}" target="_blank">View PDF</a>
+                    </div>
+                    {% endif %}
+                    
                     <div class="image-container">
                         {% with images=complaint.get_images %}
                             {% if images %}
