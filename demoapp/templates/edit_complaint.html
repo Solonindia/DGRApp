@@ -254,8 +254,15 @@
         <strong style="color:#0a0a0a">Product/Equipment:</strong> {{ complaint.equipment}}  <br>
         <strong style="color:#0a0a0a">Priority:</strong> {{ complaint.priority }}<br>
         <strong style="color:#0a0a0a">Complaint Raised by:</strong> {{ complaint.complaint_raised_by }} <br>
-        <span><strong style="color:#0a0a0a">Nature of Complaint:</strong> <p class="nature-of-complaint">{{ complaint.nature_of_complaint|default:"N/A" }}</p></span><br>
+
+        <label for="nature_of_complaint">
+            <strong style="color:#0a0a0a">Nature of Complaint:</strong>
+        </label>
+        <input type="text" id="nature_of_complaint" name="nature_of_complaint" 
+               value="{{ complaint.nature_of_complaint|default:'N/A' }}" required><br>
+        <!-- <span><strong style="color:#0a0a0a">Nature of Complaint:</strong> <p class="nature-of-complaint">{{ complaint.nature_of_complaint|default:"N/A" }}</p></span><br> -->
         <strong style="color:#0a0a0a">Start Date:</strong> {{ complaint.start_date|date:"Y-m-d" }}<br>
+        <strong style="color:#0a0a0a">Remarks:</strong> {{ complaint.remarks }}<br>
         <div class="image-container">
             {% with images=complaint.get_images %}
                 {% if images %}

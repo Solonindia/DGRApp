@@ -313,7 +313,24 @@
                             {% endif %}
                         {% endwith %}
                     </div>
-                    <button class="approve-button" onclick="location.href=`{% url 'accept_complaint' complaint.id %}`"><b>APPROVE</b></button>
+                    
+                    <!-- Display PDF if it exists -->
+                    {% if complaint.pdf_upload %}
+                    <div class="pdf-container">
+                        <strong>Uploaded PDF:</strong>
+                        <a href="{{ complaint.pdf_upload.url }}" target="_blank">View PDF</a>
+                    </div>
+                    {% endif %}
+
+                    <form action="{% url 'accept_complaint' complaint.id %}" method="post">
+                        {% csrf_token %}
+                        <div>
+                            <strong>Add Remarks:</strong>
+                            <input type="text" name="remarks" placeholder="Enter remarks here..." value="{{ complaint.remarks|default:'' }}" id="remarks-{{ complaint.id }}">
+                        </div>
+                        <button type="submit" class="approve-button"><b>Approve</b></button>
+                    </form>
+                    <!-- <button class="approve-button" onclick="location.href=`{% url 'accept_complaint' complaint.id %}`"><b>APPROVE</b></button> -->
                 </div>
             {% endfor %}
         {% else %}

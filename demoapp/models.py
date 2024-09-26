@@ -44,6 +44,8 @@ class Complaint(models.Model):
     root_cause = models.TextField(blank=True, null=True)
     preventive_action = models.TextField(blank=True, null=True)
     parts_replaced_for_rectification = models.TextField(blank=True, null=True)
+    remarks = models.TextField(blank=True, null=True)
+    pdf_upload = models.FileField(upload_to='pdfs/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.company_name} - {self.site_name} ({self.status}, {self.priority}, {self.location}, {self.claim_type})"

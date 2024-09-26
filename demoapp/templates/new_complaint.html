@@ -288,13 +288,27 @@
             <label for="start_date"><b>Complaint raised Date *</b></label>
             <input type="date" id="start_date" name="start_date" required onchange="toggleEndDateInput()">
         </div><br>
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label for="images"><b>Upload 1 or 2 Images (Max 1MB each, JPEG only) *</b></label>
                 <input type="file" id="images" name="images" accept=".jpeg,.jpg" multiple required onchange="previewImages()">
             </div>
 
             <div class="image-preview" id="imagePreviewContainer"></div>
+            <ul class="image-names" id="imageNameContainer"></ul> -->
+
+            <div class="form-group">
+                <label for="images"><b>Upload 1 or 2 Images (Max 1MB each, JPEG only) - Optional</b></label>
+                <input type="file" id="images" name="images" accept=".jpeg,.jpg" multiple onchange="previewImages()">
+            </div>
+            
+            <div class="image-preview" id="imagePreviewContainer"></div>
             <ul class="image-names" id="imageNameContainer"></ul>
+
+            <div class="form-group">
+                <label for="pdf_upload"><b>Upload PDF Document (Max 3MB) - Optional</b></label>
+                <input type="file" id="pdf_upload" name="pdf_upload" accept=".pdf" onchange="validatePdfFile()">
+            </div>
+            
 
             <div class="button-group">
                 <button type="submit" class="submit-button"><b>Register</b></button>
@@ -432,15 +446,41 @@
             }
         }
 
-        function previewImages() {
-            const input = document.getElementById('images');
-            const previewContainer = document.getElementById('imagePreviewContainer');
-            const nameContainer = document.getElementById('imageNameContainer');
-            previewContainer.innerHTML = '';
-            nameContainer.innerHTML = '';
+        // function previewImages() {
+        //     const input = document.getElementById('images');
+        //     const previewContainer = document.getElementById('imagePreviewContainer');
+        //     const nameContainer = document.getElementById('imageNameContainer');
+        //     previewContainer.innerHTML = '';
+        //     nameContainer.innerHTML = '';
             
-            Array.from(input.files).forEach(file => {
-                if (file && file.type.startsWith('image/jpeg') && file.size <= 1 * 1024 * 1024) {
+        //     Array.from(input.files).forEach(file => {
+        //         if (file && file.type.startsWith('image/jpeg') && file.size <= 1 * 1024 * 1024) {
+        //             const reader = new FileReader();
+        //             reader.onload = function(e) {
+        //                 const img = document.createElement('img');
+        //                 img.src = e.target.result;
+        //                 previewContainer.appendChild(img);
+        //             };
+        //             reader.readAsDataURL(file);
+        //             const li = document.createElement('li');
+        //             li.textContent = file.name;
+        //             nameContainer.appendChild(li);
+        //         } else {
+        //             alert('Please upload only JPEG images with a maximum size of 1MB.');
+        //         }
+        //     });
+        // }
+
+            function previewImages() {
+        const input = document.getElementById('images');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const nameContainer = document.getElementById('imageNameContainer');
+        previewContainer.innerHTML = '';
+        nameContainer.innerHTML = '';
+        
+        Array.from(input.files).forEach(file => {
+            if (file) {
+                if (file.type.startsWith('image/jpeg') && file.size <= 1 * 1024 * 1024) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         const img = document.createElement('img');
@@ -454,8 +494,10 @@
                 } else {
                     alert('Please upload only JPEG images with a maximum size of 1MB.');
                 }
-            });
-        }
+            }
+        });
+    }
+
 
         function validateWordCount() {
             const textarea = document.getElementById('nature_of_complaint');
@@ -468,6 +510,21 @@
                 warningMessage.style.display = 'none';
             }
         }
+
+        function validatePdfFile() {
+    const pdfInput = document.getElementById('pdf_upload');
+    const file = pdfInput.files[0];
+    
+    if (file) {
+        if (file.size > 3 * 1024 * 1024) { // 3MB in bytes
+            alert('File size exceeds 3MB. Please upload a smaller file.');
+            pdfInput.value = ''; // Clear the input
+        } else if (!file.type === 'application/pdf') {
+            alert('Please upload a valid PDF file.');
+            pdfInput.value = ''; // Clear the input
+        }
+    }
+}
     </script>
 </body>
 </html>

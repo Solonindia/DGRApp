@@ -255,6 +255,7 @@
                     <strong style="color:#0a0a0a">Complaint Raised by:</strong> {{ complaint.complaint_raised_by }} <br>
                     <span><strong style="color:#0a0a0a">Nature of Complaint:</strong> <p class="nature-of-complaint">{{ complaint.nature_of_complaint|default:"N/A" }}</p></span><br>
                     <strong style="color:#0a0a0a">Start Date:</strong> {{ complaint.start_date|date:"Y-m-d" }}<br>
+                    <strong style="color:#0a0a0a">Remarks:</strong> {{ complaint.remarks }}<br>
                     <div class="image-container">
                         {% with images=complaint.get_images %}
                             {% if images %}
