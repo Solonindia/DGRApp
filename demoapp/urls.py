@@ -20,4 +20,6 @@ urlpatterns = [
     path('superuser/history/', views.final_complaints, name='final_complaints'),
     path('delete_complaint/<int:complaint_id>/', views.delete_complaint, name='delete_complaint'),
     path('complaint_analysis/', views.complaint_analysis, name='complaint_analysis'),
+    path('complaints/<str:type>/<str:site_name>/', views.ComplaintDetailView, name='complaints_detail'),
 ]
+

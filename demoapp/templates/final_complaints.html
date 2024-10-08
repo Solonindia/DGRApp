@@ -252,11 +252,14 @@
                             {% else %}
                                 {{ complaint.location }}
                             {% endif %}<br>
-                        <strong style="color:#050505">Product/Equipment:</strong> {{ complaint.equipment }}<br>
                     </div>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<div class="view-more" onclick="toggleDetails(this)">View More</div>
                 </div>
                 <div class="hidden-details">
+                    <div>
+                        <strong style="color:#050505">Product/Equipment:</strong>
+                        <span class="value">{{ complaint.equipment }}</span>
+                    </div>
                     <div>
                         <strong style="color:#050505">Project Owner:</strong>
                         <span class="value">{{ complaint.company_name }}</span>

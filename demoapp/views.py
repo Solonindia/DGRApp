@@ -138,7 +138,7 @@ def complaint_form(request):
         })
     return render(request, 'new_complaint.html', {})
 
-@login_required
+
 def approval_complaints(request):
     complaints_list = Complaint.objects.filter(status='Pending').order_by('-created_at')
     paginator = Paginator(complaints_list, 3)  # Show 3 complaints per page
@@ -320,4 +320,20 @@ def complaint_analysis(request):
         'total_closed': total_closed,
         'selected_site': site_name,
         'sites': Complaint.objects.values_list('site_name', flat=True).distinct()
+    })
+
+def ComplaintDetailView(request, type, site_name):
+    # Determine complaint status based on the type
+    if type == 'open':
+        complaints = Complaint.objects.filter(status__in=['Accepted', 'Pending'])
+    elif type == 'closed':
+        complaints = Complaint.objects.filter(status='Update')
+    
+    # Filter by site name if not 'All'
+    if site_name != 'All':
+        complaints = complaints.filter(site_name=site_name)
+
+    return render(request, 'complaint_detail.html', {
+        'complaints': complaints,
+        'complaint_type': type,  # Pass the complaint type (open or closed)
     })

@@ -12,7 +12,7 @@
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
-            color: #333;
+            color: #080808;
             height: 100vh;
             overflow: auto;
             position: relative;
@@ -95,13 +95,9 @@
             font-size: 16px;
             color:darkblue;
         }
-        .chart-container {
-            width: 80%; /* Adjust the width as needed */
-            max-width: 600px; /* Maximum width for the chart */
-            margin-left: 20%;
-            background-color: #f9f9f9cc; /* Background color of the container (optional) */
-            padding: 10px; /* Add some padding around the chart */
-            border-radius: 8px; /* Optional: Rounded corners for the container */
+        canvas {
+            max-width: 100%; /* Ensure the canvas scales correctly */
+            height: auto; /* Maintain aspect ratio */
         }
 
         #complaintsComboChart {
@@ -112,11 +108,11 @@
             display: flex; /* Use flexbox to place the charts side by side */
             justify-content: space-between; /* Reduce the space between the charts */
             align-items: flex-start; /* Align charts to the top */
-            gap: 20px; /* Reduce the gap between the two charts */
+            gap: 40px; /* Reduce the gap between the two charts */
         }
 
         .chart-container1 {
-            width: 42%; /* Reduce the width of the pie chart */
+            width: 40%; /* Reduce the width of the pie chart */
             margin-top: 8%;
             margin-right: 3%; /* Optional: Add some margin around the containers */
             background-color: #f9f9f9b9; /* Background color (optional) */
@@ -124,7 +120,7 @@
         }
 
         .chart-container2 {
-            width: 60%; /* Wider container for the bar chart */
+            width: 50%; /* Wider container for the bar chart */
             margin-top: 8%;
             margin-left: 20%; /* Optional: Add some margin around the containers */
             background-color: #f9f9f9b9; /* Background color (optional) */
@@ -143,11 +139,47 @@
             text-align: center;
         }
 
-        canvas {
-            width: 100% !important;
-            height: 400px !important; /* Fixed height for both charts */
+        .chart-links {
+            position: absolute;
+            top: 10px; /* Adjust this value as needed */
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px; /* Space between the links */
         }
 
+        .chart-link {
+            display: none;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background for visibility */
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .chart-link:hover {
+            background-color: rgba(0, 0, 0, 1); /* Darker background on hover */
+        }
+        .custom-legend {
+            display: flex;
+            justify-content: center; /* Center the legend items */
+            margin-top: 10px; /* Space between the chart and legend */
+            font-size: 14px; /* Font size for the legend */
+        }
+
+        .custom-legend span {
+            margin: 0 15px; /* Space between legend items */
+        }
+        .chart-container1,
+        .chart-container2 {
+            height: 400px; /* Set the same height for both containers */
+        }
+
+        #complaintsComboChart,
+        #totalComplaintsPieChart {
+            height: 100%; /* Make the canvas take the full height of the container */
+        }
     </style>
 </head>
 <body>
@@ -172,234 +204,219 @@
             </select>
         </form>
         <div class="chart-wrapper">
-            <!-- Bar Chart -->
+            <!-- Bar Chart for Open and Closed Complaints -->
             <div class="chart-container2">
                 <div class="chart-title">Complaints Tracker</div>
                 <canvas id="complaintsComboChart"></canvas>
             </div>
-        
-            <!-- Pie Chart -->
+            
+            <!-- Pie Chart for Total Open and Closed Complaints -->
             <div class="chart-container1">
                 <div class="chart-title">Overall Complaints</div>
-                <canvas id="totalComplaintsPieChart" width="200" height="200"></canvas>
+                <canvas id="totalComplaintsPieChart"></canvas>
             </div>
         </div>
-    <script>
-    // Prepare data for Chart.js
-    const years = JSON.parse('{{ years_json|escapejs }}');
-    const openCounts = JSON.parse('{{ open_counts_json|escapejs }}');
-    const closedCounts = JSON.parse('{{ closed_counts_json|escapejs }}');
-    const totalOpen = parseInt('{{ total_open|default:"0" }}');
-    const totalClosed = parseInt('{{ total_closed|default:"0" }}');
-    // Combo chart for open and closed complaints
-    const ctxComplaints = document.getElementById('complaintsComboChart').getContext('2d');
-    new Chart(ctxComplaints, {
-        type: 'bar',
-        data: {
-            labels: years, // X-axis labels (years)
-            datasets: [
-                {
-                    label: 'Open Complaints',
-                    data: openCounts,
-                    backgroundColor: 'rgba(0, 0, 128)', // Transparent blue for bars
-                    borderColor: 'rgba(0, 0, 128)', // blue border for bars
-                    borderWidth: 1,
-                    barThickness: 20,
-                    categoryPercentage: 0.4, // Adjust category spacing
-                    barPercentage: 0.8 // Adjust bar width
+        <div class="message-display" id="messageDisplay"></div>
+        <script>
+            const years = JSON.parse('{{ years_json|escapejs }}');
+            const openCounts = JSON.parse('{{ open_counts_json|escapejs }}');
+            const closedCounts = JSON.parse('{{ closed_counts_json|escapejs }}');
+            const totalOpen = parseInt('{{ total_open|default:"0" }}');
+            const totalClosed = parseInt('{{ total_closed|default:"0" }}');
+        
+            const ctxComplaints = document.getElementById('complaintsComboChart').getContext('2d');
+            const complaintsComboChart = new Chart(ctxComplaints, {
+                type: 'bar',
+                data: {
+                    labels: years,
+                    datasets: [
+                        {
+                            label: 'Open Complaints',
+                            data: openCounts,
+                            backgroundColor: 'rgba(0, 0, 128)',
+                            borderColor: 'rgba(0, 0, 128)',
+                            borderWidth: 1,
+                            barThickness: 20,
+                            categoryPercentage: 0.4,
+                            barPercentage: 0.8
+                        },
+                        {
+                            label: 'Closed Complaints',
+                            data: closedCounts,
+                            backgroundColor: 'rgb(0, 128, 0)',
+                            borderColor: 'rgba(0, 128, 0)',
+                            borderWidth: 1,
+                            barThickness: 20,
+                            categoryPercentage: 0.4,
+                            barPercentage: 0.8
+                        }
+                    ]
                 },
-                {
-                    label: 'Closed Complaints',
-                    data: closedCounts,
-                    backgroundColor: 'rgb(0, 128, 0)', // Transparent red for bars
-                    borderColor: 'rgba(255, 0, 0)', // red border for bars
-                    borderWidth: 1,
-                    barThickness: 20,
-                    categoryPercentage: 0.4, // Adjust category spacing
-                    barPercentage: 0.8 // Adjust bar width
-                }
-            ]
-        },
                 options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            font: {
-                                size: 14,
-                                weight: 'bold'
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                color: '#000000'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.dataset.label + ': ' + tooltipItem.raw;
+                                }
                             },
-                            color: '#000000'
+                            backgroundColor: 'rgba(0, 0, 0)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#000000',
+                            borderWidth: 1
                         }
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return tooltipItem.dataset.label + ': ' + tooltipItem.raw;
-                            }
-                        },
-                        backgroundColor: 'rgba(0, 0, 0)',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        borderColor: '#000000',
-                        borderWidth: 1
-                    }
-                },
-                layout: {
-                    padding: {
-                        left: 10,
-                        right: 10,
-                        top: 10,
-                        bottom: 30 // Increased padding at the bottom to move the chart down
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Number of Complaints',
-                            color: '#000000',
-                            font: {
-                                size: 14,
-                                weight: 'bold'
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Complaints',
+                                color: '#000000',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
                             },
-                            padding: {
-                                top: 10
+                            ticks: {
+                                stepSize: 1,
+                                color: '#000000',
+                                font: {
+                                    size: 15,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                                drawBorder: true,
+                                color: '#000000',
+                                borderWidth: 3
                             }
                         },
-                        ticks: {
-                            stepSize: 1,
-                            color: '#000000',
-                            font: {
-                                size: 15,
-                                weight: 'bold'
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year',
+                                color: '#000000',
+                                font: {
+                                    size: 18,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                color: '#000000',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                                drawBorder: true,
+                                color: '#000000',
+                                borderWidth: 3
                             }
-                        },
-                        grid: {
-                            drawOnChartArea: false,
-                            drawBorder: true,
-                            color: '#000000',
-                            borderWidth: 3
                         }
-                    },
-                    x: {
-                        title: {
+                    }
+                }
+            });
+
+            const ctxTotalComplaints = document.getElementById('totalComplaintsPieChart').getContext('2d');
+            const totalComplaintsPieChart = new Chart(ctxTotalComplaints, {
+                type: 'pie',
+                data: {
+                    labels: ['Open Complaints', 'Closed Complaints'],
+                    datasets: [{
+                        data: [totalOpen, totalClosed],
+                        backgroundColor: ['rgba(0, 0, 128)', 'rgba(0, 128, 0)'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
                             display: true,
-                            text: 'Year',
-                            color: '#000000',
-                            font: {
-                                size: 18,
-                                weight: 'bold'
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.label + ': ' + tooltipItem.raw;
+                                }
                             },
-                            padding: {
-                                top: 10
-                            }
-                        },
-                        ticks: {
-                            color: '#000000',
-                            font: {
-                                size: 14,
-                                weight: 'bold'
-                            }
-                        },
-                        grid: {
-                            drawOnChartArea: false,
-                            drawBorder: true,
-                            color: '#000000',
-                            borderWidth: 3
-                        },
-                        categoryPercentage: 0.5,
-                        barPercentage: 0.4
+                            backgroundColor: 'rgba(0, 0, 0)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff'
+                        }
                     }
                 }
-            }
-    });
-    const ctxPie = document.getElementById('totalComplaintsPieChart').getContext('2d');
-    new Chart(ctxPie, {
-    type: 'pie',
-    data: {
-        labels: ['Open Complaints', 'Closed Complaints'],
-        datasets: [{
-            label: 'Total Complaints',
-            data: [totalOpen, totalClosed],
-            backgroundColor: ['rgba(0, 0, 128)', 'rgb(0, 128, 0)'],
-            borderColor: ['#FFFFFF', '#FFFFFF'],
-            borderWidth: 2
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: true, // Ensure the chart keeps its aspect ratio
-        aspectRatio: 1, // Set the aspect ratio (default is 2, reduce this to decrease size)
-        layout: {
-            padding: {
-                top:10,
-                bottom: 20
-            }
-        },
-        plugins: {
-            legend: {
-                display: true,
-                position: 'bottom',
-                labels: {
-                    usePointStyle: true,
-                    pointStyle: 'circle',
-                    font: {
-                        size: 14,
-                        weight: 'bold'
-                    },
-                    color: '#000000'
-                }
-            },
-            tooltip: {
-                callbacks: {
-                    label: function(tooltipItem) {
-                        const total = totalOpen + totalClosed;
-                        const value = tooltipItem.raw;
-                        const percentage = ((value / total) * 100).toFixed(2);
-                        return `${tooltipItem.label}: ${value} (${percentage}%)`;
+            });
+
+            const messageDisplay = document.getElementById('messageDisplay');
+
+            // Click event on the bar chart
+            document.getElementById('complaintsComboChart').addEventListener('click', function(evt) {
+                const points = complaintsComboChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, false);
+                if (points.length) {
+                    const point = points[0];
+                    if (point.datasetIndex === 0) { // Open complaints (blue)
+                        const openCount = openCounts.reduce((acc, count) => acc + count, 0);
+                        messageDisplay.innerText = `Open Complaints: ${openCount}`;
+                        // Redirect to open complaints page
+                        window.location.href = "{% url 'complaints_detail' 'open' selected_site|default:'All' %}";
+                    } else if (point.datasetIndex === 1) { // Closed complaints (green)
+                        const closedCount = closedCounts.reduce((acc, count) => acc + count, 0);
+                        messageDisplay.innerText = `Closed Complaints: ${closedCount}`;
+                        // Redirect to closed complaints page
+                        window.location.href = "{% url 'complaints_detail' 'closed' selected_site|default:'All' %}";
                     }
-                },
-                backgroundColor: 'rgba(0, 0, 0)',
-                titleColor: '#fff',
-                bodyColor: '#fff',
-                borderColor: '#000000',
-                borderWidth: 1
-            },
-            datalabels: {
-                color: function(context) {
-                    return context.dataIndex === 0 ? 'blue' : 'pink';
-                },
-                formatter: function(value, context) {
-                    const dataset = context.dataset;
-                    const total = dataset.data.reduce((acc, val) => acc + val, 0);
-                    const percentage = (value / total * 100).toFixed(2) + '%';
-                    return percentage;
-                },
-                anchor: 'center',
-                align: 'center',
-                font: {
-                    size: 16,
-                    weight: 'bold'
-                },
-                padding: {
-                    top: 10,
-                    bottom: 10
                 }
-            }
-        },
-        animation: {
-            animateScale: true,
-            animateRotate: true
-        }
-    }
-});
-</script>
+            });
+
+            // Click event on the pie chart
+            document.getElementById('totalComplaintsPieChart').addEventListener('click', function(evt) {
+                const points = totalComplaintsPieChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, false);
+                if (points.length) {
+                    const point = points[0];
+                    if (point.index === 0) { // Open complaints (blue)
+                        const openCount = totalOpen;
+                        messageDisplay.innerText = `Open Complaints: ${openCount}`;
+                        // Redirect to open complaints page
+                        window.location.href = "{% url 'complaints_detail' 'open' selected_site|default:'All' %}";
+                    } else if (point.index === 1) { // Closed complaints (green)
+                        const closedCount = totalClosed;
+                        messageDisplay.innerText = `Closed Complaints: ${closedCount}`;
+                        // Redirect to closed complaints page
+                        window.location.href = "{% url 'complaints_detail' 'closed' selected_site|default:'All' %}";
+                    }
+                }
+            });
+        </script>
+    </div>
 </body>
 </html>

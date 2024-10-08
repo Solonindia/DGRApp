@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ complaint_type|title }} Complaints</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 2px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            border-radius: 8px;
+            padding: 30px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #1a3e8c; /* Dark blue color */
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        th, td {
+            border: 1px solid #0a0a0a; /* Light blue border */
+            padding: 12px;
+            text-align: left;
+            transition: background-color 0.3s;
+        }
+
+        th {
+            background-color: #007bff; /* Blue header */
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #d1ecf1; /* Light hover effect */
+        }
+
+        a {
+            display: inline-block;
+            background-color: #011a35; /* Button color */
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        a:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        p {
+            text-align: center;
+            color: #777;
+            font-size: 16px;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 2;
+        }
+
+        .logo img {
+            width: 100px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        <img src="/static/Images/logo.jpg" alt="Footer Image">
+    </div>
+    <div class="container">
+        <h2>{{ complaint_type|title }} Complaints</h2>
+        
+        {% if complaints %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Location</th>
+                        <th>Equipment</th>
+                        <th>Project Owner</th>
+                        <th>Site Name</th>
+                        <th>Priority</th>
+                        <th>Complaint Raised By</th>
+                        <th>Nature of Complaint</th>
+                        <th>Complaint Open Date</th>
+                        <th>Summary of Action Taken</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for complaint in complaints %}
+                        <tr>
+                            <td>{{ complaint.complaint_id }}</td>
+                            <td>{{ complaint.location }}</td>
+                            <td>{{ complaint.equipment }}</td>
+                            <td>{{ complaint.company_name }}</td>
+                            <td>{{ complaint.site_name }}</td>
+                            <td>{{ complaint.priority }}</td>
+                            <td>{{ complaint.complaint_raised_by }}</td>
+                            <td>{{ complaint.nature_of_complaint }}</td>
+                            <td>{{ complaint.start_date|date:"Y-m-d" }}</td>
+                            <td>{{ complaint.summary_of_action_taken }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No {{ complaint_type }} complaints found for this selection.</p>
+        {% endif %}
+
+        <a href="{% url 'complaint_analysis' %}">Back to Complaint Analysis</a>
+    </div>
+</body>
+</html>
