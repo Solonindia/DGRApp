@@ -306,7 +306,7 @@
                         {% with images=complaint.get_images %}
                             {% if images %}
                                 {% for image in images %}
-                                    <img src="{{ image }}" alt="Complaint Image" onclick="openModal('{{ image }}')">
+                                <img src="{{ image.url }}" alt="Complaint Image" onclick="openModal('{{ image.url }}')">
                                 {% endfor %}
                             {% else %}
                                 <p>No images uploaded.</p>

@@ -65,7 +65,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 
-@login_required
+
 def complaint_form(request):
     username = request.user.username
     if request.method == "POST":
@@ -146,7 +146,6 @@ def approval_complaints(request):
     complaints = paginator.get_page(page_number)
     return render(request, 'approval_complaints.html', {'complaints': complaints})
 
-@login_required
 def accept_complaint(request, complaint_id):
     complaint = get_object_or_404(Complaint, id=complaint_id)
     if request.method == 'POST':
@@ -158,7 +157,6 @@ def accept_complaint(request, complaint_id):
     complaints = Complaint.objects.filter(status='Pending')
     return render(request,'approval_complaints.html', {'complaints': complaints})
 
-@login_required
 def existing_complaints(request):
     username = request.user.username
     complaints_list = Complaint.objects.filter(status='Accepted', dup_username=username).order_by('-created_at')
@@ -218,7 +216,6 @@ def final_complaints(request):
         'accepted_complaints': accepted_complaints#,
     })
 
-@login_required
 def final_complaints_user(request):
     username = request.user.username
     accepted_usercomplaints = Complaint.objects.filter(status='Update', dup_username=username).order_by('-created_at')
