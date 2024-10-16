@@ -281,8 +281,10 @@
     </div> 
     <div class="form-group">
         <label for="nature_of_complaint"><b>Nature of Complaint *</b></label>
-        <textarea id="nature_of_complaint" name="nature_of_complaint" rows="4" maxlength="2000" required oninput="validateWordCount()"></textarea>
-        <div id="warningMessage" class="warning-message">Maximum word limit of 50 words exceeded.</div>
+        <textarea id="nature_of_complaint" name="nature_of_complaint" rows="4" maxlength="5000" required oninput="validateWordCount()"></textarea>
+        <div id="warningMessage" class="warning-message" style="color: red; display: none;">
+            Maximum word limit of 50 words exceeded.
+        </div>
     </div>
         <div class="form-group">
             <label for="start_date"><b>Complaint raised Date *</b></label>
@@ -471,7 +473,7 @@
         //     });
         // }
 
-            function previewImages() {
+    function previewImages() {
         const input = document.getElementById('images');
         const previewContainer = document.getElementById('imagePreviewContainer');
         const nameContainer = document.getElementById('imageNameContainer');
@@ -497,18 +499,20 @@
             }
         });
     }
-        function validateWordCount() {
-            const textarea = document.getElementById('nature_of_complaint');
-            const warningMessage = document.getElementById('warningMessage');
-            const wordCount = textarea.value.split(/\s+/).filter(Boolean).length;
-            if (wordCount > 50) {
-                warningMessage.style.display = 'block';
-                textarea.value = textarea.value.split(/\s+/).slice(0, 50).join(' ');
-            } else {
-                warningMessage.style.display = 'none';
-            }
-        }
+    function validateWordCount() {
+        const textarea = document.getElementById('nature_of_complaint');
+        const warningMessage = document.getElementById('warningMessage');
+        const words = textarea.value.trim().split(/\s+/).filter(Boolean); // Trim and split into words
+        const wordCount = words.length;
 
+        if (wordCount > 50) {
+            // Limit the text to the first 50 words
+            textarea.value = words.slice(0, 50).join(' ');
+            warningMessage.style.display = 'block'; // Show warning message
+        } else {
+            warningMessage.style.display = 'none'; // Hide warning message if within limit
+        }
+    }
         function validatePdfFile() {
     const pdfInput = document.getElementById('pdf_upload');
     const file = pdfInput.files[0];
