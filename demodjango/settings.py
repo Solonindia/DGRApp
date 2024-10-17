@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'demoapp',
+    'gatepass'
 ]
 
 WKHTMLTOPDF_CMD = '/path/to/wkhtmltopdf'
