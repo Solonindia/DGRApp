@@ -6,6 +6,7 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('demoapp.urls')),
+    path('gatepass/',include('gatepass.urls'))
 ]
 
 # Serve static files only if DEBUG is True

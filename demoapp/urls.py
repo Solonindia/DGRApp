@@ -1,6 +1,7 @@
 # complaint/urls.py
 from django.urls import path
 from . import views
+from gatepass.views import visitor_log_view,visitor_log_list,download_visitor_log_pdf,delete_visitor_log
 
 urlpatterns = [
     path('', views.redirect_to_home),  # Redirect root URL to /home/
@@ -21,5 +22,10 @@ urlpatterns = [
     path('delete_complaint/<int:complaint_id>/', views.delete_complaint, name='delete_complaint'),
     path('complaint_analysis/', views.complaint_analysis, name='complaint_analysis'),
     path('complaints/<str:type>/<str:site_name>/', views.ComplaintDetailView, name='complaints_detail'),
+    path('register/', visitor_log_view, name='visitor_log'),  # Home page with the visitor log form
+    path('visitor-log/', visitor_log_list, name='visitor_log_list'),  # List of visitor logs
+    path('download/<int:log_id>/', download_visitor_log_pdf, name='download_visitor_log_pdf'),  # Download PDF
+    path('visitor-log/<int:log_id>/delete/', delete_visitor_log, name='delete_visitor_log'),  # New URL for delete
+
 ]
 
