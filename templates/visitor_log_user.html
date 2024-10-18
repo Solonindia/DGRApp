@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Visitor's Gate Pass</title>
+    <style>
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('/static/Images/solar8.jpg');
+            color: #333;
+            display: flex;
+            justify-content: flex-end; /* Align items to the right */
+            align-items: flex-start; /* Align items to the top */
+            height: 100vh; /* Full viewport height */
+            overflow: hidden; /* Prevent body scroll */
+        }
+
+        .form-container {
+            width: 90%; /* Width of the form container */
+            max-width: 950px; /* Max width of the form */
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.5); /* Slightly transparent white background */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            min-height: 300px; /* Adjust height here */
+            margin-right: 0px; /* Space from the right edge */
+            height: 100%; /* Set a height for the form container */
+            overflow-y: auto; /* Enable vertical scrolling */
+        }
+
+        h2 {
+            text-align: center;
+            color: #011742;
+        }
+
+        label {
+            display: inline-block;
+            width: 48%;
+            font-weight: bold;
+            vertical-align: top; 
+            margin-bottom: 10px; 
+        }
+
+        input[type="text"],
+        input[type="datetime-local"],
+        input[type="file"] {
+            width: 48%;
+            padding: 8px;
+            border: none;
+            border-bottom: 2px solid #ccc; 
+            margin-bottom: 20px; 
+            background: transparent;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        input[type="text"]:focus,
+        input[type="datetime-local"]:focus,
+        input[type="file"]:focus {
+            border-bottom: 2px solid #0044cc;
+            outline: none;
+        }
+
+        button {
+            margin-left: 40%;
+            display: block;
+            width: 25%;
+            padding: 10px;
+            background-color: #0044cc;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            margin-bottom: 30px;
+        }
+
+        button:hover {
+            background-color: #0033aa;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .image-preview {
+            margin-top: 10px;
+        }
+
+        .image-preview img {
+            max-width: 200px;
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .message {
+            padding: 10px;
+            color: #2e5aeb;
+            margin-bottom: 20px;
+        }
+
+        .message-container {
+            display: flex;
+            align-items: center;
+            justify-content: center; 
+            margin-bottom: 20px; 
+        }
+
+        .message {
+            margin-right: 20px; 
+        }
+
+        .download-button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #06e0f0;
+            color: #0a0a0a;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .download-button:hover {
+            background-color: #0d0d0e;
+            color: white;
+        }
+
+        .logo {
+            position: fixed; /* Change to fixed to keep it in place during scrolling */
+            top: 10px;
+            left: 10px;
+            z-index: 2;
+        }
+
+        .logo img {
+            width: 100px;
+            height: auto;
+        }
+
+        .button-container {
+            text-align: left;
+            position: fixed;
+            top: 11%; /* Adjust to set vertical position */
+            left: 0; /* Adjust to set horizontal position */
+            background-color: rgba(2, 37, 70, 0.7); 
+            height: 90%; /* Adjust height as needed */
+            padding: 10px; 
+            border-radius: 5px; 
+            display: flex;
+            flex-direction: column; 
+            gap: 10px; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+            backdrop-filter: blur(1px); 
+        }
+
+        .button-container a {
+            color: white; 
+            padding: 10px 20px;
+            text-align: left;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px; 
+            display: block; 
+            transition: background-color 0.3s, text-decoration 0.3s; 
+        }
+
+        .button-container a:hover {
+            text-decoration: underline; 
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <a href="{% url 'visitor_log_list_user' %}"><b>History</b></a>
+        <a href="{% url 'user' %}"><b>Dashboard</b></a>
+        <a href="{% url 'home' %}"><b>Home</b></a>
+    </div> 
+    <div class="logo">
+        <img src="/static/Images/logo.jpg" alt="logo">
+    </div>
+    <div class="form-container"> <!-- Container for the form -->
+        <h2>Visitor Gate Pass</h2>
+        {% if messages %}
+        <div class="message-container">
+            {% for message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+            <a href="{% url 'download_visitor_log_pdf' log_id %}" class="download-button">Download Now</a>
+        </div>
+        {% endif %}
+        
+        <form id="visitorLogForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <label for="name_of_plant">Name of the Plant/Project:</label>
+            <input type="text" id="name_of_plant" name="name_of_plant" required>
+
+            <label for="visitor_name">Visitor Name:</label>
+            <input type="text" id="visitor_name" name="visitor_name" required>
+
+            <label for="visitor_company_name">Visitor's Organization name:</label>
+            <input type="text" id="visitor_company_name" name="visitor_company_name" required>
+
+            <label for="purpose_of_visit">Purpose of Visit:</label>
+            <input type="text" id="purpose_of_visit" name="purpose_of_visit" required>
+
+            <label for="valid_from_datetime">Valid From:</label>
+            <input type="datetime-local" id="valid_from_datetime" name="valid_from_datetime" required>
+
+            <label for="valid_to_datetime">Valid To:</label>
+            <input type="datetime-local" id="valid_to_datetime" name="valid_to_datetime" required>
+
+            <label for="contact_details">Visitor Contact Number:</label>
+            <input type="text" id="contact_details" name="contact_details" required>
+
+            <label for="emergency_contact_details">Emergency Contact Name:</label>
+            <input type="text" id="emergency_contact_details" name="emergency_contact_details" required>
+
+            <label for="emergency_mobile_contact">Emergency Contact Number:</label>
+            <input type="text" id="emergency_mobile_contact" name="emergency_mobile_contact" required>
+
+            <label for="relationship">Relationship:</label>
+            <input type="text" id="relationship" name="relationship" required>
+
+            <label for="gate_pass_issue_datetime">Gate Pass Issue Date and Time:</label>
+            <input type="datetime-local" id="gate_pass_issue_datetime" name="gate_pass_issue_datetime" required>
+
+            <!-- Image Upload Field -->
+            <label for="visitor_image">Upload Visitor Image (JPEG only, Max 1MB):</label>
+            <input type="file" id="visitor_image" name="visitor_image" accept=".jpeg,.jpg" required>
+            <div id="imagePreviewContainer" class="image-preview"></div>
+            <div id="error-message" class="error-message"></div>
+
+            <button type="submit"><b>Submit</b></button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('visitor_image').addEventListener('change', function() {
+            const file = this.files[0];
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const errorMessage = document.getElementById('error-message');
+            previewContainer.innerHTML = ''; // Clear previous previews
+            errorMessage.innerHTML = ''; // Clear previous error messages
+            
+            // Check file size
+            if (file.size > 1048576) { // 1MB in bytes
+                errorMessage.innerHTML = 'File size must not exceed 1MB.';
+                return;
+            }
+
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.onload = function() {
+                // Create an image element and append it to the preview container
+                previewContainer.appendChild(img);
+            };
+        });
+    </script>
+</body>
+</html>
