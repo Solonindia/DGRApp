@@ -151,3 +151,55 @@ def delete_visitor_log(request, log_id):
         log.delete()
         messages.success(request, 'Visitor log deleted successfully.')
     return redirect('visitor_log_list')
+
+def visitor_log_user_view(request):
+    if request.method == 'POST':
+        # Extract data from POST request
+        name_of_plant = request.POST.get('name_of_plant')
+        visitor_name = request.POST.get('visitor_name')
+        visitor_company_name = request.POST.get('visitor_company_name')
+        purpose_of_visit = request.POST.get('purpose_of_visit')
+        valid_from_datetime_str = request.POST.get('valid_from_datetime')
+        valid_to_datetime_str = request.POST.get('valid_to_datetime')
+        contact_details = request.POST.get('contact_details')
+        emergency_contact_details = request.POST.get('emergency_contact_details')
+        emergency_mobile_contact = request.POST.get('emergency_mobile_contact')
+        relationship = request.POST.get('relationship')
+        gate_pass_issue_datetime_str = request.POST.get('gate_pass_issue_datetime')
+        visitor_image = request.FILES.get('visitor_image')
+        
+        # Convert datetime-local strings to datetime objects
+        valid_from_datetime = datetime.strptime(valid_from_datetime_str, '%Y-%m-%dT%H:%M')
+        valid_to_datetime = datetime.strptime(valid_to_datetime_str, '%Y-%m-%dT%H:%M')
+        gate_pass_issue_datetime = datetime.strptime(gate_pass_issue_datetime_str, '%Y-%m-%dT%H:%M')
+
+        # Create and save a new VisitorLog instance
+        visitor_log = VisitorLog.objects.create(
+            name_of_plant=name_of_plant,
+            visitor_name=visitor_name,
+            visitor_company_name=visitor_company_name,
+            purpose_of_visit=purpose_of_visit,
+            valid_from_datetime=valid_from_datetime,
+            valid_to_datetime=valid_to_datetime,
+            contact_details=contact_details,
+            emergency_contact_details=emergency_contact_details,
+            emergency_mobile_contact=emergency_mobile_contact,
+            relationship=relationship,
+            gate_pass_issue_datetime=gate_pass_issue_datetime,
+            visitor_image=visitor_image
+        )
+
+        # Add a success message
+        messages.success(request, 'Gate pass saved successfully!')
+
+        # Pass the log ID to the context
+        return render(request, 'visitor_log_user.html', {
+            'log_id': visitor_log.id,
+            'messages': messages.get_messages(request)
+        })
+
+    return render(request, 'visitor_log_user.html')
+
+def visitor_log_list_user(request):
+    visitor_logs = VisitorLog.objects.all().order_by('-gate_pass_issue_datetime')
+    return render(request, 'visitor_log_list_user.html', {'visitor_logs': visitor_logs})
