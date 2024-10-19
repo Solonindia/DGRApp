@@ -8,24 +8,39 @@
             font-family: Verdana, Geneva, Tahoma, sans-serif;
             margin: 0;
             padding: 0;
-            background-image: url('/static/Images/solar.jpg');
+            background-color: #f4f4f4;
             color: #333;
-            display: flex;
-            justify-content: flex-end; /* Align items to the right */
-            align-items: flex-start; /* Align items to the top */
-            height: 100vh; /* Full viewport height */
-            overflow: hidden; /* Prevent body scroll */
+            height: 100vh; /* Ensure the body takes the full height of the viewport */
+            overflow: auto; /* Allows scrolling */
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 10%; /* 2px space at the top */
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
+            filter: blur(3px);
+            background-image: url('/static/Images/solar.jpg');
+            background-size: cover; /* Ensure the background image covers the entire area */
+            background-repeat: no-repeat; /* Prevents the image from repeating */
+            background-attachment: fixed; /* Keeps the background image fixed while scrolling */
+            background-position: center; /* Centers the background image */
+            z-index: -1; /* Places the blurred background behind the content */
         }
 
         .form-container {
             width: 90%; /* Width of the form container */
-            max-width: 950px; /* Max width of the form */
+            max-width: 80%; /* Max width of the form */
             padding: 10px;
             background: rgba(255, 255, 255); /* Slightly transparent white background */
             min-height: 300px; /* Adjust height here */
             margin-right: 0px; /* Space from the right edge */
+            margin-left: auto; /* Center the form container */
             height: 100%; /* Set a height for the form container */
             overflow-y: auto; /* Enable vertical scrolling */
+            float: right; /* Float the form container to the right */
         }
 
         h2 {
@@ -232,34 +247,32 @@
 
             <!-- Image Upload Field -->
             <label for="visitor_image">Upload Visitor Image (JPEG only, Max 1MB):</label>
-            <input type="file" id="visitor_image" name="visitor_image" accept=".jpeg,.jpg" required>
-            <div id="imagePreviewContainer" class="image-preview"></div>
-            <div id="error-message" class="error-message"></div>
-
-            <button type="submit"><b>Submit</b></button>
+            <input type="file" id="visitor_image" name="visitor_image" accept="image/jpeg" required>
+            <div class="image-preview" id="imagePreview"></div>
+            
+            <button type="submit">Submit</button>
         </form>
     </div>
-    <script>
-        document.getElementById('visitor_image').addEventListener('change', function() {
-            const file = this.files[0];
-            const previewContainer = document.getElementById('imagePreviewContainer');
-            const errorMessage = document.getElementById('error-message');
-            previewContainer.innerHTML = ''; // Clear previous previews
-            errorMessage.innerHTML = ''; // Clear previous error messages
-            
-            // Check file size
-            if (file.size > 1048576) { // 1MB in bytes
-                errorMessage.innerHTML = 'File size must not exceed 1MB.';
-                return;
-            }
 
-            const img = document.createElement('img');
-            img.src = URL.createObjectURL(file);
-            img.onload = function() {
-                // Create an image element and append it to the preview container
-                previewContainer.appendChild(img);
-            };
-        });
+    <script>
+        document.getElementById("visitor_image").onchange = function() {
+            const input = this;
+            const preview = document.getElementById("imagePreview");
+            preview.innerHTML = ""; // Clear previous previews
+
+            if (input.files) {
+                const file = input.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const img = document.createElement("img");
+                    img.src = e.target.result;
+                    img.alt = "Visitor Image Preview";
+                    preview.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
     </script>
 </body>
 </html>
