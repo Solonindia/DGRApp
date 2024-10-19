@@ -131,8 +131,10 @@ STATICFILES_DIRS = [BASE_DIR / 'static']  # Add this line to include the static 
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # This is used for `collectstatic`, not typically used in dev
 
 
+# settings.py
+
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'  # Adjust this based on your project structure
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Adjust as necessary
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
