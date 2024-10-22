@@ -64,7 +64,19 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.core.files.storage import default_storage
+from azure.storage.blob import BlobServiceClient
+import json
+from azure.storage.blob import BlobServiceClient
+from django.http import JsonResponse
+from django.shortcuts import render
+import json
+import os
 
+blob_service_client = BlobServiceClient.from_connection_string(
+    os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+)
+container_name = "files"
 
 def complaint_form(request):
     username = request.user.username
@@ -92,33 +104,41 @@ def complaint_form(request):
             start_date=start_date,
             equipment=equipment,
             complaint_raised_by=complaint_raised_by,
-            dup_username = username
+            dup_username=username
         )
         complaint.save()
 
-        # Handle image uploads (same as before)
         image_urls = []
         for image in images:
-            if image.size > 1024 * 1024:
+            if image.size > 1024 * 1024:  # Limit to 1MB
                 continue
-            if not image.name.endswith('.jpeg') and not image.name.endswith('.jpg'):
+            if not image.name.endswith(('.jpeg', '.jpg')):
                 continue
 
-            fs = FileSystemStorage()
-            filename = fs.save(f'images/{image.name}', image)
-            image_url = fs.url(filename)
-            image_urls.append(image_url)
+            # Upload to Azure Blob Storage
+            blob_client = blob_service_client.get_blob_client(container=container_name, blob=f'images/{image.name}')
+            try:
+                blob_client.upload_blob(image.read(), overwrite=True)  # Upload the image
+                image_url = f"https://{blob_service_client.account_name}.blob.core.windows.net/{container_name}/images/{image.name}"
+                image_urls.append(image_url)
+            except Exception as e:
+                print(f"Error uploading image: {e}")  # Log the error
 
-        complaint.images = json.dumps(image_urls[:2])
-        complaint.save()
+            complaint.images = json.dumps(image_urls[:2])  # Store URLs as JSON
+            complaint.save()
 
-        # Handle PDF upload
-        if pdf_file:
-            if pdf_file.size <= 3 * 1024 * 1024:  # Limit to 3MB
-                fs = FileSystemStorage()
-                pdf_filename = fs.save(f'pdfs/{pdf_file.name}', pdf_file)
-                complaint.pdf_upload = pdf_filename  # Save the PDF file path
-                complaint.save()
+            if pdf_file:
+                if pdf_file.size <= 3 * 1024 * 1024:  # Limit to 3MB
+                    pdf_blob_name = f'pdfs/{pdf_file.name}'  # Set the blob name correctly
+
+                    # Upload the PDF to Azure Blob Storage
+                    blob_client = blob_service_client.get_blob_client(container=container_name, blob=pdf_blob_name)
+                    blob_client.upload_blob(pdf_file.read(), overwrite=True)  # Upload the PDF
+                    
+                    # Optionally store just the blob name or path
+                    complaint.pdf_upload = pdf_blob_name  # Store the blob path or name
+                    complaint.save()
+
 
         return JsonResponse({
             'success': True,
@@ -133,11 +153,11 @@ def complaint_form(request):
                 'complaint_raised_by': complaint_raised_by,
                 'start_date': start_date,
                 'images': image_urls[:2],
-                'pdf_upload': complaint.pdf_upload.url if complaint.pdf_upload else None  # Return PDF URL if exists
+                'pdf_upload': complaint.pdf_upload.url if complaint.pdf_upload and hasattr(complaint.pdf_upload, 'url') else None  # Safe access to the URL
             }
         })
-    return render(request, 'new_complaint.html', {})
 
+    return render(request, 'new_complaint.html', {})
 
 def approval_complaints(request):
     complaints_list = Complaint.objects.filter(status='Pending').order_by('-created_at')
