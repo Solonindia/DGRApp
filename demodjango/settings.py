@@ -22,7 +22,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True  # Set to False in production
 
 ALLOWED_HOSTS = [
-    'oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
+    'solon-h7h3e2ezc5hcgkfa.canadacentral-01.azurewebsites.net',
     '127.0.0.1',
     'localhost',
 ]
@@ -72,7 +72,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'demodjango.wsgi.application'
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
+    'https://solon-h7h3e2ezc5hcgkfa.canadacentral-01.azurewebsites.net/',
     'http://localhost',
 ]
 
