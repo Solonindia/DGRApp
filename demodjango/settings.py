@@ -22,7 +22,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True  # Set to False in production
 
 ALLOWED_HOSTS = [
-    'solon-h7h3e2ezc5hcgkfa.canadacentral-01.azurewebsites.net',
+    'oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
     '127.0.0.1',
     'localhost',
 ]
@@ -72,7 +72,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'demodjango.wsgi.application'
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://solon-h7h3e2ezc5hcgkfa.canadacentral-01.azurewebsites.net/',
+    'https://oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net/',
     'http://localhost',
 ]
 
@@ -113,7 +113,6 @@ USE_TZ = True
 # Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
-
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
