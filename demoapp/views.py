@@ -59,10 +59,8 @@ def user_page(request):
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.files.storage import FileSystemStorage
 from .models import Complaint
-import json
 from django.utils import timezone
 from django.core.paginator import Paginator
-from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
 from azure.storage.blob import BlobServiceClient
@@ -70,12 +68,19 @@ import json
 from azure.storage.blob import BlobServiceClient
 from django.http import JsonResponse
 from django.shortcuts import render
-import json
 import os
 
-blob_service_client = BlobServiceClient.from_connection_string(
-    os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-)
+def fix_base64_padding(key):
+    return key + '=' * (4 - len(key) % 4) if len(key) % 4 != 0 else key
+
+# Get the Azure Storage account key and fix padding
+account_key = os.getenv('AZURE_ACCOUNT_KEY')
+fixed_account_key = fix_base64_padding(account_key)
+
+# Set up the connection string
+connection_string = f"DefaultEndpointsProtocol=https;AccountName=filescomplaints;AccountKey={fixed_account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+
 container_name = "files"
 
 def complaint_form(request):
@@ -124,21 +129,23 @@ def complaint_form(request):
             except Exception as e:
                 print(f"Error uploading image: {e}")  # Log the error
 
-            complaint.images = json.dumps(image_urls[:2])  # Store URLs as JSON
-            complaint.save()
+        # Save image URLs to complaint
+        complaint.images = json.dumps(image_urls[:2])  # Store URLs as JSON
+        complaint.save()
 
-            if pdf_file:
-                if pdf_file.size <= 3 * 1024 * 1024:  # Limit to 3MB
-                    pdf_blob_name = f'pdfs/{pdf_file.name}'  # Set the blob name correctly
+        pdf_url = None
+        if pdf_file and pdf_file.size <= 3 * 1024 * 1024:  # Limit to 3MB
+            pdf_blob_name = f'pdfs/{pdf_file.name}'  # Set the blob name correctly
 
-                    # Upload the PDF to Azure Blob Storage
-                    blob_client = blob_service_client.get_blob_client(container=container_name, blob=pdf_blob_name)
-                    blob_client.upload_blob(pdf_file.read(), overwrite=True)  # Upload the PDF
-                    
-                    # Optionally store just the blob name or path
-                    complaint.pdf_upload = pdf_blob_name  # Store the blob path or name
-                    complaint.save()
-
+            # Upload the PDF to Azure Blob Storage
+            blob_client = blob_service_client.get_blob_client(container=container_name, blob=pdf_blob_name)
+            try:
+                blob_client.upload_blob(pdf_file.read(), overwrite=True)  # Upload the PDF
+                pdf_url = f"https://{blob_service_client.account_name}.blob.core.windows.net/{container_name}/pdfs/{pdf_file.name}"
+                complaint.pdf_upload = pdf_blob_name  # Store the blob path or name
+                complaint.save()
+            except Exception as e:
+                print(f"Error uploading PDF: {e}")  # Log the error
 
         return JsonResponse({
             'success': True,
@@ -153,11 +160,12 @@ def complaint_form(request):
                 'complaint_raised_by': complaint_raised_by,
                 'start_date': start_date,
                 'images': image_urls[:2],
-                'pdf_upload': complaint.pdf_upload.url if complaint.pdf_upload and hasattr(complaint.pdf_upload, 'url') else None  # Safe access to the URL
+                'pdf_upload': pdf_url  # Use the constructed PDF URL
             }
         })
 
     return render(request, 'new_complaint.html', {})
+
 
 def approval_complaints(request):
     complaints_list = Complaint.objects.filter(status='Pending').order_by('-created_at')
