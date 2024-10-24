@@ -73,7 +73,7 @@ WSGI_APPLICATION = 'demodjango.wsgi.application'
 CSRF_TRUSTED_ORIGINS = [
     'https://oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net/',
     'http://localhost',
-    'http://127.0.0.1:8000',
+
 ]
 
 # Database Configuration
