@@ -69,19 +69,56 @@ from azure.storage.blob import BlobServiceClient
 from django.http import JsonResponse
 from django.shortcuts import render
 import os
+from azure.storage.blob import BlobServiceClient
+import logging
 
 def fix_base64_padding(key):
+    """Ensure the base64 account key has the correct padding."""
+    if key is None:
+        raise ValueError("Account key must not be None.")
     return key + '=' * (4 - len(key) % 4) if len(key) % 4 != 0 else key
 
-# Get the Azure Storage account key and fix padding
+# Get the Azure Storage account key
 account_key = os.getenv('AZURE_ACCOUNT_KEY')
+
+# Log if the account key is not set
+if account_key is None:
+    logging.error("AZURE_ACCOUNT_KEY environment variable is not set.")
+    raise ValueError("AZURE_ACCOUNT_KEY environment variable must be set.")
+
+# Fix padding on the account key
 fixed_account_key = fix_base64_padding(account_key)
 
-# Set up the connection string
-connection_string = f"DefaultEndpointsProtocol=https;AccountName=filescomplaints;AccountKey={fixed_account_key};EndpointSuffix=core.windows.net"
-blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+# Retrieve the container name from environment variables
+container_name = os.getenv('AZURE_CONTAINER')
+if not container_name:
+    logging.error("AZURE_CONTAINER environment variable is not set.")
+    raise ValueError("AZURE_CONTAINER environment variable must be set.")
 
-container_name = "files"
+# Set up the connection string
+connection_string = (
+    f"DefaultEndpointsProtocol=https;"
+    f"AccountName=filescomplaints;"
+    f"AccountKey={fixed_account_key};"
+    f"EndpointSuffix=core.windows.net"
+)
+
+# Initialize BlobServiceClient
+try:
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+    logging.info("BlobServiceClient initialized successfully.")
+
+    # Check if the container exists
+    container_client = blob_service_client.get_container_client(container_name)
+    try:
+        container_client.get_container_properties()
+        logging.info(f"Container '{container_name}' exists.")
+    except Exception as e:
+        logging.error(f"Container '{container_name}' does not exist or cannot be accessed: {e}")
+        raise
+except Exception as e:
+    logging.error(f"Failed to initialize BlobServiceClient: {e}")
+    raise
 
 def complaint_form(request):
     username = request.user.username
@@ -99,6 +136,7 @@ def complaint_form(request):
         start_date = request.POST.get('start_date')
         pdf_file = request.FILES.get('pdf_upload')
 
+        # Create and save the complaint instance
         complaint = Complaint(
             company_name=company_name,
             site_name=site_name,
@@ -116,21 +154,24 @@ def complaint_form(request):
         image_urls = []
         for image in images:
             if image.size > 1024 * 1024:  # Limit to 1MB
+                logging.warning(f"Image {image.name} exceeds size limit.")
                 continue
             if not image.name.endswith(('.jpeg', '.jpg')):
+                logging.warning(f"Image {image.name} has an unsupported file type.")
                 continue
 
             # Upload to Azure Blob Storage
             blob_client = blob_service_client.get_blob_client(container=container_name, blob=f'images/{image.name}')
             try:
                 blob_client.upload_blob(image.read(), overwrite=True)  # Upload the image
-                image_url = f"https://{blob_service_client.account_name}.blob.core.windows.net/{container_name}/images/{image.name}"
+                image_url = f"https://{blob_client.account_name}.blob.core.windows.net/{container_name}/images/{image.name}"
                 image_urls.append(image_url)
+                logging.info(f"Uploaded image: {image_url}")
             except Exception as e:
-                print(f"Error uploading image: {e}")  # Log the error
+                logging.error(f"Error uploading image {image.name}: {e}")
 
         # Save image URLs to complaint
-        complaint.images = json.dumps(image_urls[:2])  # Store URLs as JSON
+        complaint.images = json.dumps(image_urls[:2])  # Store the first two URLs as JSON
         complaint.save()
 
         pdf_url = None
@@ -141,11 +182,12 @@ def complaint_form(request):
             blob_client = blob_service_client.get_blob_client(container=container_name, blob=pdf_blob_name)
             try:
                 blob_client.upload_blob(pdf_file.read(), overwrite=True)  # Upload the PDF
-                pdf_url = f"https://{blob_service_client.account_name}.blob.core.windows.net/{container_name}/pdfs/{pdf_file.name}"
+                pdf_url = f"https://{blob_client.account_name}.blob.core.windows.net/{container_name}/pdfs/{pdf_file.name}"
                 complaint.pdf_upload = pdf_blob_name  # Store the blob path or name
                 complaint.save()
+                logging.info(f"Uploaded PDF: {pdf_url}")
             except Exception as e:
-                print(f"Error uploading PDF: {e}")  # Log the error
+                logging.error(f"Error uploading PDF: {e}")
 
         return JsonResponse({
             'success': True,
@@ -165,7 +207,6 @@ def complaint_form(request):
         })
 
     return render(request, 'new_complaint.html', {})
-
 
 def approval_complaints(request):
     complaints_list = Complaint.objects.filter(status='Pending').order_by('-created_at')
