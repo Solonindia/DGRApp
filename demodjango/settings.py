@@ -24,6 +24,7 @@ ALLOWED_HOSTS = [
     'oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
     '127.0.0.1',
     'localhost',
+    '169.254.130.5'
 ]
 
 INSTALLED_APPS = [
