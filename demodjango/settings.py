@@ -14,8 +14,8 @@ AZURE_ACCOUNT_NAME = os.getenv('AZURE_ACCOUNT_NAME')
 AZURE_ACCOUNT_KEY = os.getenv('AZURE_ACCOUNT_KEY')
 AZURE_CONTAINER = os.getenv('AZURE_CONTAINER')
 
-DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 STATICFILES_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 
 # Secret Key and Debug settings
 SECRET_KEY = os.getenv('SECRET_KEY')
@@ -24,7 +24,6 @@ ALLOWED_HOSTS = [
     'oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
     '127.0.0.1',
     'localhost',
-    '169.254.130.5'
 ]
 
 INSTALLED_APPS = [
@@ -72,7 +71,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'demodjango.wsgi.application'
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net/',
+    'https://oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
+    'http://oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
     'http://localhost',
 
 ]
