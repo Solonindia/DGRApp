@@ -14,6 +14,7 @@ AZURE_ACCOUNT_NAME = os.getenv('AZURE_ACCOUNT_NAME')
 AZURE_ACCOUNT_KEY = os.getenv('AZURE_ACCOUNT_KEY')
 AZURE_CONTAINER = os.getenv('AZURE_CONTAINER')
 
+
 DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 
 # Secret Key and Debug settings
@@ -110,11 +111,12 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+STATIC_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/'
+STATICFILES_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+# Static files
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # This is used for `collectstatic`
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # This is where your static files are stored
-]
+STATIC_ROOT = BASE_DIR / 'static'
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

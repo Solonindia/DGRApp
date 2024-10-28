@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,7 +24,7 @@
             left: 0;
             width: 100%;
             height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
-            background-image: url('/static/Images/solon1.jpg');
+            background-image: url("{% static 'solon1.jpg' %}");
             filter: blur(3px);
             background-size: cover; /* Ensure the background image covers the entire area */
             background-repeat: no-repeat; /* Prevents the image from repeating */
@@ -222,7 +223,7 @@
 <body>
     <h3>Accepted Complaints</h3>
     <div class="logo">
-        <img src="/static/Images/logo.jpg" alt="Footer Image">
+        <img src="{% static 'logo.jpg' %}" alt="Logo">
     </div>
     <div class="button-container">
         <a href="{% url 'complaint_form' %}" class="bottom-left-link"><b>New Complaint</b></a>

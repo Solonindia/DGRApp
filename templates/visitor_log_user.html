@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,7 +23,7 @@
             width: 100%;
             height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
             filter: blur(3px);
-            background-image: url('/static/Images/solar.jpg');
+            background-image: url('{% static "solar.jpg" %}');
             background-size: cover; /* Ensure the background image covers the entire area */
             background-repeat: no-repeat; /* Prevents the image from repeating */
             background-attachment: fixed; /* Keeps the background image fixed while scrolling */
@@ -196,7 +197,7 @@
         <a href="{% url 'home' %}"><b>Home</b></a>
     </div> 
     <div class="logo">
-        <img src="/static/Images/logo.jpg" alt="logo">
+        <img src="{% static 'logo.jpg' %}" alt="Logo">
     </div>
     <div class="form-container"> <!-- Container for the form -->
         <h2>Visitor Gate Pass</h2>

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,7 +24,7 @@
             left: 0;
             width: 100%;
             height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
-            background-image: url('/static/Images/Solar-Power-MP-Cropped-1.jpg');
+            background-image: url("{% static 'Solar-Power-MP-Cropped-1.jpg' %}");
             filter: blur(1px);
             background-size: cover; /* Ensure the background image covers the entire area */
             background-repeat: no-repeat; /* Prevents the image from repeating */
@@ -238,7 +239,7 @@
 <body>
     <h3>Add all the Details</h3>
     <div class="logo">
-        <img src="/static/Images/logo.jpg" alt="Footer Image">
+        <img src="{% static 'logo.jpg' %}" alt="Logo">
     </div>
     <form method="post" id="edit_form" onsubmit="validateForm(event)"> <!-- Call validateForm on submit -->
         {% csrf_token %}

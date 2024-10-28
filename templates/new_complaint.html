@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,7 +24,7 @@
             width: 100%;
             height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
             filter: blur(3px);
-            background-image: url('/static/Images/solar8.jpg');
+            background-image: url("{% static 'solar8.jpg' %}");
             background-size: cover; /* Ensure the background image covers the entire area */
             background-repeat: no-repeat; /* Prevents the image from repeating */
             background-attachment: fixed; /* Keeps the background image fixed while scrolling */
@@ -231,7 +232,7 @@
 <body onload="setTodayDate()">    
     <div class="container">
     <div class="logo">
-        <img src="/static/Images/logo.jpg" alt="Footer Image">
+        <img src="{% static 'logo.jpg' %}" alt="Logo">
     </div>
     <div class="button-container">
         <a href="{% url 'existing_complaints' %}"><b>Existing Complaints</b></a>
