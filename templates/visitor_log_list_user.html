@@ -88,7 +88,7 @@
         <a href="{% url 'home' %}"><b>Home</b></a>
     </div>
     <div class="logo">
-        <img src="/static/Images/logo.jpg" alt="logo">
+        <img src="{% static 'logo.jpg' %}" alt="Logo">
     </div>
     <h2>Visitor Gate Pass Details</h2>
     {% if visitor_logs %}

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +9,7 @@
             font-family: Verdana, Geneva, Tahoma, sans-serif;
             margin: 0;
             padding: 0;
-            background-image: url('/static/Images/solon1.jpg');
+            background-image: url('{% static "solon1.jpg" %}');
             color: #333;
             display: flex;
             justify-content: flex-end; /* Align items to the right */
@@ -182,7 +183,7 @@
         <a href="{% url 'home' %}"><b>Home</b></a>
     </div> 
     <div class="logo">
-        <img src="/static/Images/logo.jpg" alt="logo">
+        <img src="{% static 'logo.jpg' %}" alt="Logo">
     </div>
     <div class="form-container"> <!-- Container for the form -->
         <h2>Visitor Gate Pass</h2>
