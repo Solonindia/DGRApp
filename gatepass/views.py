@@ -75,9 +75,9 @@ def download_visitor_log_pdf(request, log_id):
     image_width = 80
     image_height = 70
     image_x = width - image_width - margin
-    image_y = height - image_height - margin - 30  # Move image down by 20 units
+    image_y = height - image_height - margin - 30  # Move image down by 30 units
 
-    # Main heading with blue color and thick underline
+    # Main heading with blue color
     heading_text = "Visitor Gate Pass"
     p.setFont("Helvetica-Bold", 18)
     p.setFillColor(navy)  # Set text color to navy
@@ -93,9 +93,7 @@ def download_visitor_log_pdf(request, log_id):
     # Content area for details
     p.setFont("Helvetica", 12)
     content_x = margin
-
-    # Higher starting point for the content section
-    content_y = height - margin - 40  # Adjust this value as needed
+    content_y = height - margin - 40  # Starting point for the content section
 
     # Fields to be moved up
     fields = [
@@ -113,6 +111,7 @@ def download_visitor_log_pdf(request, log_id):
     max_label_width = max(p.stringWidth(f"{label}:", "Helvetica-Bold", 12) for label, _ in fields)
     line_height = 18
 
+    # Draw the field labels and values
     for label, value in fields:
         # Set label to bold
         p.setFont("Helvetica-Bold", 12)
@@ -126,8 +125,8 @@ def download_visitor_log_pdf(request, log_id):
 
     # Position for image and visitor details
     if visitor_log.visitor_image:
-        img_path = default_storage.path(visitor_log.visitor_image.name)
-        p.drawImage(img_path, image_x, image_y, width=image_width, height=image_height)
+        img_url = visitor_log.visitor_image.url  # Use URL instead of path
+        p.drawImage(img_url, image_x, image_y, width=image_width, height=image_height)
 
         # Position for visitor name below the image
         visitor_name_y = image_y - 20  # Adjust this value to position the name as needed
@@ -136,13 +135,12 @@ def download_visitor_log_pdf(request, log_id):
         p.setFont("Helvetica", 12)
         p.drawString(image_x, visitor_name_y, visitor_log.visitor_name)
         p.drawString(image_x, visitor_name_y - 15, visitor_log.contact_details)
-        
+
     p.showPage()
     p.save()
     buffer.seek(0)
     response.write(buffer.getvalue())
     buffer.close()
-
     return response
 
 def delete_visitor_log(request, log_id):
