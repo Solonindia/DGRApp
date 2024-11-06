@@ -388,6 +388,10 @@ def complaint_analysis(request):
         'sites': Complaint.objects.values_list('site_name', flat=True).distinct()
     })
 
+import csv
+from django.http import HttpResponse
+from .models import Complaint
+
 def ComplaintDetailView(request, type, site_name):
     # Determine complaint status based on the type
     if type == 'open':
@@ -403,3 +407,55 @@ def ComplaintDetailView(request, type, site_name):
         'complaints': complaints,
         'complaint_type': type,  # Pass the complaint type (open or closed)
     })
+
+def export_complaints_to_csv(request, type, site_name):
+    # Check for 'All' and adjust site_name accordingly
+    if site_name == 'All':
+        site_name = ''  # or handle as required
+    
+    # Fetch complaints
+    if type == 'open':
+        complaints = Complaint.objects.filter(status__in=['Accepted', 'Pending'])
+    elif type == 'closed':
+        complaints = Complaint.objects.filter(status='Update')
+
+    if site_name:
+        complaints = complaints.filter(site_name=site_name)
+
+    # Create CSV response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=complaints_data.csv'
+
+    writer = csv.writer(response)
+
+    # Write header row without 'Images' and 'PDFs'
+    writer.writerow([
+        'Complaint ID', 'Location', 'Equipment', 'Project Owner', 'Site Name',
+        'Priority', 'Complaint Raised By', 'Nature of Complaint', 'Complaint Open Date',
+        'Summary of Action Taken', 'Root Cause', 'Preventive Action', 'Claim Type',
+        'Parts Replaced for Rectification', 'Attended By', 'Complaint Closed Date'
+    ])
+
+    # Write complaint data without 'Images' and 'PDFs' columns
+    for complaint in complaints:
+        row = [
+            complaint.complaint_id,
+            complaint.location,
+            complaint.equipment,
+            complaint.company_name,
+            complaint.site_name,
+            complaint.priority,
+            complaint.complaint_raised_by,
+            complaint.nature_of_complaint,
+            complaint.start_date.strftime("%Y-%m-%d"),
+            complaint.summary_of_action_taken if type == 'closed' else '',
+            complaint.root_cause if type == 'closed' else '',
+            complaint.preventive_action if type == 'closed' else '',
+            complaint.claim_type if type == 'closed' else '',
+            complaint.parts_replaced_for_rectification if type == 'closed' else '',
+            complaint.attended_by if type == 'closed' else '',
+            complaint.end_date.strftime("%Y-%m-%d") if type == 'closed' else ''
+        ]
+        writer.writerow(row)
+
+    return response

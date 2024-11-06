@@ -86,15 +86,23 @@
         .pdf-container, img {
             max-width: 80px;
         }
+        .top-right {
+            position: fixed; /* Use fixed positioning so it stays at the top-right of the screen */
+            top: 10px; /* Add some margin from the top */
+            right: 10px; /* Add some margin from the right */
+            z-index: 1000; /* Ensure it stays above other content */
+        }
     </style>
 </head>
 <body>
     <div class="logo">
         <img src="{% static 'logo.jpg' %}" alt="Logo">
     </div>
+    <div class="top-right">
+    <a href="{% url 'export_complaints_to_csv' complaint_type site_name|default:'All' %}">Export to CSV</a> 
+    </div>
     <div class="container">
         <h2>{{ complaint_type|title }} Complaints</h2>
-        
         {% if complaints %}
             <table>
                 <thead>
@@ -188,6 +196,31 @@
         function closeModal() {
             document.getElementById("myModal").style.display = "none";
         }
+    function exportToCSV() {
+        // Create a CSV string from the table data
+        const table = document.querySelector('table');
+        let csvContent = '';
+        
+        // Loop through table rows and columns to extract text content
+        const rows = table.querySelectorAll('tr');
+        rows.forEach((row, index) => {
+            const cols = row.querySelectorAll('td, th');
+            const rowData = [];
+            cols.forEach(col => {
+                rowData.push(col.innerText.trim());
+            });
+            csvContent += rowData.join(',') + (index < rows.length - 1 ? '\n' : '');
+        });
+
+        // Create a temporary link element to trigger the CSV file download
+        const hiddenElement = document.createElement('a');
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvContent);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = 'complaints_data.csv';  // Name of the file
+        hiddenElement.click();
+    }
+</script>
+
     </script>
 </body>
 </html>
