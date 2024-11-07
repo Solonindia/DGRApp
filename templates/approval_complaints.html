@@ -315,13 +315,7 @@
                         {% endwith %}
                     </div>
                     
-                    <!-- Display PDF if it exists -->
-                    {% if complaint.pdf_upload %}
-                    <div class="pdf-container">
-                        <strong>Uploaded PDF:</strong>
-                        <a href="{{ complaint.pdf_upload.url }}" target="_blank">View PDF</a>
-                    </div>
-                    {% endif %}
+                   
 
                     <form action="{% url 'accept_complaint' complaint.id %}" method="post">
                         {% csrf_token %}

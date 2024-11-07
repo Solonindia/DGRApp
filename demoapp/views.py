@@ -134,7 +134,6 @@ def complaint_form(request):
         complaint_raised_by = request.POST.get('complaint_raised_by', '').strip()
         images = request.FILES.getlist('images')
         start_date = request.POST.get('start_date')
-        pdf_file = request.FILES.get('pdf_upload')
 
         # Create and save the complaint instance
         complaint = Complaint(
@@ -174,21 +173,6 @@ def complaint_form(request):
         complaint.images = json.dumps(image_urls[:2])  # Store the first two URLs as JSON
         complaint.save()
 
-        pdf_url = None
-        if pdf_file and pdf_file.size <= 3 * 1024 * 1024:  # Limit to 3MB
-            pdf_blob_name = f'pdfs/{pdf_file.name}'  # Set the blob name correctly
-
-            # Upload the PDF to Azure Blob Storage
-            blob_client = blob_service_client.get_blob_client(container=container_name, blob=pdf_blob_name)
-            try:
-                blob_client.upload_blob(pdf_file.read(), overwrite=True)  # Upload the PDF
-                pdf_url = f"https://{blob_client.account_name}.blob.core.windows.net/{container_name}/pdfs/{pdf_file.name}"
-                complaint.pdf_upload = pdf_blob_name  # Store the blob path or name
-                complaint.save()
-                logging.info(f"Uploaded PDF: {pdf_url}")
-            except Exception as e:
-                logging.error(f"Error uploading PDF: {e}")
-
         return JsonResponse({
             'success': True,
             'data': {
@@ -202,7 +186,6 @@ def complaint_form(request):
                 'complaint_raised_by': complaint_raised_by,
                 'start_date': start_date,
                 'images': image_urls[:2],
-                'pdf_upload': pdf_url  # Use the constructed PDF URL
             }
         })
 
@@ -238,20 +221,28 @@ def edit_complaint(request, complaint_id):
     complaint = get_object_or_404(Complaint, id=complaint_id)
 
     if request.method == "POST":
-        
+        # Extract form data
         attended_by = request.POST.get('attended_by')
         end_date = request.POST.get('end_date')
-        claim_type = request.POST.get('claim_type')  # Get the claim type from the form
+        claim_type = request.POST.get('claim_type')
         summary_of_action_taken = request.POST.get('summary_of_action_taken')
         root_cause = request.POST.get('root_cause')
         preventive_action = request.POST.get('preventive_action')
         parts_replaced_for_rectification = request.POST.get('parts_replaced_for_rectification')
-        nature_of_complaint = request.POST.get('nature_of_complaint') 
+        nature_of_complaint = request.POST.get('nature_of_complaint')
 
-        # Update complaint fields
+        # Handle PDF file upload (save to Azure Storage via Django Storages)
+        pdf_file = request.FILES.get('pdf_file')  # Get the uploaded PDF file (match the model field name)
+
+        if pdf_file:
+            # Save the PDF to the complaint's pdf_upload field (match the model field name)
+            complaint.pdf_file = pdf_file  # This will automatically use the Azure storage backend
+            print(f"PDF file {pdf_file.name} uploaded successfully to Azure.")
+        
+        # Update other fields
         complaint.attended_by = attended_by
-        complaint.end_date = end_date  # Update the end date
-        complaint.claim_type = claim_type  # Update the claim type
+        complaint.end_date = end_date
+        complaint.claim_type = claim_type
         complaint.summary_of_action_taken = summary_of_action_taken
         complaint.root_cause = root_cause
         complaint.preventive_action = preventive_action
@@ -266,17 +257,22 @@ def edit_complaint(request, complaint_id):
                     'complaint': complaint,
                     'error': 'End date cannot be before start date.',
                     'attended_by': attended_by,
-                    'end_date': end_date,  # Show the entered end_date
+                    'end_date': end_date,
                     'claim_type': claim_type,
                     'summary_of_action_taken': summary_of_action_taken,
                     'root_cause': root_cause,
                     'preventive_action': preventive_action,
-                    'parts_replaced_for_rectification':parts_replaced_for_rectification,
-                    'nature_of_complaint': nature_of_complaint 
+                    'parts_replaced_for_rectification': parts_replaced_for_rectification,
+                    'nature_of_complaint': nature_of_complaint
                 })
+
+        # Save the updated complaint
         complaint.status = 'Update'
         complaint.save()
+
+        # Redirect to complaints page after successful update
         return redirect('existing_complaints')
+
     return render(request, 'edit_complaint.html', {'complaint': complaint})
 
 def final_complaints(request):

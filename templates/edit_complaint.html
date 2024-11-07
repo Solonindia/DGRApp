@@ -181,67 +181,13 @@
             padding: 0;
         }
     </style>
-    <script>
-        // Function to restrict textarea input to a maximum of 50 words
-        function validateWordCount(textareaId, maxWords) {
-            const textarea = document.getElementById(textareaId);
-            const words = textarea.value.trim().split(/\s+/).filter(function(word) {
-                return word.length > 0; // Filter out empty words
-            });
-            const wordCount = words.length;
-
-            // Prevent exceeding the maximum word count
-            if (wordCount > maxWords) {
-                textarea.value = words.slice(0, maxWords).join(' '); // Trim to maxWords
-                alert(`Maximum word limit of ${maxWords} reached. Further input will be ignored.`);
-            }
-        }
-
-        // Function to validate the form before submission
-        function validateForm(event) {
-            const endDate = document.getElementById('end_date').value;
-            const rootCause = document.getElementById('root_cause').value;
-            const preventiveAction = document.getElementById('preventive_action').value;
-            const partsreplacedforRectification = document.getElementById('parts_replaced_for_rectification').value;
-            if (!endDate) {
-                alert("Please fill in the End Date field."); // Alert user to fill the field
-                event.preventDefault(); // Prevent form submission
-            }
-            if (!rootCause) {
-                alert("Please fill in the Root Cause field."); // Alert user to fill the field
-                event.preventDefault(); // Prevent form submission
-            }
-            if (!preventiveAction) {
-                alert("Please fill in the Preventive Action field."); // Alert user to fill the field
-                event.preventDefault(); // Prevent form submission
-            }
-            if (!partsreplacedforRectification) {
-                alert("Please fill in the Parts Replaced for Rectification field."); // Alert user to fill the field
-                event.preventDefault(); // Prevent form submission
-            }
-        }
-
-        // Function to open modal and display the clicked image
-        function openModal(imageUrl) {
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            modal.style.display = "block";
-            modalImg.src = imageUrl;
-        }
-
-        // Function to close the modal
-        function closeModal() {
-            const modal = document.getElementById('imageModal');
-            modal.style.display = "none";
-        }
-    </script>
 </head>
 <body>
     <h3>Add all the Details</h3>
     <div class="logo">
         <img src="{% static 'logo.jpg' %}" alt="Logo">
     </div>
-    <form method="post" id="edit_form" onsubmit="validateForm(event)"> <!-- Call validateForm on submit -->
+    <form method="post" enctype="multipart/form-data" id="edit_form" onsubmit="validateForm(event); validatePdfFile(event)"> 
         {% csrf_token %}
         <div class="form-fields">
         <strong style="color:#0a0a0a">Project Owner:</strong> {{ complaint.company_name }}<br>
@@ -317,7 +263,8 @@
             <strong style="color:#0a0a0a">End Date:</strong>
         </label>
         <input type="date" id="end_date" name="end_date" value="{{ complaint.end_date|date:'Y-m-d' }}">
-        
+        <label for="pdf_file">Upload PDF</label>
+        <input type="file" name="pdf_file" id="pdf_file">
         {% if error_message %}
             <div class="error">{{ error }}</div>
         {% endif %}
@@ -332,4 +279,77 @@
         </div>
     </div>
 </body>
+<script>
+    // Function to restrict textarea input to a maximum of 50 words
+    function validateWordCount(textareaId, maxWords) {
+        const textarea = document.getElementById(textareaId);
+        const words = textarea.value.trim().split(/\s+/).filter(function(word) {
+            return word.length > 0; // Filter out empty words
+        });
+        const wordCount = words.length;
+
+        // Prevent exceeding the maximum word count
+        if (wordCount > maxWords) {
+            textarea.value = words.slice(0, maxWords).join(' '); // Trim to maxWords
+            alert(`Maximum word limit of ${maxWords} reached. Further input will be ignored.`);
+        }
+    }
+
+    // Function to validate the form before submission
+    function validateForm(event) {
+        const endDate = document.getElementById('end_date').value;
+        const rootCause = document.getElementById('root_cause').value;
+        const preventiveAction = document.getElementById('preventive_action').value;
+        const partsreplacedforRectification = document.getElementById('parts_replaced_for_rectification').value;
+        if (!endDate) {
+            alert("Please fill in the End Date field."); // Alert user to fill the field
+            event.preventDefault(); // Prevent form submission
+        }
+        if (!rootCause) {
+            alert("Please fill in the Root Cause field."); // Alert user to fill the field
+            event.preventDefault(); // Prevent form submission
+        }
+        if (!preventiveAction) {
+            alert("Please fill in the Preventive Action field."); // Alert user to fill the field
+            event.preventDefault(); // Prevent form submission
+        }
+        if (!partsreplacedforRectification) {
+            alert("Please fill in the Parts Replaced for Rectification field."); // Alert user to fill the field
+            event.preventDefault(); // Prevent form submission
+        }
+    }
+
+            // Function to open modal and display the clicked image
+            function openModal(imageUrl) {
+                const modal = document.getElementById('imageModal');
+                const modalImg = document.getElementById('modalImage');
+                modal.style.display = "block";
+                modalImg.src = imageUrl;
+            }
+
+            // Function to close the modal
+            function closeModal() {
+                const modal = document.getElementById('imageModal');
+                modal.style.display = "none";
+            }
+            function validatePdfFile(event) {
+            const pdfInput = document.getElementById('pdf_file');
+            const file = pdfInput.files[0];
+
+            if (file) {
+                // Validate file size (3MB limit)
+                if (file.size > 3 * 1024 * 1024) { // 3MB in bytes
+                    alert('File size exceeds 3MB. Please upload a smaller file.');
+                    pdfInput.value = ''; // Clear the input
+                    event.preventDefault(); // Prevent form submission
+                }
+                // Validate file type (PDF only)
+                else if (file.type !== 'application/pdf') {
+                    alert('Please upload a valid PDF file.');
+                    pdfInput.value = ''; // Clear the input
+                    event.preventDefault(); // Prevent form submission
+                }
+            }
+        }
+</script>
 </html>

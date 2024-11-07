@@ -307,12 +307,6 @@
             <div class="image-preview" id="imagePreviewContainer"></div>
             <ul class="image-names" id="imageNameContainer"></ul>
 
-            <div class="form-group">
-                <label for="pdf_upload"><b>Upload PDF Document (Max 3MB) - Optional</b></label>
-                <input type="file" id="pdf_upload" name="pdf_upload" accept=".pdf" onchange="validatePdfFile()">
-            </div>
-            
-
             <div class="button-group">
                 <button type="submit" class="submit-button"><b>Register</b></button>
             </div>
@@ -448,31 +442,6 @@
                 document.getElementById('end_date').setAttribute('readonly', 'true');
             }
         }
-
-        // function previewImages() {
-        //     const input = document.getElementById('images');
-        //     const previewContainer = document.getElementById('imagePreviewContainer');
-        //     const nameContainer = document.getElementById('imageNameContainer');
-        //     previewContainer.innerHTML = '';
-        //     nameContainer.innerHTML = '';
-            
-        //     Array.from(input.files).forEach(file => {
-        //         if (file && file.type.startsWith('image/jpeg') && file.size <= 1 * 1024 * 1024) {
-        //             const reader = new FileReader();
-        //             reader.onload = function(e) {
-        //                 const img = document.createElement('img');
-        //                 img.src = e.target.result;
-        //                 previewContainer.appendChild(img);
-        //             };
-        //             reader.readAsDataURL(file);
-        //             const li = document.createElement('li');
-        //             li.textContent = file.name;
-        //             nameContainer.appendChild(li);
-        //         } else {
-        //             alert('Please upload only JPEG images with a maximum size of 1MB.');
-        //         }
-        //     });
-        // }
 
     function previewImages() {
         const input = document.getElementById('images');

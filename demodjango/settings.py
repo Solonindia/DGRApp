@@ -14,10 +14,10 @@ AZURE_ACCOUNT_NAME = os.getenv('AZURE_ACCOUNT_NAME')
 AZURE_ACCOUNT_KEY = os.getenv('AZURE_ACCOUNT_KEY')
 AZURE_CONTAINER = os.getenv('AZURE_CONTAINER')
 
-
+# Use Azure Blob Storage for file uploads
 DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 
-# Secret Key and Debug settings
+# Other Django settings (e.g., Secret Key)
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = False
 ALLOWED_HOSTS = [
