@@ -28,4 +28,5 @@ urlpatterns = [
     path('download/<int:log_id>/', download_visitor_log_pdf, name='download_visitor_log_pdf'),  # Download PDF
     path('superuser/visitor-log/<int:log_id>/delete/', delete_visitor_log, name='delete_visitor_log'),  # New URL for delete
     path('export_complaints/<str:type>/<str:site_name>/', views.export_complaints_to_csv, name='export_complaints_to_csv'),
+    
 ]

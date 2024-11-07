@@ -309,14 +309,11 @@
                         <span class="value">{{ complaint.end_date|date:"Y-m-d" }}</span>
                     </div>
 
-                    <!-- Display PDF if it exists -->
-                    {% if complaint.pdf_upload %}
-                    <div class="pdf-container">
-                        <strong>Uploaded PDF:</strong>
-                        <a href="{{ complaint.pdf_upload.url }}" target="_blank">View PDF</a>
-                    </div>
+                    {% if complaint.pdf_file %}
+                    <a href="{{ complaint.pdf_file.url }}" target="_blank">View PDF</a>
+                    {% else %}
+                        <p>No PDF uploaded for this complaint.</p>
                     {% endif %}
-                    
                     <div class="image-container">
                         {% with images=complaint.get_images %}
                             {% if images %}
