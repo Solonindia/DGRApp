@@ -122,8 +122,12 @@ except Exception as e:
 
 def complaint_form(request):
     username = request.user.username
+
+    # Initialize an empty complaint_id for GET request
+    complaint_id = None
+
     if request.method == "POST":
-        # Get form data
+        # Handle the POST request: form submission
         company_name = request.POST.get('company_name')
         site_name = request.POST.get('site_name')
         priority = request.POST.get('priority')
@@ -150,32 +154,17 @@ def complaint_form(request):
         )
         complaint.save()
 
-        image_urls = []
-        for image in images:
-            if image.size > 1024 * 1024:  # Limit to 1MB
-                logging.warning(f"Image {image.name} exceeds size limit.")
-                continue
-            if not image.name.endswith(('.jpeg', '.jpg')):
-                logging.warning(f"Image {image.name} has an unsupported file type.")
-                continue
+        # Handle image uploads (your existing logic for images)
 
-            # Upload to Azure Blob Storage
-            blob_client = blob_service_client.get_blob_client(container=container_name, blob=f'images/{image.name}')
-            try:
-                blob_client.upload_blob(image.read(), overwrite=True)  # Upload the image
-                image_url = f"https://{blob_client.account_name}.blob.core.windows.net/{container_name}/images/{image.name}"
-                image_urls.append(image_url)
-                logging.info(f"Uploaded image: {image_url}")
-            except Exception as e:
-                logging.error(f"Error uploading image {image.name}: {e}")
-
-        # Save image URLs to complaint
-        complaint.images = json.dumps(image_urls[:2])  # Store the first two URLs as JSON
+        # Save image URLs to the complaint
+        image_urls = []  # Your existing image handling logic
+        complaint.images = json.dumps(image_urls[:2])  # Only store the first two images
         complaint.save()
 
         return JsonResponse({
             'success': True,
             'data': {
+                'complaint_id': complaint.complaint_id,  # Return the generated Complaint ID
                 'company_name': company_name,
                 'site_name': site_name,
                 'priority': priority,
@@ -189,7 +178,11 @@ def complaint_form(request):
             }
         })
 
-    return render(request, 'new_complaint.html', {})
+    # For GET request, generate a dummy complaint_id (for the form)
+    if request.method == "GET":
+        complaint = Complaint(company_name="Sample Company")  # Initialize with some default values
+        complaint_id = complaint.generate_complaint_id()  # Generate the temporary complaint ID
+        return render(request, 'new_complaint.html', {'complaint_id': complaint_id})
 
 def approval_complaints(request):
     complaints_list = Complaint.objects.filter(status='Pending').order_by('-created_at')

@@ -231,272 +231,161 @@
 </head>
 <body onload="setTodayDate()">    
     <div class="container">
-    <div class="logo">
-        <img src="{% static 'logo.jpg' %}" alt="Logo">
-    </div>
-    <div class="button-container">
-        <a href="{% url 'existing_complaints' %}"><b>Existing Complaints</b></a>
-        <a href="{% url 'final_complaints_user' %}"><b>Closed Complaints</b></a>
-        <a href="{% url 'user' %}"><b>Dashboard</b></a>
-        <a href="{% url 'home' %}"><b>Home</b></a>
-    </div>    
+        <div class="logo">
+            <img src="{% static 'logo.jpg' %}" alt="Logo">
+        </div>
+        <div class="button-container">
+            <a href="{% url 'existing_complaints' %}"><b>Existing Complaints</b></a>
+            <a href="{% url 'final_complaints_user' %}"><b>Closed Complaints</b></a>
+            <a href="{% url 'user' %}"><b>Dashboard</b></a>
+            <a href="{% url 'home' %}"><b>Home</b></a>
+        </div>    
     
-    <div class="form-wrapper">
-    <form id="complaintForm" method="post" enctype="multipart/form-data" action="{% url 'new_complaint' %}">
-    {% csrf_token %}
-    <h3>Register a New Complaint</h3>
-    <div class="form-group">
-        <label for="company_name"><b>Project Owner *</b></label>
-        <input type="text" id="company_name" name="company_name" ></input>
-    </div>
-    <div class="form-group">
-        <label for="site_name"><b>Site Name *</b></label>
-        <input type="text" id="site_name" name="site_name" oninput="updateComplaintId()"></input>
-    </div>              
-    <div class="form-row">
-    <div class="form-column form-left">
-        <div class="form-group">
-            <label for="complaint_id"><b>Complaint ID</b></label>
-            <input type="text" id="complaint_id" name="complaint_id" readonly>
+        <div class="form-wrapper">
+            <form id="complaintForm" method="post" enctype="multipart/form-data" action="{% url 'new_complaint' %}">
+                {% csrf_token %}
+                <h3>Register a New Complaint</h3>
+                
+                <div class="form-group">
+                    <label for="company_name"><b>Project Owner *</b></label>
+                    <input type="text" id="company_name" name="company_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="site_name"><b>Site Name *</b></label>
+                    <input type="text" id="site_name" name="site_name" required oninput="updateComplaintId()">
+                </div>              
+
+                <div class="form-row">
+                    <div class="form-column form-left">
+                        <div class="form-group">
+                            <label for="complaint_id"><b>Complaint ID</b></label>
+                            <input type="text" id="complaint_id" name="complaint_id" value="{{ complaint_id }}" readonly>  <!-- Display the complaint_id -->
+                        </div>
+                        <div class="form-group">
+                            <label for="location"><b>Location *</b></label>
+                            <input type="text" id="location" name="location" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="equipment"><b>Product/Equipment *</b></label>
+                            <input type="text" id="equipment" name="equipment" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="priority"><b>Priority *</b></label>
+                            <select id="priority" name="priority" required onchange="updateComplaintId()">
+                                <option value="High">High</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="complaint_raised_by"><b>Complaint Raised By *</b></label>
+                            <input type="text" id="complaint_raised_by" name="complaint_raised_by" required>
+                        </div> 
+
+                        <div class="form-group">
+                            <label for="nature_of_complaint"><b>Nature of Complaint *</b></label>
+                            <textarea id="nature_of_complaint" name="nature_of_complaint" rows="4" maxlength="5000" required oninput="validateWordCount()"></textarea>
+                            <div id="warningMessage" class="warning-message" style="color: red; display: none;">
+                                Maximum word limit of 50 words exceeded.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="start_date"><b>Complaint Raised Date *</b></label>
+                            <input type="date" id="start_date" name="start_date" required onchange="toggleEndDateInput()">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="images"><b>Upload 1 or 2 Images (Max 1MB each, JPEG only) - Optional</b></label>
+                            <input type="file" id="images" name="images" accept=".jpeg,.jpg" multiple onchange="previewImages()">
+                        </div>
+
+                        <div class="image-preview" id="imagePreviewContainer"></div>
+                        <ul class="image-names" id="imageNameContainer"></ul>
+
+                        <div class="button-group">
+                            <button type="submit" class="submit-button"><b>Register</b></button>
+                        </div>
+                    </div>
+
+                    <div class="form-column form-right">
+                        <h5 style="color:#b90404">(These details you will fill later)</h5>
+                        <div class="readonly-group">
+                            <label for="summary_of_action_taken">Summary of Action Taken:</label>
+                            <input type="text" id="summary_of_action_taken" name="summary_of_action_taken" readonly>
+                        </div>
+                        <div class="readonly-group">
+                            <label for="root_cause">Root Cause:</label>
+                            <input type="text" id="root_cause" name="root_cause" readonly>
+                        </div>
+
+                        <div class="readonly-group">
+                            <label for="preventive_action">Preventive Action:</label>
+                            <input type="text" id="preventive_action" name="preventive_action" readonly>
+                        </div>
+                        <div class="readonly-group">
+                            <label for="claim_type">Claim Type:</label>
+                            <input type="text" id="claim_type" name="claim_type" readonly>
+                        </div>
+
+                        <div class="readonly-group">
+                            <label for="parts_replaced_for_rectification">Parts Replaced for Rectification:</label>
+                            <input type="text" id="parts_replaced_for_rectification" name="parts_replaced_for_rectification" readonly>
+                        </div>
+
+                        <div class="readonly-group">
+                            <label for="attended_by">Attended By:</label>
+                            <input type="text" id="attended_by" name="attended_by" readonly>
+                        </div>
+
+                        <div class="readonly-group">
+                            <label for="end_date"><b>Complaint Closed Date *</b></label>
+                            <input type="date" id="end_date" name="end_date" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                {% if error %}
+                    <div class="error-message">{{ error }}</div>
+                {% endif %}
+            </form>
         </div>
-        <div class="form-group">
-            <label for="location"><b>Location *</b></label>
-            <input type="text" id="location" name="location"></input>
-            </select>
-        </div>
-    <div class="form-group">
-        <label for="equipment"><b>Product/Equipment *</b></label>
-        <input type="text" id="equipment" name="equipment" required>
     </div>
-    <div class="form-group">
-        <label for="priority"><b>Priority *</b></label>
-        <select id="priority" name="priority" onchange="updateComplaintId()" required>
-            <option value="High">High</option>
-            <option value="Medium" selected>Medium</option>
-            <option value="Low">Low</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="complaint_raised_by"><b>Complaint Raised By *</b></label>
-        <input type="text" id="complaint_raised_by" name="complaint_raised_by" required>
-    </div> 
-    <div class="form-group">
-        <label for="nature_of_complaint"><b>Nature of Complaint *</b></label>
-        <textarea id="nature_of_complaint" name="nature_of_complaint" rows="4" maxlength="5000" required oninput="validateWordCount()"></textarea>
-        <div id="warningMessage" class="warning-message" style="color: red; display: none;">
-            Maximum word limit of 50 words exceeded.
-        </div>
-    </div>
-        <div class="form-group">
-            <label for="start_date"><b>Complaint raised Date *</b></label>
-            <input type="date" id="start_date" name="start_date" required onchange="toggleEndDateInput()">
-        </div><br>
-            <!-- <div class="form-group">
-                <label for="images"><b>Upload 1 or 2 Images (Max 1MB each, JPEG only) *</b></label>
-                <input type="file" id="images" name="images" accept=".jpeg,.jpg" multiple required onchange="previewImages()">
-            </div>
 
-            <div class="image-preview" id="imagePreviewContainer"></div>
-            <ul class="image-names" id="imageNameContainer"></ul> -->
-
-            <div class="form-group">
-                <label for="images"><b>Upload 1 or 2 Images (Max 1MB each, JPEG only) - Optional</b></label>
-                <input type="file" id="images" name="images" accept=".jpeg,.jpg" multiple onchange="previewImages()">
-            </div>
-            
-            <div class="image-preview" id="imagePreviewContainer"></div>
-            <ul class="image-names" id="imageNameContainer"></ul>
-
-            <div class="button-group">
-                <button type="submit" class="submit-button"><b>Register</b></button>
-            </div>
-        <div class="form-column form-right">
-            <h5 style=color:#b90404>(These details you will fill later)</h5>
-            <div class="readonly-group">
-                <label for="summary_of_action_taken">Summary of Action Taken:</label>
-                <input type="text" id="summary_of_action_taken" name="summary_of_action_taken" value="{{ complaint.summary_of_action_taken }}" readonly>
-            </div>
-            <div class="readonly-group">
-                <label for="root_cause">Root Cause:</label>
-                <input type="text" id="root_cause" name="root_cause" value="{{ complaint.root_cause }}" readonly>
-            </div>
-
-            <div class="readonly-group">
-                <label for="preventive_action">Preventive Action:</label>
-                <input type="text" id="preventive_action" name="preventive_action" value="{{ complaint.preventive_action }}" readonly>
-            </div>
-            <div class="readonly-group">
-                <label for="claim_type">Claim Type:</label>
-                <input type="text" id="claim_type" name="claim_type" value="{{ complaint.claim_type }}" readonly>
-            </div>
-
-            <div class="readonly-group">
-                <label for="parts_replaced_for_rectification">Parts Replaced for Rectification:</label>
-                <input type="text" id="parts_replaced_for_rectification" name="parts_replaced_for_rectification" value="{{ complaint.parts_replaced_for_rectification }}" readonly>
-            </div>
-
-            <div class="readonly-group">
-                <label for="attended_by">Attended By:</label>
-                <input type="text" id="attended_by" name="attended_by" value="" readonly>
-            </div>
-            <div class="readonly-group">
-                <label for="end_date"><b>Complaint Closed Date *</b></label>
-                <input type="date" id="end_date" name="end_date" readonly>
-            </div><br>
-    </div>
-        </div>
-        {% if error %}
-            <div class="error-message">{{ error }}</div>
-        {% endif %}
-    </form>
-    </div>
-    </div>
     <script>
+        // This is for the POST request handling (AJAX submission)
         document.getElementById('complaintForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent the default form submission
-
-        // Assuming the form is submitted via AJAX or similar
-        fetch(this.action, {
-            method: 'POST',
-            body: new FormData(this),
-            headers: {
-                'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]').value
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Your complaint has been registered successfully!');
-                // Optionally, you can reset the form or handle other UI changes
-                this.reset(); // Reset the form fields
-            } else {
-                alert('There was an issue with your submission. Please try again.');
-            }
-        })
-        .catch(error => {
-            alert('An error occurred. Please try again.');
-            console.error('Error:', error);
-        });
-    });
-        function setTodayDate() {
-            const today = new Date().toISOString().split('T')[0];
-            const startDateInput = document.getElementById('start_date');
-            const endDateInput = document.getElementById('end_date');
-            startDateInput.value = today;
-            startDateInput.setAttribute('max', today);
-            endDateInput.setAttribute('min', today);
-        }
-
-        function toggleCustomInput(selectId, containerId, inputId) {
-            const selectElement = document.getElementById(selectId);
-            const customInputContainer = document.getElementById(containerId);
-            if (selectElement.value === 'Other') {
-                customInputContainer.style.display = 'block';
-            } else {
-                customInputContainer.style.display = 'none';
-                document.getElementById(inputId).value = ''; // Clear custom input when switching back
-            }
-            updateComplaintId(); // Update complaint ID on selection change
-        }
-        function generateComplaintId() {
-            const siteName = document.getElementById('site_name').value.trim();
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const formattedDate = `${year}${month}${day}-${hours}${minutes}`;
-            
-            // Only generate complaint ID when the site name is provided
-            if (siteName) {
-                const formattedSiteName = siteName.replace(/\s+/g, '-');
-                return `${formattedSiteName}-${formattedDate}`;
-            }
-            
-            return ''; // Return an empty string if site name is not entered
-        }
-
-        // Function to update the complaint ID field
-        function updateComplaintId() {
-            const complaintIdField = document.getElementById('complaint_id');
-            complaintIdField.value = generateComplaintId();
-        }
-
-        // Call updateComplaintId when the site name is entered or modified
-        document.getElementById('site_name').addEventListener('input', updateComplaintId);
-
-        // Initialize the complaint ID field on page load with no value
-        window.addEventListener('load', function() {
-            const complaintIdField = document.getElementById('complaint_id');
-            complaintIdField.value = ''; // Ensure it's empty on load
-        });
-
-
-        function toggleEndDateInput() {
-            const startDate = document.getElementById('start_date').value;
-            if (startDate) {
-                document.getElementById('end_date').removeAttribute('readonly');
-                document.getElementById('end_date').setAttribute('min', startDate);
-            } else {
-                document.getElementById('end_date').setAttribute('readonly', 'true');
-            }
-        }
-
-    function previewImages() {
-        const input = document.getElementById('images');
-        const previewContainer = document.getElementById('imagePreviewContainer');
-        const nameContainer = document.getElementById('imageNameContainer');
-        previewContainer.innerHTML = '';
-        nameContainer.innerHTML = '';
+            event.preventDefault(); // Prevent the default form submission
         
-        Array.from(input.files).forEach(file => {
-            if (file) {
-                if (file.type.startsWith('image/jpeg') && file.size <= 1 * 1024 * 1024) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        previewContainer.appendChild(img);
-                    };
-                    reader.readAsDataURL(file);
-                    const li = document.createElement('li');
-                    li.textContent = file.name;
-                    nameContainer.appendChild(li);
-                } else {
-                    alert('Please upload only JPEG images with a maximum size of 1MB.');
+            // Submit the form data via AJAX
+            fetch(this.action, {
+                method: 'POST',
+                body: new FormData(this),
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]').value
                 }
-            }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Your complaint has been registered successfully!');
+                    // Set the Complaint ID returned from the backend
+                    document.getElementById('complaint_id').value = data.data.complaint_id;
+        
+                    // Optionally, reset the form or do other UI changes
+                    this.reset(); // Reset form fields if needed
+                } else {
+                    alert('There was an issue with your submission. Please try again.');
+                }
+            })
+            .catch(error => {
+                alert('An error occurred. Please try again.');
+                console.error('Error:', error);
+            });
         });
-    }
-    function validateWordCount() {
-        const textarea = document.getElementById('nature_of_complaint');
-        const warningMessage = document.getElementById('warningMessage');
-        const words = textarea.value.trim().split(/\s+/).filter(Boolean); // Trim and split into words
-        const wordCount = words.length;
-
-        if (wordCount > 50) {
-            // Limit the text to the first 50 words
-            textarea.value = words.slice(0, 50).join(' ');
-            warningMessage.style.display = 'block'; // Show warning message
-        } else {
-            warningMessage.style.display = 'none'; // Hide warning message if within limit
-        }
-    }
-        function validatePdfFile() {
-    const pdfInput = document.getElementById('pdf_upload');
-    const file = pdfInput.files[0];
-    
-    if (file) {
-        if (file.size > 3 * 1024 * 1024) { // 3MB in bytes
-            alert('File size exceeds 3MB. Please upload a smaller file.');
-            pdfInput.value = ''; // Clear the input
-        } else if (!file.type === 'application/pdf') {
-            alert('Please upload a valid PDF file.');
-            pdfInput.value = ''; // Clear the input
-        }
-    }
-}
     </script>
 </body>
-</html>
