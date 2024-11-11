@@ -310,8 +310,8 @@ def delete_complaint(request, complaint_id):
                     default_storage.delete(image_path)
 
         # Delete the PDF file if it exists
-        if complaint.pdf_upload:
-            complaint.pdf_upload.delete(save=False)
+        if complaint.pdf_file:
+            complaint.pdf_file.delete(save=False)
 
         # Delete the complaint instance
         complaint.delete()
