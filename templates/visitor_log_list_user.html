@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,9 +6,30 @@
     <title>Visitor Log List</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f9f9f9;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            height: 100vh; /* Ensure the body takes the full height of the viewport */
+            overflow: auto; /* Allows scrolling */
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 10%; /* 2px space at the top */
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
+            background-image: url('{% static "solon1.jpg" %}');
+            filter: blur(3px);
+            background-size: cover; /* Ensure the background image covers the entire area */
+            background-repeat: no-repeat; /* Prevents the image from repeating */
+            background-attachment: fixed; /* Keeps the background image fixed while scrolling */
+            background-position: center; /* Centers the background image */
+            z-index: -1; /* Places the blurred background behind the content */
         }
         h2 {
             color: #030168;
@@ -39,10 +61,10 @@
             margin-right: 5px;
         }
         .logo {
-            position: absolute;
+            position: fixed; /* Fix the logo in place */
             top: 10px;
             left: 10px;
-            z-index: 2;
+            z-index: 2; /* Ensure it's above other content */
         }
         .logo img {
             width: 100px;
@@ -95,22 +117,20 @@
         <table>
             <thead>
                 <tr>
+                    <th>Gatepass ID</th>
                     <th>Visitor Name</th>
                     <th>Visitor Company</th>
                     <th>Purpose of Visit</th>
-                    <th>Valid From</th>
-                    <th>Valid To</th>
-                    <th>Actions</th>
+                    <th>Download</th> <!-- New column for download -->
                 </tr>
             </thead>
             <tbody>
                 {% for log in visitor_logs %}
                 <tr>
+                    <td>{{ log.gatepass_id }}</td>
                     <td>{{ log.visitor_name }}</td>
                     <td>{{ log.visitor_company_name }}</td>
                     <td>{{ log.purpose_of_visit }}</td>
-                    <td>{{ log.valid_from_datetime }}</td>
-                    <td>{{ log.valid_to_datetime }}</td>
                     <td>
                         <!-- Download PDF Button -->
                         <a href="{% url 'download_visitor_log_pdf' log.id %}" class="download-btn">Download</a>
@@ -121,7 +141,7 @@
             </tbody>
         </table>
     {% else %}
-        <p>No Gate Passes found.</p>
+        <h3 style="margin-top:50px;text-align:center;color:rgb(117, 2, 2);background-color: #f9f9f9;"><b>No Gate Passes found</b></h3>
     {% endif %}
 </body>
 </html>

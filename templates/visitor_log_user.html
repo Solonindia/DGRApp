@@ -11,37 +11,37 @@
             padding: 0;
             background-color: #f4f4f4;
             color: #333;
-            height: 100vh; /* Ensure the body takes the full height of the viewport */
-            overflow: auto; /* Allows scrolling */
+            height: 100vh;
+            overflow: auto;
             position: relative;
         }
         body::before {
             content: "";
             position: fixed;
-            top: 10%; /* 2px space at the top */
+            top: 10%;
             left: 0;
             width: 100%;
-            height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
+            height: calc(100vh - 4px);
             filter: blur(3px);
             background-image: url('{% static "solar.jpg" %}');
-            background-size: cover; /* Ensure the background image covers the entire area */
-            background-repeat: no-repeat; /* Prevents the image from repeating */
-            background-attachment: fixed; /* Keeps the background image fixed while scrolling */
-            background-position: center; /* Centers the background image */
-            z-index: -1; /* Places the blurred background behind the content */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            z-index: -1;
         }
 
         .form-container {
-            width: 90%; /* Width of the form container */
-            max-width: 80%; /* Max width of the form */
+            width: 90%;
+            max-width: 80%;
             padding: 10px;
-            background: rgba(255, 255, 255); /* Slightly transparent white background */
-            min-height: 300px; /* Adjust height here */
-            margin-right: 0px; /* Space from the right edge */
-            margin-left: auto; /* Center the form container */
-            height: 100%; /* Set a height for the form container */
-            overflow-y: auto; /* Enable vertical scrolling */
-            float: right; /* Float the form container to the right */
+            background: rgba(255, 255, 255,0.7);
+            min-height: 300px;
+            margin-right: 0px;
+            margin-left: auto;
+            height: 100%;
+            overflow-y: auto;
+            float: right;
         }
 
         h2 {
@@ -53,8 +53,8 @@
             display: inline-block;
             width: 48%;
             font-weight: bold;
-            vertical-align: top; 
-            margin-bottom: 10px; 
+            vertical-align: top;
+            margin-bottom: 10px;
         }
 
         input[type="text"],
@@ -63,18 +63,11 @@
             width: 48%;
             padding: 8px;
             border: none;
-            border-bottom: 2px solid #ccc; 
-            margin-bottom: 20px; 
+            border-bottom: 2px solid #070707;
+            margin-bottom: 20px;
             background: transparent;
             display: inline-block;
             vertical-align: top;
-        }
-
-        input[type="text"]:focus,
-        input[type="datetime-local"]:focus,
-        input[type="file"]:focus {
-            border-bottom: 2px solid #0044cc;
-            outline: none;
         }
 
         button {
@@ -92,62 +85,8 @@
             margin-bottom: 30px;
         }
 
-        button:hover {
-            background-color: #0033aa;
-        }
-
-        .error-message {
-            color: #dc3545;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .image-preview {
-            margin-top: 10px;
-        }
-
-        .image-preview img {
-            max-width: 200px;
-            height: auto;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .message {
-            padding: 10px;
-            color: #2e5aeb;
-            margin-bottom: 20px;
-        }
-
-        .message-container {
-            display: flex;
-            align-items: center;
-            justify-content: center; 
-            margin-bottom: 20px; 
-        }
-
-        .message {
-            margin-right: 20px; 
-        }
-
-        .download-button {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #06e0f0;
-            color: #0a0a0a;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-
-        .download-button:hover {
-            background-color: #0d0d0e;
-            color: white;
-        }
-
         .logo {
-            position: fixed; /* Change to fixed to keep it in place during scrolling */
+            position: fixed;
             top: 10px;
             left: 10px;
             z-index: 2;
@@ -161,61 +100,70 @@
         .button-container {
             text-align: left;
             position: fixed;
-            top: 11%; /* Adjust to set vertical position */
-            left: 0; /* Adjust to set horizontal position */
-            background-color: rgba(2, 37, 70, 0.7); 
-            height: 90%; /* Adjust height as needed */
-            padding: 10px; 
-            border-radius: 5px; 
+            top: 11%;
+            left: 0;
+            background-color: rgba(2, 37, 70, 0.7);
+            height: 90%;
+            padding: 10px;
+            border-radius: 5px;
             display: flex;
-            flex-direction: column; 
-            gap: 10px; 
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-            backdrop-filter: blur(1px); 
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(1px);
         }
 
         .button-container a {
-            color: white; 
+            color: white;
             padding: 10px 20px;
             text-align: left;
             text-decoration: none;
             font-size: 16px;
-            border-radius: 5px; 
-            display: block; 
-            transition: background-color 0.3s, text-decoration 0.3s; 
+            border-radius: 5px;
+            display: block;
         }
 
         .button-container a:hover {
-            text-decoration: underline; 
+            text-decoration: underline;
+        }
+
+        .download-button {
+            text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
+    {% if messages %}
+        <script>
+            var messages = JSON.parse(document.getElementById('messages-json').textContent);
+            messages.forEach(function(message) {
+                alert(message);
+            });
+        </script>
+    {% endif %}
+
     <div class="button-container">
         <a href="{% url 'visitor_log_list_user' %}"><b>History</b></a>
         <a href="{% url 'user' %}"><b>Dashboard</b></a>
         <a href="{% url 'home' %}"><b>Home</b></a>
-    </div> 
+    </div>
+
     <div class="logo">
         <img src="{% static 'logo.jpg' %}" alt="Logo">
     </div>
-    <div class="form-container"> <!-- Container for the form -->
+
+    <div class="form-container">
         <h2>Visitor Gate Pass</h2>
-        {% if messages %}
-        <div class="message-container">
-            {% for message in messages %}
-                <div class="message">{{ message }}</div>
-            {% endfor %}
-            <a href="{% url 'download_visitor_log_pdf' log_id %}" class="download-button">Download Now</a>
-        </div>
-        {% endif %}
-        
         <form id="visitorLogForm" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            
+            <div class="form-group">
+                <label for="gatepass_id"><b>Gatepass ID</b></label>
+                <input type="text" id="gatepass_id" name="gatepass_id" value="{{ gatepass_id }}" readonly>
+            </div>
             <label for="name_of_plant">Name of the Plant/Project:</label>
             <input type="text" id="name_of_plant" name="name_of_plant" required>
-
+            
             <label for="visitor_name">Visitor Name:</label>
             <input type="text" id="visitor_name" name="visitor_name" required>
 
@@ -248,32 +196,64 @@
 
             <!-- Image Upload Field -->
             <label for="visitor_image">Upload Visitor Image (JPEG only, Max 1MB):</label>
-            <input type="file" id="visitor_image" name="visitor_image" accept="image/jpeg" required>
-            <div class="image-preview" id="imagePreview"></div>
-            
-            <button type="submit">Submit</button>
+            <input type="file" id="visitor_image" name="visitor_image" accept=".jpeg,.jpg" required>
+            <div id="imagePreviewContainer" class="image-preview"></div>
+            <div id="error-message" class="error-message"></div>
+
+            <button type="submit"><b>Submit</b></button>
         </form>
     </div>
-
     <script>
-        document.getElementById("visitor_image").onchange = function() {
-            const input = this;
-            const preview = document.getElementById("imagePreview");
-            preview.innerHTML = ""; // Clear previous previews
+               document.getElementById('gatepassForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
 
-            if (input.files) {
-                const file = input.files[0];
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    const img = document.createElement("img");
-                    img.src = e.target.result;
-                    img.alt = "Visitor Image Preview";
-                    preview.appendChild(img);
-                }
-                reader.readAsDataURL(file);
+        // Submit the form data via AJAX
+        fetch(this.action, {
+            method: 'POST',
+            body: new FormData(this),
+            headers: {
+                'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]').value
             }
-        }
+        })
+        .then(response => response.json())  // Parse JSON response
+        .then(data => {
+            if (data.success) {
+                alert('Your gatepass has been registered successfully!');
+                
+                // Set the Gatepass ID returned from the backend
+                document.getElementById('gatepass_id').value = data.data.gatepass_id;
+
+                // Optionally, reset the form or do other UI changes
+                this.reset(); // Reset form fields if needed
+            } else {
+                alert('There was an issue with your submission. Please try again.');
+            }
+        })
+        .catch(error => {
+            alert('An error occurred. Please try again.');
+            console.error('Error:', error);
+        });
+    });
+        document.getElementById('visitor_image').addEventListener('change', function() {
+            const file = this.files[0];
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const errorMessage = document.getElementById('error-message');
+            previewContainer.innerHTML = ''; // Clear previous previews
+            errorMessage.innerHTML = ''; // Clear previous error messages
+            
+            // Check file size
+            if (file.size > 1048576) { // 1MB in bytes
+                errorMessage.innerHTML = 'File size must not exceed 1MB.';
+                return;
+            }
+
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.onload = function() {
+                // Create an image element and append it to the preview container
+                previewContainer.appendChild(img);
+            };
+        });
     </script>
 </body>
 </html>

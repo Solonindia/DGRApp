@@ -28,64 +28,6 @@ class Complaint(models.Model):
     equipment = models.CharField(max_length=255, blank=True, null=True)
     complaint_raised_by = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
-    complaint_id = models.CharField(max_length=255, unique=True, blank=True, editable=False)
-    company_name = models.CharField(max_length=255)
-    site_name = models.CharField(max_length=255)
-    attended_by = models.CharField(max_length=255, blank=True, null=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
-    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='Medium')
-    claim_type = models.CharField(max_length=20, choices=CLAIM_CHOICES)
-    nature_of_complaint = models.TextField(blank=True, null=True)
-    images = models.TextField(blank=False, null=True)
-    location = models.CharField(max_length=50, default='Hyderabad')
-    start_date = models.DateField(default=timezone.now)
-    end_date = models.DateField(blank=True, null=True)
-    summary_of_action_taken = models.TextField(blank=True, null=True)
-    root_cause = models.TextField(blank=True, null=True)
-    preventive_action = models.TextField(blank=True, null=True)
-    parts_replaced_for_rectification = models.TextField(blank=True, null=True)
-    remarks = models.TextField(blank=True, null=True)
-    pdf_file = models.FileField(upload_to='pdfs/', blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.company_name} - {self.site_name} ({self.status}, {self.priority}, {self.location}, {self.claim_type})"
-
-    def get_images(self):
-        """Returns a list of image URLs."""
-        if self.images:
-            return json.loads(self.images)
-        return []
-
-    from django.db import models
-from django.utils import timezone
-import pytz
-from datetime import datetime
-import json
-from django.contrib.auth.models import User
-
-class Complaint(models.Model):
-    STATUS_CHOICES = [
-        ('Pending', 'Pending'),
-        ('Accepted', 'Accepted'),
-        ('Update', 'Update'),
-    ]
-    PRIORITY_CHOICES = [
-        ('High', 'High'),
-        ('Medium', 'Medium'),
-        ('Low', 'Low'),
-    ]
-
-    CLAIM_CHOICES = [
-        ('Under Warranty', 'Under Warranty'),
-        ('Chargeable', 'Chargeable'),
-    ]
-
-    serial_number = models.PositiveIntegerField(blank=True, null=True, editable=False)
-    dup_username = models.CharField(max_length=255, blank=True, null=True)
-    id = models.BigAutoField(primary_key=True)
-    equipment = models.CharField(max_length=255, blank=True, null=True)
-    complaint_raised_by = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, blank=True)
     complaint_id = models.CharField(max_length=255,blank=True, editable=False)
     company_name = models.CharField(max_length=255)
     site_name = models.CharField(max_length=255)
