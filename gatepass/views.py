@@ -235,11 +235,23 @@ def visitor_log_user_view(request):
     elif request.method == "GET":
         gatepass = VisitorLog(name_of_plant="Sample Company") 
         gatepass_id = gatepass.generate_gatepass_id()  # Generate the temporary complaint ID
-        return render(request, 'visitor_log.html', {'gatepass_id': gatepass_id})
+        return render(request, 'visitor_log_user.html', {'gatepass_id': gatepass_id})
 
-        
 def visitor_log_list_user(request):
+    # Check if the user is authenticated
+    if not request.user.is_authenticated:
+        # If the user is not authenticated, redirect them to the login page or show an error message
+        return redirect('login')  # You can replace 'login' with the actual name of your login URL
+
     username = request.user.username
-    print(username)
+    print(f"Fetching visitor logs for: {username}")
+
+    # Filter visitor logs for the specific user (dup_username = username)
     visitor_logs = VisitorLog.objects.filter(dup_username=username).order_by('-gate_pass_issue_datetime')
+
+    # Check if there are no visitor logs for the user
+    if not visitor_logs.exists():
+        print("No visitor logs found for this user.")
+    
+    # Pass the filtered visitor logs to the template
     return render(request, 'visitor_log_list_user.html', {'visitor_logs': visitor_logs})
