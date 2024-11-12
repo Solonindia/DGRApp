@@ -129,11 +129,10 @@
         <table>
             <thead>
                 <tr>
+                    <th>Gatepass ID</th>
                     <th>Visitor Name</th>
                     <th>Visitor Company</th>
                     <th>Purpose of Visit</th>
-                    <th>Valid From</th>
-                    <th>Valid To</th>
                     <th>Download</th> <!-- New column for download -->
                     <th>Delete</th>   <!-- New column for delete -->
                 </tr>
@@ -141,11 +140,10 @@
             <tbody>
                 {% for log in visitor_logs %}
                 <tr>
+                    <td>{{ log.gatepass_id }}</td>
                     <td>{{ log.visitor_name }}</td>
                     <td>{{ log.visitor_company_name }}</td>
                     <td>{{ log.purpose_of_visit }}</td>
-                    <td>{{ log.valid_from_datetime }}</td>
-                    <td>{{ log.valid_to_datetime }}</td>
                     <td>
                         <a href="{% url 'download_visitor_log_pdf' log.id %}" class="action-links">PDF</a> <!-- Updated link -->
                     </td>

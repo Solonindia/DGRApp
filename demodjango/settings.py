@@ -106,10 +106,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'  # or any other time zone you are using
+USE_TZ = True 
 USE_I18N = True
 USE_L10N = True
-USE_TZ = True
 
 STATIC_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/'
 STATICFILES_STORAGE = 'storages.backends.azure_storage.AzureStorage'

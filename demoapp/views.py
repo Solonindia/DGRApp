@@ -178,7 +178,6 @@ def complaint_form(request):
             }
         })
 
-    # For GET request, generate a dummy complaint_id (for the form)
     if request.method == "GET":
         complaint = Complaint(company_name="Sample Company")  # Initialize with some default values
         complaint_id = complaint.generate_complaint_id()  # Generate the temporary complaint ID
