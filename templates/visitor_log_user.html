@@ -131,6 +131,16 @@
             text-align: center;
             margin-top: 20px;
         }
+        .image-preview {
+            margin-top: 10px;
+        }
+
+        .image-preview img {
+            max-width: 200px;
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -236,6 +246,26 @@
                 alert('An error occurred. Please try again.');
                 console.error('Error:', error);
             });
+        });
+        document.getElementById('visitor_image').addEventListener('change', function() {
+            const file = this.files[0];
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const errorMessage = document.getElementById('error-message');
+            previewContainer.innerHTML = ''; // Clear previous previews
+            errorMessage.innerHTML = ''; // Clear previous error messages
+            
+            // Check file size
+            if (file.size > 1048576) { // 1MB in bytes
+                errorMessage.innerHTML = 'File size must not exceed 1MB.';
+                return;
+            }
+
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.onload = function() {
+                // Create an image element and append it to the preview container
+                previewContainer.appendChild(img);
+            };
         });
     </script>
 </body>
