@@ -76,7 +76,16 @@ def visitor_log_view(request):
         return render(request, 'visitor_log.html', {'gatepass_id': gatepass_id})
 
 def visitor_log_list(request):
-    visitor_logs = VisitorLog.objects.all().order_by('-gate_pass_issue_datetime')
+    # Get the 'gatepass_id' parameter from the GET request
+    gatepass_id = request.GET.get('gatepass_id', None)
+    
+    if gatepass_id:
+        # Filter by Gatepass ID if a search query is provided
+        visitor_logs = VisitorLog.objects.filter(gatepass_id__icontains=gatepass_id).order_by('-gate_pass_issue_datetime')
+    else:
+        # If no search query, show all logs
+        visitor_logs = VisitorLog.objects.all().order_by('-gate_pass_issue_datetime')
+    
     return render(request, 'visitor_log_list.html', {'visitor_logs': visitor_logs})
 
 def download_visitor_log_pdf(request, log_id):

@@ -259,7 +259,7 @@
         .then(response => response.json())  // Parse JSON response
         .then(data => {
             if (data.success) {
-                alert('Your gatepass has been registered successfully!');
+                alert('Gatepass saved check in History tab');
                 
                 // Set the Gatepass ID returned from the backend
                 document.getElementById('gatepass_id').value = data.data.gatepass_id;
