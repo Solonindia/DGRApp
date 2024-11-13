@@ -204,55 +204,38 @@
         </form>
     </div>
     <script>
-               document.getElementById('gatepassForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent the default form submission
+        document.getElementById('visitorLogForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
 
-        // Submit the form data via AJAX
-        fetch(this.action, {
-            method: 'POST',
-            body: new FormData(this),
-            headers: {
-                'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]').value
-            }
-        })
-        .then(response => response.json())  // Parse JSON response
-        .then(data => {
-            if (data.success) {
-                alert('Your gatepass has been registered successfully!');
-                
-                // Set the Gatepass ID returned from the backend
-                document.getElementById('gatepass_id').value = data.data.gatepass_id;
+            // Submit the form data via AJAX (fetch API)
+            fetch(this.action, {
+                method: 'POST',
+                body: new FormData(this),
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]').value
+                }
+            })
+            .then(response => response.json())  // Parse JSON response
+            .then(data => {
+                if (data.success) {
+                    // If successful, show a success alert
+                    alert('Gatepass saved check in History tab');
+                    
+                    // Set the Gatepass ID returned from the backend in the form field
+                    document.getElementById('gatepass_id').value = data.data.gatepass_id;
 
-                // Optionally, reset the form or do other UI changes
-                this.reset(); // Reset form fields if needed
-            } else {
-                alert('There was an issue with your submission. Please try again.');
-            }
-        })
-        .catch(error => {
-            alert('An error occurred. Please try again.');
-            console.error('Error:', error);
-        });
-    });
-        document.getElementById('visitor_image').addEventListener('change', function() {
-            const file = this.files[0];
-            const previewContainer = document.getElementById('imagePreviewContainer');
-            const errorMessage = document.getElementById('error-message');
-            previewContainer.innerHTML = ''; // Clear previous previews
-            errorMessage.innerHTML = ''; // Clear previous error messages
-            
-            // Check file size
-            if (file.size > 1048576) { // 1MB in bytes
-                errorMessage.innerHTML = 'File size must not exceed 1MB.';
-                return;
-            }
-
-            const img = document.createElement('img');
-            img.src = URL.createObjectURL(file);
-            img.onload = function() {
-                // Create an image element and append it to the preview container
-                previewContainer.appendChild(img);
-            };
+                    // Optionally, reset the form if you want to clear the fields after success
+                    this.reset(); // Uncomment this line if you want to reset the form
+                } else {
+                    // If an error occurred, show the error message
+                    alert('There was an issue with your submission. Please try again.');
+                }
+            })
+            .catch(error => {
+                // If the fetch fails for some reason, show an error message
+                alert('An error occurred. Please try again.');
+                console.error('Error:', error);
+            });
         });
     </script>
 </body>
