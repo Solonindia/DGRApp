@@ -120,11 +120,18 @@ except Exception as e:
     logging.error(f"Failed to initialize BlobServiceClient: {e}")
     raise
 
+import os
+import json
+from django.conf import settings
+from azure.storage.blob import BlobServiceClient
+
+def upload_to_azure(blob_service_client, container_name, file_path, file_content):
+    blob_client = blob_service_client.get_blob_client(container=container_name, blob=file_path)
+    blob_client.upload_blob(file_content, overwrite=True)
+    return blob_client.url
+
 def complaint_form(request):
     username = request.user.username
-
-    # Initialize an empty complaint_id for GET request
-    complaint_id = None
 
     if request.method == "POST":
         # Handle the POST request: form submission
@@ -154,17 +161,28 @@ def complaint_form(request):
         )
         complaint.save()
 
-        # Handle image uploads (your existing logic for images)
+        # Initialize Azure Blob Service Client
+        blob_service_client = BlobServiceClient.from_connection_string(settings.AZURE_STORAGE_CONNECTION_STRING)
+        container_name = settings.AZURE_CONTAINER
 
-        # Save image URLs to the complaint
-        image_urls = []  # Your existing image handling logic
-        complaint.images = json.dumps(image_urls[:2])  # Only store the first two images
+        # Handle image uploads
+        image_urls = []
+        if images:
+            for image in images[:2]:  # Limit to first two images
+                image_name = f"{username}_{image.name}"
+                blob_path = f"images/{image_name}"
+                image_url = upload_to_azure(blob_service_client, container_name, blob_path, image)
+                image_urls.append(image_url)
+
+        # Save image URLs in the complaint instance
+        complaint.images = json.dumps(image_urls)
         complaint.save()
 
+        # Return success response
         return JsonResponse({
             'success': True,
             'data': {
-                'complaint_id': complaint.complaint_id,  # Return the generated Complaint ID
+                'complaint_id': complaint.complaint_id,
                 'company_name': company_name,
                 'site_name': site_name,
                 'priority': priority,
@@ -174,14 +192,17 @@ def complaint_form(request):
                 'equipment': equipment,
                 'complaint_raised_by': complaint_raised_by,
                 'start_date': start_date,
-                'images': image_urls[:2],
+                'images': image_urls,
             }
         })
 
     if request.method == "GET":
-        complaint = Complaint(company_name="Sample Company")  # Initialize with some default values
-        complaint_id = complaint.generate_complaint_id()  # Generate the temporary complaint ID
+        # Generate temporary complaint ID for GET requests
+        complaint = Complaint(company_name="Sample Company")  # Default instance
+        complaint_id = complaint.generate_complaint_id()
         return render(request, 'new_complaint.html', {'complaint_id': complaint_id})
+
+
 
 def approval_complaints(request):
     complaints_list = Complaint.objects.filter(status='Pending').order_by('-created_at')
