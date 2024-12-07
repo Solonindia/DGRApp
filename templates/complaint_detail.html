@@ -203,12 +203,10 @@
                                 {% endwith %}
                             </td>
                             <td>
-                                {% if complaint.pdf_upload %}
-                                    <div class="pdf-container">
-                                        <a href="{{ complaint.pdf_upload.url }}" target="_blank">View</a>
-                                    </div>
+                                {% if complaint.pdf_file %}
+                                <a href="{{ complaint.pdf_file.url }}" target="_blank">View PDF</a>
                                 {% else %}
-                                    <p>No PDFs available.</p>
+                                    <p>No PDF uploaded for this complaint.</p>
                                 {% endif %}
                             </td>
                         </tr>
