@@ -168,8 +168,8 @@
         <form id="visitorLogForm" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
-                <label for="gatepass_id"><b>Gatepass ID</b></label>
-                <input type="text" id="gatepass_id" name="gatepass_id" value="{{ gatepass_id }}" readonly>
+            <label for="gatepass_id"><b>Gatepass ID</b></label>
+            <input type="text" id="gatepass_id" name="gatepass_id" value="{{ gatepass_id }}" readonly>
             </div>
             <label for="name_of_plant">Name of the Plant/Project:</label>
             <input type="text" id="name_of_plant" name="name_of_plant" required>
