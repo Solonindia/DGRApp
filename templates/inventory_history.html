@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory History</title>
+</head>
+<body>
+    <h2>Updated Inventory for Site: {{ site.name }}</h2>
+
+    <!-- Table to display updated closing stock -->
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Material Code</th>
+                <th>Material Description</th>
+                <th>Owner</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Opening Stock</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in inventory_items %}
+            <tr>
+                <td>{{ item.material_code }}</td>
+                <td>{{ item.material_desc }}</td>
+                <td>{{ item.owner }}</td>
+                <td>{{ item.type }}</td>
+                <td>{{ item.category }}</td>
+                <td>{{ item.opening_stock }}</td>
+                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table> <br>
+
+    <h3>Notifications</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Material Code</th>
+                <th>Opening Stock</th>
+                <th>Consumption</th>
+                <th>Closing Stock</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for notification in notifications %}
+            <tr>
+                <td>{{ notification.material_code }}</td>
+                <td>{{ notification.opening_stock }}</td>
+                <td>{{ notification.consumption }}</td>
+                <td>{{ notification.closing_stock }}</td>
+                <td>{{ notification.timestamp }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table> <br>
+
+    <a href="{% url 'edit_inventory' site_name=site.name %}">Go back to edit inventory</a>
+    
+</body>
+</html>
