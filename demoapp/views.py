@@ -53,6 +53,9 @@ def admin_page(request):
     return render(request,'admin.html')
 
 def user_page(request):
+
+    
+
     return render(request,'user.html')
     
 
@@ -206,9 +209,10 @@ def complaint_form(request):
 
 def approval_complaints(request):
     complaints_list = Complaint.objects.filter(status='Pending').order_by('-created_at')
-    paginator = Paginator(complaints_list, 3)  # Show 3 complaints per page
-    page_number = request.GET.get('page')
-    complaints = paginator.get_page(page_number)
+    # paginator = Paginator(complaints_list, 3)  # Show 3 complaints per page
+    # page_number = request.GET.get('page')
+    # complaints = paginator.get_page(page_number)
+    complaints = complaints_list
     return render(request, 'approval_complaints.html', {'complaints': complaints})
 
 def accept_complaint(request, complaint_id):
@@ -225,9 +229,10 @@ def accept_complaint(request, complaint_id):
 def existing_complaints(request):
     username = request.user.username
     complaints_list = Complaint.objects.filter(status='Accepted', dup_username=username).order_by('-created_at')
-    paginator = Paginator(complaints_list, 3)
-    page_number = request.GET.get('page')
-    complaints = paginator.get_page(page_number)
+    # paginator = Paginator(complaints_list, 3)
+    # page_number = request.GET.get('page')
+    # complaints = paginator.get_page(page_number)
+    complaints = complaints_list
     return render(request, 'existing_complaints.html', {'complaints': complaints})
 
 def edit_complaint(request, complaint_id):

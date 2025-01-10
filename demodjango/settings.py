@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'storages',
     'demoapp',
     'gatepass',
+    'Inventory',
 ]
 
 MIDDLEWARE = [
