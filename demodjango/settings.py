@@ -106,6 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGIN_URL = '/home/'
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'  # or any other time zone you are using
 USE_TZ = True 

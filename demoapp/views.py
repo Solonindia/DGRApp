@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
 from .forms import CustomUserCreationForm  # Make sure LoginForm is imported from the correct path
+from django.contrib.auth.decorators import login_required
+
 
 def home_page(request):
     return render(request, 'home_page.html')
@@ -39,6 +41,7 @@ def login1_view(request):
             return render(request, 'admin_login.html', {'error_message': 'Invalid credentials'})
     return render(request, 'admin_login.html')
 
+@login_required
 def signup_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -52,11 +55,19 @@ def signup_view(request):
 def admin_page(request):
     return render(request,'admin.html')
 
+from Inventory.models import Site,RealTimeNotification,Notification,Inventory
+
+@login_required
 def user_page(request):
 
-    
+    # Get the sites related to the logged-in user
+    sites = Site.objects.filter(inventory__user=request.user).distinct()  # Only fetch sites the user has access to
 
-    return render(request,'user.html')
+    # If you want to pass the first site's name as a default or show all available sites
+    # If there's at least one site, pass the first one as a default
+    site_name = sites.first().name if sites.exists() else None
+
+    return render(request,'user.html', {'sites': sites, 'site_name': site_name})
     
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -421,6 +432,9 @@ def ComplaintDetailView(request, type, site_name):
         'complaints': complaints,
         'complaint_type': type,  # Pass the complaint type (open or closed)
     })
+
+
+
 
 def export_complaints_to_csv(request, type, site_name):
     # Check for 'All' and adjust site_name accordingly

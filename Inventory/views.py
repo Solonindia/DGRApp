@@ -77,24 +77,36 @@ def view_notifications(request):
     return render(request, 'view_notifications.html')
 
 
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Inventory, Site, Notification, RealTimeNotification
 from django.utils import timezone
 from django.utils.timezone import now
 import pytz
+from django.http import Http404
+from django.contrib import messages
 
 def edit_inventory(request, site_name):
     # Fetch the site based on the site_name passed in the URL
-    site = Site.objects.get(name=site_name)
+    # site = Site.objects.get(name=site_name)
+
+     # Check if site_name is 'None' or empty
+    if not site_name or site_name.lower() == "none":
+        # If site_name is None or 'None', display an error message or redirect
+        messages.error(request, "No valid site provided for editing.")
+        return redirect('user')  # Redirect to user page or dashboard
+
+    try:
+        # Fetch the site based on the site_name passed in the URL
+        site = Site.objects.get(name=site_name)
+    except Site.DoesNotExist:
+        # If the site does not exist, raise a 404 error
+        raise Http404("Site not found")
     
     # Fetch inventory data for the specific site
-    #inventory_items = Inventory.objects.filter(site=site, user=request.user)
-
-    # Get the search query (e.g., material_code) from the GET request
     search_query = request.GET.get('material_code', '')
 
-    # Fetch inventory data for the specific site and filter based on the search query if provided
     if search_query:
         inventory_items = Inventory.objects.filter(site=site, user=request.user, material_code__icontains=search_query)
     else:
@@ -106,44 +118,41 @@ def edit_inventory(request, site_name):
             consumption = request.POST.get(f'consumption_{inventory.id}')
             if consumption and int(consumption) != 0:
                 consumption = int(consumption)  # Parse consumption value
+
+                # Check if consumption exceeds opening stock
+                if consumption > inventory.opening_stock:
+                    messages.error(request, f"Consumption cannot exceed opening stock for material code {inventory.material_code}.")
+                    return render(request, 'edit_inventory.html', {'site': site, 'inventory_items': inventory_items, 'search_query': search_query})
+
                 # Calculate closing stock
                 closing_stock = inventory.opening_stock - consumption
 
+                # Get current time in IST
                 utc_time = timezone.now()
-
-                # Convert UTC time to India Standard Time (IST)
                 Kolkata_timezone = pytz.timezone('Asia/Kolkata')
                 india_time = utc_time.astimezone(Kolkata_timezone)
-
-                # Ensure that the india_time is timezone-aware before saving
                 india_time = india_time.replace(tzinfo=Kolkata_timezone)  # Ensure it's timezone-aware
-                print(india_time)
                 
-                # Create a Notification for the updated row
+                # Create notifications for the updated row
                 Notification.objects.create(
                     site=site,
                     material_code=inventory.material_code,
                     opening_stock=inventory.opening_stock,
                     consumption=consumption,
                     closing_stock=closing_stock,
-                    timestamp = india_time
-                    #timestamp = current_time1
-                    #timestamp=timezone.now()
+                    timestamp=india_time
                 )
 
-                # Create a Real-Time Notification for the updated row (Real-Time Notification)
                 RealTimeNotification.objects.create(
                     site=site,
                     material_code=inventory.material_code,
                     opening_stock=inventory.opening_stock,
                     consumption=consumption,
                     closing_stock=closing_stock,
-                    timestamp = india_time,
-                    #timestamp=current_time1,
-                    #timestamp=timezone.now(),
+                    timestamp=india_time,
                     user=request.user  # Track the user who made the change
                 )
-                
+
                 # Update inventory with new closing stock (and set opening stock to the new closing stock)
                 inventory.opening_stock = closing_stock
                 inventory.save()  # Save the updated inventory record
@@ -151,7 +160,91 @@ def edit_inventory(request, site_name):
         messages.success(request, 'Inventory updated successfully.')
         return redirect('inventory_history', site_name=site_name)  # Redirect to inventory history page after update
 
-    return render(request, 'edit_inventory.html', {'site': site, 'inventory_items': inventory_items,'search_query': search_query})
+    return render(request, 'edit_inventory.html', {'site': site, 'inventory_items': inventory_items, 'search_query': search_query})
+
+
+
+
+
+# from django.shortcuts import render, redirect
+# from django.contrib import messages
+# from .models import Inventory, Site, Notification, RealTimeNotification
+# from django.utils import timezone
+# from django.utils.timezone import now
+# import pytz
+
+# def edit_inventory(request, site_name):
+#     # Fetch the site based on the site_name passed in the URL
+#     site = Site.objects.get(name=site_name)
+    
+#     # Fetch inventory data for the specific site
+#     #inventory_items = Inventory.objects.filter(site=site, user=request.user)
+
+#     # Get the search query (e.g., material_code) from the GET request
+#     search_query = request.GET.get('material_code', '')
+
+#     # Fetch inventory data for the specific site and filter based on the search query if provided
+#     if search_query:
+#         inventory_items = Inventory.objects.filter(site=site, user=request.user, material_code__icontains=search_query)
+#     else:
+#         inventory_items = Inventory.objects.filter(site=site, user=request.user)
+
+#     if request.method == 'POST':
+#         # Iterate over each inventory item and update the consumption value
+#         for inventory in inventory_items:
+#             consumption = request.POST.get(f'consumption_{inventory.id}')
+#             if consumption and int(consumption) != 0:
+#                 consumption = int(consumption)  # Parse consumption value
+#                 # Calculate closing stock
+#                 closing_stock = inventory.opening_stock - consumption
+
+#                 utc_time = timezone.now()
+
+#                 # Convert UTC time to India Standard Time (IST)
+#                 Kolkata_timezone = pytz.timezone('Asia/Kolkata')
+#                 india_time = utc_time.astimezone(Kolkata_timezone)
+
+#                 # Ensure that the india_time is timezone-aware before saving
+#                 india_time = india_time.replace(tzinfo=Kolkata_timezone)  # Ensure it's timezone-aware
+#                 print(india_time)
+
+                
+
+
+                
+#                 # Create a Notification for the updated row
+#                 Notification.objects.create(
+#                     site=site,
+#                     material_code=inventory.material_code,
+#                     opening_stock=inventory.opening_stock,
+#                     consumption=consumption,
+#                     closing_stock=closing_stock,
+#                     timestamp = india_time
+#                     #timestamp = current_time1
+#                     #timestamp=timezone.now()
+#                 )
+
+#                 # Create a Real-Time Notification for the updated row (Real-Time Notification)
+#                 RealTimeNotification.objects.create(
+#                     site=site,
+#                     material_code=inventory.material_code,
+#                     opening_stock=inventory.opening_stock,
+#                     consumption=consumption,
+#                     closing_stock=closing_stock,
+#                     timestamp = india_time,
+#                     #timestamp=current_time1,
+#                     #timestamp=timezone.now(),
+#                     user=request.user  # Track the user who made the change
+#                 )
+                
+#                 # Update inventory with new closing stock (and set opening stock to the new closing stock)
+#                 inventory.opening_stock = closing_stock
+#                 inventory.save()  # Save the updated inventory record
+
+#         messages.success(request, 'Inventory updated successfully.')
+#         return redirect('inventory_history', site_name=site_name)  # Redirect to inventory history page after update
+
+#     return render(request, 'edit_inventory.html', {'site': site, 'inventory_items': inventory_items,'search_query': search_query})
 
 
 def inventory_history(request, site_name):
@@ -242,7 +335,6 @@ def real_time_notification_list(request):
 
 
 from django.contrib.auth import login, authenticate
-# from .forms import CustomUserCreationForm
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
 
@@ -269,15 +361,15 @@ def login_view(request):
 
 
 
-def user_page(request):
-    # Get the sites related to the logged-in user
-    sites = Site.objects.filter(inventory__user=request.user).distinct()  # Only fetch sites the user has access to
+# def user_page(request):
+#     # Get the sites related to the logged-in user
+#     sites = Site.objects.filter(inventory__user=request.user).distinct()  # Only fetch sites the user has access to
 
-    # If you want to pass the first site's name as a default or show all available sites
-    # If there's at least one site, pass the first one as a default
-    site_name = sites.first().name if sites.exists() else None
+#     # If you want to pass the first site's name as a default or show all available sites
+#     # If there's at least one site, pass the first one as a default
+#     site_name = sites.first().name if sites.exists() else None
 
-    return render(request, 'user.html', {'sites': sites, 'site_name': site_name})
+#     return render(request, 'user.html', {'sites': sites, 'site_name': site_name})
 
 
 
@@ -316,10 +408,7 @@ def notification_list(request):
     # Count unread notifications
     unread_notifications = RealTimeNotification.objects.filter(is_read=False).count()
 
-    # Pass the unread notifications count to the template
-    # context = {
-    #     'unread_notifications': unread_notifications
-    # }
+
 
     # Render the template and pass the context
     return render(request, 'notification_list.html', {
