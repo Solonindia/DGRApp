@@ -89,12 +89,172 @@ def visitor_log_list(request):
     return render(request, 'visitor_log_list.html', {'visitor_logs': visitor_logs})
 
 
-from reportlab.lib.pagesizes import letter
+# from reportlab.lib.pagesizes import letter
+# from reportlab.pdfgen import canvas
+# from reportlab.lib.colors import navy
+# from io import BytesIO
+# from django.http import HttpResponse
+
+
+# def download_visitor_log_pdf(request, log_id):
+#     visitor_log = get_object_or_404(VisitorLog, id=log_id)
+
+#     # Generate PDF
+#     response = HttpResponse(content_type='application/pdf')
+#     response['Content-Disposition'] = f'inline; filename="visitor_gate_pass_{visitor_log.id}.pdf"'
+
+#     buffer = BytesIO()
+#     p = canvas.Canvas(buffer, pagesize=letter)
+#     width, height = letter
+
+#     # Adjust margins and spacing
+#     margin = 60
+#     line_height = 18
+#     image_width = 80
+#     image_height = 70
+#     image_x = width - image_width - margin
+#     image_y = height - image_height - margin - 30  # Move image down by 30 units
+#     content_x = margin
+#     content_y = height - margin - 40  # Starting point for content
+
+#     # Define main heading with blue color
+#     heading_text = "Visitor Gate Pass"
+#     p.setFont("Helvetica-Bold", 18)
+#     p.setFillColor(navy)  # Set heading color
+#     heading_x = width / 2
+#     heading_y = height - margin
+#     p.drawCentredString(heading_x, heading_y, heading_text)
+
+#     # Reset color for body text
+#     p.setFillColor('black')
+
+#     # Fields to be displayed on the PDF
+#     fields = [
+#         ("Gatepass ID", visitor_log.gatepass_id),
+#         ("Name of Plant/Project", visitor_log.name_of_plant),
+#         ("Visitor Organization Name", visitor_log.visitor_company_name),
+#         ("Valid From", visitor_log.valid_from_datetime.strftime('%Y-%m-%d %H:%M')),
+#         ("Valid To", visitor_log.valid_to_datetime.strftime('%Y-%m-%d %H:%M')),
+#         ("Emergency Contact Name", visitor_log.emergency_contact_details),
+#         ("Emergency Contact Number", visitor_log.emergency_mobile_contact),
+#         ("Relationship", visitor_log.relationship),
+#         ("Purpose of Visit", visitor_log.purpose_of_visit),
+#         ("Gate Pass Issue Date and Time", visitor_log.gate_pass_issue_datetime.strftime('%Y-%m-%d %H:%M'))
+#     ]
+
+#     max_label_width = max(p.stringWidth(f"{label}:", "Helvetica-Bold", 12) for label, _ in fields)
+
+#     # Function to wrap text within the page width
+#     def wrap_text(text, max_width, font="Helvetica", font_size=12):
+#         text_object = p.beginText(content_x + max_label_width + 10, content_y)
+#         text_object.setFont(font, font_size)
+#         text_object.setTextOrigin(content_x + max_label_width + 10, content_y)
+#         lines = []
+
+#         # Word wrapping logic
+#         words = text.split(" ")
+#         current_line = ""
+#         for word in words:
+#             test_line = f"{current_line} {word}".strip()
+#             if p.stringWidth(test_line, font, font_size) < max_width:
+#                 current_line = test_line
+#             else:
+#                 lines.append(current_line)
+#                 current_line = word
+
+#         # Append any leftover text
+#         if current_line:
+#             lines.append(current_line)
+
+#         return lines
+
+#     # Loop to draw fields and their corresponding values on the PDF
+#     for label, value in fields:
+#         # Draw the field label in bold
+#         p.setFont("Helvetica-Bold", 12)
+#         p.drawString(content_x, content_y, f"{label}:")
+        
+#         # Set font to normal for field values
+#         p.setFont("Helvetica", 12)
+
+#         # Wrap text for the value
+#         wrapped_text = wrap_text(value, width - margin * 2 - max_label_width - 10)
+
+#         # Draw the wrapped text for the field value
+#         for line in wrapped_text:
+#             p.drawString(content_x + max_label_width + 10, content_y, line)
+#             content_y -= line_height  # Move down for the next line
+
+#         # **Do not add extra space after each field, only adjust once for the wrapped lines**
+#         # No extra space added, only decremented for wrapped lines
+#         # Move to the next field
+
+#         # Check if we need to create a new page
+#         if content_y < margin:
+#             p.showPage()  # Create a new page
+#             content_y = height - margin  # Reset content position for the new page
+
+#     # If a visitor image exists, display it
+#     if visitor_log.visitor_image:
+#         img_url = visitor_log.visitor_image.url  # Use URL to load image
+#         p.drawImage(img_url, image_x, image_y, width=image_width, height=image_height)
+
+#         # Adjust visitor's name and contact details below the image
+#         visitor_name = visitor_log.visitor_name
+        
+#         # Split visitor name by commas and wrap each part separately
+#         visitor_name_parts = visitor_name.split(',')
+#         wrapped_name = []
+        
+#         for part in visitor_name_parts:
+#             wrapped_name.extend(wrap_text(part.strip(), width - margin * 2 - image_width - 10))
+
+#         # Start position for visitor's name
+#         visitor_name_y = image_y - 20
+
+#         p.setFont("Helvetica", 12)
+
+#         # Draw wrapped visitor's name
+#         for line in wrapped_name:
+#             # Check if the name fits in the remaining space
+#             if visitor_name_y - line_height < margin:
+#                 p.showPage()  # Move to next page if space is insufficient
+#                 visitor_name_y = height - margin  # Reset Y-position for new page
+#             p.drawString(image_x, visitor_name_y, line)
+#             visitor_name_y -= line_height
+
+#         # Draw visitor contact details (make sure this doesn't overlap)
+#         contact_details = visitor_log.contact_details
+#         wrapped_contact = wrap_text(contact_details, width - margin * 2 - image_width - 10)
+
+#         # Draw wrapped contact details below the name
+#         for line in wrapped_contact:
+#             # Check if the contact details fit in the remaining space
+#             if visitor_name_y - line_height < margin:
+#                 p.showPage()  # Move to next page if space is insufficient
+#                 visitor_name_y = height - margin  # Reset Y-position for new page
+#             p.drawString(image_x, visitor_name_y, line)
+#             visitor_name_y -= line_height
+
+#     # Finalize and return the PDF response
+#     p.save()
+
+#     buffer.seek(0)
+#     response.write(buffer.read())
+#     return response
+
+
+
+
+
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.colors import HexColor
 from reportlab.pdfgen import canvas
-from reportlab.lib.colors import navy
 from io import BytesIO
 from django.http import HttpResponse
-
+from django.shortcuts import get_object_or_404
+from .models import VisitorLog  # Adjust the import path based on your actual project structure
+import math
 
 def download_visitor_log_pdf(request, log_id):
     visitor_log = get_object_or_404(VisitorLog, id=log_id)
@@ -104,8 +264,8 @@ def download_visitor_log_pdf(request, log_id):
     response['Content-Disposition'] = f'inline; filename="visitor_gate_pass_{visitor_log.id}.pdf"'
 
     buffer = BytesIO()
-    p = canvas.Canvas(buffer, pagesize=letter)
-    width, height = letter
+    p = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
 
     # Adjust margins and spacing
     margin = 60
@@ -117,10 +277,36 @@ def download_visitor_log_pdf(request, log_id):
     content_x = margin
     content_y = height - margin - 40  # Starting point for content
 
+    # Add the watermark in the background
+    watermark_text = "Solon India PVT LTD"
+    p.setFont("Helvetica-Bold", 40)
+    p.setFillColor(HexColor("#ADD8E6"))  # Light blue color for the watermark
+    #p.setFillColor(HexColor("#D3D3D3"))  # Light gray color for the watermark
+
+    # Save state before rotating the text
+    p.saveState()
+
+    # Rotate text by 45 degrees
+    p.rotate(25)
+
+    # Calculate the width and height of the rotated text
+    text_width = p.stringWidth(watermark_text, "Helvetica-Bold", 5)
+    text_height = 40  # Since the font size is 80, the height will be roughly this
+
+    # Adjust positioning to ensure the watermark is centered
+    x_position = (width - text_width) / 2
+    y_position = (height - text_height) / 2
+
+    # Adjust for rotation to make sure the whole text is centered
+    p.drawString(x_position, y_position, watermark_text)  # Position the watermark text
+
+    # Restore the canvas state after rotation
+    p.restoreState()
+
     # Define main heading with blue color
     heading_text = "Visitor Gate Pass"
     p.setFont("Helvetica-Bold", 18)
-    p.setFillColor(navy)  # Set heading color
+    p.setFillColor("navy")  # Set heading color
     heading_x = width / 2
     heading_y = height - margin
     p.drawCentredString(heading_x, heading_y, heading_text)
@@ -242,9 +428,6 @@ def download_visitor_log_pdf(request, log_id):
     buffer.seek(0)
     response.write(buffer.read())
     return response
-
-
-
 
 
 

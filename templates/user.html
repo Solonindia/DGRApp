@@ -40,6 +40,7 @@
             width: 100px;
             height: auto;
         }
+
         .menu-bar {
             margin-top: 5%;
             height: 8%;
@@ -65,7 +66,31 @@
             text-decoration: underline; /* Underline on hover */
             color:cornflowerblue;
         }
-    </style>    
+
+        /* Alert box styling */
+        .alert-box {
+            position: fixed; /* Fix the position at the top */
+            top: 10px; /* Space from the top */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Center align it */
+            background-color: #f44336; /* Red background */
+            color: white;
+            padding: 8px 15px; /* Reduced padding to make it smaller */
+            border-radius: 5px; /* Rounded corners */
+            z-index: 1000;
+            font-size: 14px; /* Slightly smaller text */
+            font-weight: bold;
+            max-width: 90%;
+            word-wrap: break-word; /* Ensure long messages wrap properly */
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        }
+
+        .alert {
+            margin: 5px 0;
+        }
+
+    </style>
 </head>
 <body>
     <div class="background"></div>
@@ -75,7 +100,23 @@
     <div class="menu-bar"> 
         <a href="{% url 'new_complaint' %}" class="button"><h3>Complaints</h3></a>
         <a href="{% url 'visitor_log_user_view' %}"><h3>Gate Pass</h3></a>
+        <a href="{% url 'edit_inventory' site_name=site_name %}"><h3>Inventory</h3></a>
         <a href="{% url 'home' %}"><h3>Home</h3></a>
-    </div>    
+    </div>
+    <div class="content">
+        <!-- Your content here -->
+
+        <!-- Display messages as a custom alert box -->
+        {% if messages %}
+            <div class="alert-box">
+                {% for message in messages %}
+                    <div class="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
 </body>
 </html>
