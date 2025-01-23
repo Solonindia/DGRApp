@@ -198,17 +198,50 @@
                 width: 100%;
             }
         }
+        .logout {
+            position: fixed; /* Ensures the button stays fixed at the top-right corner */
+            top: 60px;
+            right: 50px;
+            z-index: 2;
+        }
+
+        .logout button {
+            background-color: rgba(2, 37, 70, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: block;
+            width: auto;
+        }
+
+        .logout button:hover {
+            background-color: rgba(2, 37, 70, 0.7);
+        }
 
 
     </style>
 </head>
-<body>    
+<body>
+    <div class="logout">
+        {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit"><b>Logout</b></button>
+        </form>
+        {% endif %}
+    </div>
+
     <div class="button-container">
         <a href="{% url 'upload_inventory' %}">Upload Inventory</a>
         <a href="{% url 'notification_list' %}">Inventory History</a>
         <a href="{% url 'site_analysis' %}">Inventory Analysis</a>
         <a href="{% url 'admin' %}">Dashboard</a>
-        <a href="{% url 'home' %}">Home</a>
+        <!-- <a href="{% url 'home' %}">Home</a> -->
     </div>    
 
     
