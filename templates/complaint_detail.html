@@ -89,8 +89,8 @@
 
         .top-right {
             position: fixed; /* Use fixed positioning so it stays at the top-right of the screen */
-            top: 10px; /* Add some margin from the top */
-            right: 10px; /* Add some margin from the right */
+            top: 0px; /* Add some margin from the top */
+            right: 120px; /* Add some margin from the right */
             z-index: 1000; /* Ensure it stays above other content */
         }
 
@@ -120,9 +120,29 @@
         .search-button:hover {
             background-color: #0056b3;
         }
+        .logout {
+            position: fixed;
+            top: 17px;
+            right: 10px;
+            z-index: 2; /* Ensure it stays on top of other content */
+            background-color: rgb(16, 2, 95);
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
     </style>
 </head>
 <body>
+    <div class="logout">
+        {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+        {% endif %}
+    </div>
     <div class="logo">
         <img src="{% static 'logo.jpg' %}" alt="Logo">
     </div>

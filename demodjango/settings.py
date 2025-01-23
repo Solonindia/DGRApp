@@ -49,8 +49,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-LOGIN_URL = '/home/'
-
 ROOT_URLCONF = 'demodjango.urls'
 
 TEMPLATES = [
@@ -107,6 +105,11 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LOGIN_URL = '/home/'
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 60  # 1 hour for session expiration
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Automatically expire sessions when the browser is closed
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'  # or any other time zone you are using
 USE_TZ = True 
@@ -119,6 +122,7 @@ STATICFILES_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
 
+LOGOUT_REDIRECT_URL = '/home/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

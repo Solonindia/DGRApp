@@ -169,10 +169,6 @@
             font-weight: bold;
             transition: background-color 0.2s ease;
         }
-
-        .logout:hover {
-            background-color: #9797f3;
-        }
         .delete-btn{
             background-color: red;
             height:20%;
@@ -224,7 +220,14 @@
     </style>
 </head>
 <body>
-    <a href="{% url 'home' %}" class="logout">Logout</a>
+    <div class="logout">
+    {% if user.is_authenticated %}
+    <form action="{% url 'logout' %}" method="POST">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+    {% endif %}
+    </div>
     <h3>
     <div class="circle">
         Closed Complaints

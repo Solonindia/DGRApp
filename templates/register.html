@@ -10,56 +10,59 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column; /* Stack items vertically */
             height: 100vh;
             margin: 0;
             background-color: white;
             font-family: Georgia, 'Times New Roman', Times, serif;
             position: relative;
             text-align: center;
+            overflow-y: auto; /* Allow body to scroll */
         }
 
         .background {
-            position: absolute;
-            top: 10%;
+            position: fixed; /* Fixed position */
+            top: 0; /* Ensure it's at the top */
             left: 0;
             width: 100%;
-            height: 80%;
+            height: 100%; /* Full viewport height */
             background-image: url('{% static "solon.jpg" %}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             z-index: 0;
-            background-color: white;
-            filter: blur(2px); 
+            filter: blur(4px); /* Blur effect */
         }
 
         .logo {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 2;
+            position: fixed; /* Fixed position */
+            top: 20px; /* Distance from the top */
+            left: 20px; /* Distance from the left */
+            z-index: 2; /* Ensure it's above other content */
         }
 
         .logo img {
-            width: 100px;
+            width: 120px; /* Slightly bigger logo */
             height: auto;
         }
 
         .signup-container {
             width: 90%; /* Adjust width to make it more responsive */
-            max-width: 400px;
-            padding: 20px; /* Reduced padding */
+            max-width: 450px; /* Increased max-width for better form fit */
+            padding: 30px; /* Increased padding for better spacing */
             border: 1px solid #0c0c0c; 
-            border-radius: 8px; 
-            background-color: #11d0f1; 
-            box-shadow: 0 0 10px rgba(0,0,0,0.1); 
+            border-radius: 12px; /* Rounded corners for a softer look */
+            background-color: #0492C2; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); 
             z-index: 3; /* Ensure the form content is above the background */
-            position: relative; /* Ensure the container is positioned correctly */
+            position: relative;
         }
 
         .signup-container h2 {
             text-align: center;
-            margin-bottom: 10px; /* Reduced margin */
+            margin-bottom: 20px; /* Increased margin for space */
+            font-size: 24px; /* Slightly larger font size */
+            color: white; /* Changed heading color to white */
         }
 
         .signup-container form {
@@ -68,51 +71,106 @@
         }
 
         .signup-container form div {
-            margin-bottom: 10px; /* Adjust spacing between fields */
+            margin-bottom: 20px; /* Increased spacing between fields */
+            text-align: left; /* Align the labels to the left */
         }
 
-        .signup-container form input,
-        .signup-container form button {
-            padding: 8px; /* Adjusted padding */
-            margin: 0 auto; /* Centered elements */
-            font-size: 14px; /* Reduced font size */
-            border: 1px solid #070707;
-            border-radius: 5px;
-            width: 90%; 
+        .signup-container form div label {
+            font-size: 16px;
+            font-weight: bold;
+            display: block; /* Ensure the label appears above the input */
+            margin-bottom: 8px; /* Added margin to separate label from input */
+            color: white; /* Changed label color to white */
+        }
+
+        .signup-container form input {
+            padding: 8px 12px; /* Added some padding for the input field */
+            font-size: 16px; /* Larger font size */
+            width: 100%; /* Full width for inputs */
+            border: none; /* Remove the border */
+            border-bottom: 2px solid white; /* Add an underline in white */
+            background-color: transparent; /* Make background transparent */
+            outline: none; /* Remove the outline when focused */
+            color: white; /* Make input text white for visibility */
+        }
+
+        .signup-container form input:focus {
+            border-bottom-color: #04035c; /* Change the underline color when focused */
         }
 
         .signup-container form button[type="submit"] {
-            background-color: #04035c;
-            color: white;
-            border: none;
+            background-color: white; /* Button background to white */
+            color: #04035c; /* Font color to blue */
+            border: 1px solid #04035c; /* Border color to blue */
             cursor: pointer;
-            width: 100px; /* Fixed width */
+            width: 50%; /* Smaller button width */
             border-radius: 10px;
             text-align: center;
-            margin: 15px auto 0; /* Centered button and added margin to the top */
+            margin-top: 20px; /* Added top margin for spacing */
+            padding: 12px;
+            transition: background-color 0.3s; /* Smooth hover effect */
+            font-size: 16px; /* Font size adjustment */
+            margin-left: auto; /* Center the button horizontally */
+            margin-right: auto; /* Center the button horizontally */
+        }
+
+        .signup-container form button[type="submit"]:hover {
+            background-color: #04035c; /* Darker button on hover */
+            color: white; /* Change text color to white on hover */
         }
 
         .signup-container a {
             color: #04035c;
             text-decoration: none;
+            margin-top: 10px;
+            font-size: 14px;
         }
 
-        .bottom-left, .bottom-right {
+        /* Top-right positioning for Bottom Links */
+        .top-right-links {
             position: absolute;
-            bottom: 30px; /* Distance from the bottom */
-            z-index: 3; /* Ensure the link is above the background */
+            top: 20px; /* Distance from the top */
+            right: 20px; /* Distance from the right */
+            display: flex;
+            gap: 15px; /* Space between the links */
+            z-index: 3; /* Ensure links are above the background */
         }
 
-        .bottom-left {
-            left: 10px; /* Distance from the left */
+        .top-right-links a {
+            color: #04035c;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: color 0.3s;
         }
 
-        .bottom-right {
-            left: 100px; /* Distance from the left */
+        .top-right-links a:hover {
+            color: #04035c;
+            text-decoration: underline;
+        }
+        .logout {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 2; /* Ensure it stays on top of other content */
+            color: rgb(16, 2, 95);
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
         }
     </style>
 </head>
 <body>
+    <div class="logout">
+        {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+        {% endif %}
+    </div>
     <div class="background"></div>
     <div class="logo">
         <img src="{% static 'logo.jpg' %}" alt="Logo">
@@ -126,17 +184,17 @@
                 {% for field in form %}
                     <div>
                         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        {{ field }}
+                        {{ field }} <!-- This will render the form field input like text box, email field, etc. -->
                     </div>
                 {% endfor %}
                 <button type="submit">Register</button>
             </form>
         {% endif %}
     </div>
-    <div class="bottom-left">
+
+    <!-- Top-right Links -->
+    <div class="top-right-links">
         <a href="{% url 'home' %}"><b>Home</b></a>
-    </div>
-    <div class="bottom-right">
         <a href="{% url 'admin' %}"><b>Dashboard</b></a>
     </div>
 </body>

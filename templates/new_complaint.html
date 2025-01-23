@@ -227,9 +227,29 @@
         .button-container a:hover {
             text-decoration: underline; /* Underline on hover */
         }
+        .logout {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 2; /* Ensure it stays on top of other content */
+            color: rgb(16, 2, 95);
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
 </style>
 </head>
 <body onload="setTodayDate()">    
+    <div class="logout">
+        {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+        {% endif %}
+    </div>
     <div class="container">
         <div class="logo">
             <img src="{% static 'logo.jpg' %}" alt="Logo">
@@ -242,7 +262,7 @@
         </div>    
     
         <div class="form-wrapper">
-            <form id="complaintForm" method="post" enctype="multipart/form-data" action="{% url 'new_complaint' %}">
+            <form id="complaintForm" method="post" enctype="multipart/form-data" action="{% url 'complaint_form' %}">
                 {% csrf_token %}
                 <h3>Register a New Complaint</h3>
                 
