@@ -198,35 +198,7 @@
                 opacity: 0;
             }
         }
-    .pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: 3%;
-    }
-    .pagination a,
-    .pagination span {
-        margin: 0 5px;
-        padding: 8px 16px;
-        text-decoration: none;
-        background-color: #f4f4f9;
-        color: #007bff;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-    .pagination a:hover {
-        background-color: #ddd;
-    }
-    .pagination .current {
-        font-weight: bold;
-        background-color: #007bff;
-        color: white;
-    }
-    .pagination .disabled {
-        color: #999;
-        cursor: not-allowed;
-    }
+    
     .complaint-serial-number {
         font-size: 18px;
         font-weight: bold;
@@ -279,7 +251,7 @@
         {% if user.is_authenticated %}
         <form action="{% url 'logout' %}" method="POST">
             {% csrf_token %}
-            <button type="submit">Logout</button>
+            <button type="submit"><b>Logout</b></button>
         </form>
         {% endif %}
         </div>
@@ -292,7 +264,7 @@
             <a href="{% url 'final_complaints' %}"><b>Closed Complaints</b></a>
             <a href="{% url 'complaint_analysis' %}"><b>Analysis</b></a>
             <a href="{% url 'admin' %}"><b>Dashboard</b></a>
-            <a href="{% url 'home' %}"><b>Home</b></a>
+            <!-- <a href="{% url 'home' %}"><b>Home</b></a> -->
         </div>
         {% if complaints %}
             {% for complaint in complaints %}
@@ -352,33 +324,7 @@
             <div class="no-complaints">No complaints are pending for approval.</div>
         {% endif %}
     </div>
-    <!-- <div class="pagination">
-        {% if complaints.has_other_pages %}
-            {% if complaints.has_previous %}
-                <a href="?page=1" class="pagination-link">First</a>
-                <a href="?page={{ complaints.previous_page_number }}" class="pagination-link">Previous</a>
-            {% else %}
-                <span class="pagination-link disabled">First</span>
-                <span class="pagination-link disabled">Previous</span>
-            {% endif %}
-    
-            {% for num in complaints.paginator.page_range %}
-                {% if complaints.number == num %}
-                    <span class="pagination-link current">{{ num }}</span>
-                {% elif num > complaints.number|add:'-3' and num < complaints.number|add:'3' %}
-                    <a href="?page={{ num }}" class="pagination-link">{{ num }}</a>
-                {% endif %}
-            {% endfor %}
-    
-            {% if complaints.has_next %}
-                <a href="?page={{ complaints.next_page_number }}" class="pagination-link">Next</a>
-                <a href="?page={{ complaints.paginator.num_pages }}" class="pagination-link">Last</a>
-            {% else %}
-                <span class="pagination-link disabled">Next</span>
-                <span class="pagination-link disabled">Last</span>
-            {% endif %}
-        {% endif %}
-    </div>     -->
+
     <!-- Modal Structure -->
     <div id="myModal" class="modal">
         <span class="close" onclick="closeModal()">&times;</span>

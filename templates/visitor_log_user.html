@@ -141,6 +141,32 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+        .logout {
+            position: fixed; /* Ensures the button stays fixed at the top-right corner */
+            top: 10px;
+            right: 40px;
+            z-index: 2;
+        }
+
+        .logout button {
+            background-color: #0044cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: block;
+            width: auto;
+        }
+
+        .logout button:hover {
+            background-color: #0033aa;
+        }
+ 
+
     </style>
 </head>
 <body>
@@ -153,10 +179,19 @@
         </script>
     {% endif %}
 
+    <div class="logout">
+        {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit"><b>Logout</b></button>
+        </form>
+        {% endif %}
+    </div>
+
     <div class="button-container">
         <a href="{% url 'visitor_log_list_user' %}"><b>History</b></a>
         <a href="{% url 'user' %}"><b>Dashboard</b></a>
-        <a href="{% url 'home' %}"><b>Home</b></a>
+        <!-- <a href="{% url 'home' %}"><b>Home</b></a> -->
     </div>
 
     <div class="logo">

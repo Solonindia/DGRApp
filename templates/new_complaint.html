@@ -246,7 +246,7 @@
         {% if user.is_authenticated %}
         <form action="{% url 'logout' %}" method="POST">
             {% csrf_token %}
-            <button type="submit">Logout</button>
+            <button type="submit"><b>Logout</b></button>
         </form>
         {% endif %}
     </div>
@@ -258,7 +258,7 @@
             <a href="{% url 'existing_complaints' %}"><b>Existing Complaints</b></a>
             <a href="{% url 'final_complaints_user' %}"><b>Closed Complaints</b></a>
             <a href="{% url 'user' %}"><b>Dashboard</b></a>
-            <a href="{% url 'home' %}"><b>Home</b></a>
+            <!-- <a href="{% url 'home' %}"><b>Home</b></a> -->
         </div>    
     
         <div class="form-wrapper">

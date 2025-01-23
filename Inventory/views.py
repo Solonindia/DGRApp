@@ -7,7 +7,10 @@ from django.contrib import messages
 from .models import Site, Inventory
 import pandas as pd
 from django.contrib.auth.models import User
+from demoapp.views import admin_login_view,user_login_view
+from django.contrib.auth.decorators import login_required
 
+@login_required(login_url='/superuser/login/')
 def upload_inventory(request):
     excel_data = None
     columns = None
@@ -71,13 +74,6 @@ def upload_inventory(request):
     'unread_notifications': unread_notifications})
 
 
-
-
-def view_notifications(request):
-    return render(request, 'view_notifications.html')
-
-
-
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Inventory, Site, Notification, RealTimeNotification
@@ -87,6 +83,7 @@ import pytz
 from django.http import Http404
 from django.contrib import messages
 
+@login_required(login_url='/user/login/')
 def edit_inventory(request, site_name):
     # Fetch the site based on the site_name passed in the URL
     # site = Site.objects.get(name=site_name)
@@ -247,6 +244,7 @@ def edit_inventory(request, site_name):
 #     return render(request, 'edit_inventory.html', {'site': site, 'inventory_items': inventory_items,'search_query': search_query})
 
 
+@login_required(login_url='/user/login/')
 def inventory_history(request, site_name):
     # Fetch the site and updated inventory data
     site = Site.objects.get(name=site_name)
@@ -258,6 +256,7 @@ def inventory_history(request, site_name):
     return render(request, 'inventory_history.html', {'site': site, 'inventory_items': inventory_items, 'notifications': notifications })
 
 
+@login_required(login_url='/superuser/login/')
 def real_time_notification_list(request):
     # Fetch all real-time notifications for the logged-in user
     #notifications = RealTimeNotification.objects.filter(user=request.user).order_by('-timestamp')
@@ -345,17 +344,17 @@ from django.views.decorators.csrf import csrf_protect
 #     return redirect('home')
 
 
-def login_view(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('user')  # Redirect to the success page
-        else:
-            return render(request, 'user_login.html', {'error_message': 'Invalid credentials'})
-    return render(request, 'user_login.html')
+# def login_view(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         user = authenticate(request, username=username, password=password)
+#         if user is not None:
+#             login(request, user)
+#             return redirect('user')  # Redirect to the success page
+#         else:
+#             return render(request, 'user_login.html', {'error_message': 'Invalid credentials'})
+#     return render(request, 'user_login.html')
 
 
 
@@ -377,6 +376,7 @@ from django.shortcuts import render
 from .models import Notification
 from datetime import datetime
 
+@login_required(login_url='/superuser/login/')
 def notification_list(request):
     # Get the start_date and end_date from GET request
     selected_site = request.GET.get('site_name', '')
@@ -426,6 +426,7 @@ def notification_list(request):
 
 
 import json
+@login_required(login_url='/superuser/login/')
 def site_analysis(request):
     sites = Site.objects.all()
     selected_site = None
