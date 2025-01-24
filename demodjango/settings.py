@@ -107,7 +107,7 @@ AUTH_PASSWORD_VALIDATORS = [
 LOGIN_URL = '/home/'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_AGE = 60  # 1 hour for session expiration
+SESSION_COOKIE_AGE = 3600  # 1 hour for session expiration
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Automatically expire sessions when the browser is closed
 
 LANGUAGE_CODE = 'en-us'
