@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         body {
             display: flex;
@@ -137,28 +138,45 @@
         }
 
         .top-right-links a {
-            color: #04035c;
-            font-size: 14px;
-            font-weight: bold;
-            text-decoration: none;
-            transition: color 0.3s;
+        background-color: #0492C2;      /* Blue background color */
+        color: white;                   /* White text */
+        padding: 10px 20px;             /* Add padding for better button shape */
+        border-radius: 4px;             /* Rounded corners */
+        font-size: 14px;                /* Adjust font size */
+        font-weight: bold;              /* Bold text */
+        text-decoration: none;          /* Remove underline */
+        display: inline-block;          /* Make the link act like a block-level element */
+        transition: background-color 0.3s; /* Smooth transition for hover effect */
         }
 
         .top-right-links a:hover {
-            color: #04035c;
-            text-decoration: underline;
+            background-color: #0492C2;      /* Darker blue on hover */
+            text-decoration: none;          /* No underline on hover */
         }
+
         .logout {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 2; /* Ensure it stays on top of other content */
-            color: rgb(16, 2, 95);
+        position: fixed; /* Ensures the button stays fixed at the top-right corner */
+        top: 18px;
+        right: 170px;
+        z-index: 2;
+        }
+
+        .logout button {
+            background-color: #0492C2;
+            color: white;
+            border: none;
             padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
             font-weight: bold;
-            transition: background-color 0.2s ease;
+            transition: background-color 0.3s;
+            display: block;
+            width: auto;
+        }
+
+        .logout button:hover {
+            background-color: #0492C2;
         }
     </style>
 </head>
@@ -167,7 +185,7 @@
         {% if user.is_authenticated %}
         <form action="{% url 'logout' %}" method="POST">
             {% csrf_token %}
-            <button type="submit">Logout</button>
+            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i> Logout</button>
         </form>
         {% endif %}
     </div>
@@ -194,7 +212,6 @@
 
     <!-- Top-right Links -->
     <div class="top-right-links">
-        <a href="{% url 'home' %}"><b>Home</b></a>
         <a href="{% url 'admin' %}"><b>Dashboard</b></a>
     </div>
 </body>

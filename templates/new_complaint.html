@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Complaint</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         body {
             font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -228,16 +229,28 @@
             text-decoration: underline; /* Underline on hover */
         }
         .logout {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 2; /* Ensure it stays on top of other content */
-            color: rgb(16, 2, 95);
+        position: fixed; /* Ensures the button stays fixed at the top-right corner */
+        top: 20px;
+        right: 30px;
+        z-index: 2;
+        }
+
+        .logout button {
+            background-color: rgba(2, 37, 70, 0.7);
+            color: white;
+            border: none;
             padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
             font-weight: bold;
-            transition: background-color 0.2s ease;
+            transition: background-color 0.3s;
+            display: block;
+            width: auto;
+        }
+
+        .logout button:hover {
+            background-color: rgba(2, 37, 70, 0.7);
         }
 </style>
 </head>
@@ -246,7 +259,7 @@
         {% if user.is_authenticated %}
         <form action="{% url 'logout' %}" method="POST">
             {% csrf_token %}
-            <button type="submit"><b>Logout</b></button>
+            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 6px;"></i> Logout</button>
         </form>
         {% endif %}
     </div>

@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Gatepass List for User</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         body {
             font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -105,7 +106,7 @@
         .logout {
             position: fixed; /* Ensures the button stays fixed at the top-right corner */
             top: 10px;
-            right: 30px;
+            right: 10px;
             z-index: 2;
         }
 
@@ -133,7 +134,7 @@
         {% if user.is_authenticated %}
         <form action="{% url 'logout' %}" method="POST">
             {% csrf_token %}
-            <button type="submit"><b>Logout</b></button>
+            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 6px;"></i> Logout</button>
         </form>
         {% endif %}
     </div>

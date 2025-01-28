@@ -36,7 +36,7 @@ def admin_login_view(request):
             login(request, user)
             return redirect('admin')  
         else:
-            return render(request, 'admin_login.html', {'error_message': 'Invalid credentials or not authorized'})
+            return render(request, 'admin_login.html', {'error_message': 'Invalid credentials'})
 
     return render(request, 'admin_login.html')
 

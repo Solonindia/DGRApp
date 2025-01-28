@@ -38,11 +38,22 @@
             z-index: -1;
         }
 
-        .logo {
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
             position: absolute;
             top: 10px;
-            left: 10px;
+            left: 0;
+            right: 0;
             z-index: 2;
+            padding: 0 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
         }
 
         .logo img {
@@ -50,6 +61,37 @@
             height: auto;
         }
 
+        .heading {
+            flex: 1;
+            font-size: 24px;
+            font-weight: bold;
+            margin-left: 580px;
+        }
+
+        .logout {
+            position: fixed;
+            top: 3%;
+            right: 100px;
+            z-index: 100;
+        }
+
+        .logout button {
+            background-color: rgba(2, 37, 70, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .logout button:hover {
+            background-color: rgba(2, 37, 70, 0.7);
+        }
+
+        /* Center the form in the middle of the page */
         .container {
             display: flex;
             justify-content: center;
@@ -57,6 +99,7 @@
             flex-direction: column;
             padding: 20px;
             width: 100%;
+            margin-top: 100px; /* Adjusted to give space for error message */
         }
 
         .form-wrapper {
@@ -66,10 +109,12 @@
             background-color: rgba(255, 255, 255, 0.8);
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 10px;
+            margin-bottom: 100px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .form-group label {
@@ -144,15 +189,21 @@
             text-decoration: underline;
         }
 
+        /* Fixed Position for Error Message */
         .error-container {
             width: 100%;
             max-width: 600px;
-            padding: 20px;
-            background-color: #f8d7da;
+            color: #dd0c21; /* Red color for error */
+            position: fixed; /* Fixed position */
+            top: 15%; /* Adjust top position */
+            left: 50%;
+            transform: translateX(-50%); /* Center horizontally */
+            padding: 10px 20px;
             border-radius: 5px;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            z-index: 100; /* Ensure it's on top */
         }
 
         .error-container ul {
@@ -162,8 +213,10 @@
         }
 
         .error-container li {
-            padding: 10px;
+            padding: 15px;
             border-bottom: 1px solid #f5c6cb;
+            font-weight: bold;
+            font-size: 16px;
         }
 
         .error-container li:last-child {
@@ -171,12 +224,12 @@
         }
 
         .error-container .error-title {
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 20px;
+            font-weight: 700;
             margin-bottom: 10px;
         }
 
-        /* Bell Icon (Positioned Top-Right) */
+        /* Bell Icon */
         .notification-container {
             position: fixed;
             top: 20px;
@@ -205,7 +258,6 @@
             font-weight: bold;
         }
 
-        /* Adjust the blinking speed and make it more noticeable */
         .blink {
             animation: blink 1.5s ease-in-out infinite, scaleUp 1s infinite alternate;
         }
@@ -220,55 +272,35 @@
             0% { transform: scale(1); }
             100% { transform: scale(1.2); }
         }
-        .logout {
-            position: fixed; /* Ensures the button stays fixed at the top-right corner */
-            top: 30px;
-            right: 90px;
-            z-index: 2;
-        }
-
-        .logout button {
-            background-color: rgba(2, 37, 70, 0.7);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            display: block;
-            width: auto;
-        }
-
-        .logout button:hover {
-            background-color: rgba(2, 37, 70, 0.7);
-        }
-
     </style>
 </head>
 <body>
-    <div class="logo">
-        <img src="{% static 'logo.jpg' %}" alt="Logo">
-    </div>
+    <div class="top-bar">
+        <div class="logo">
+            <img src="{% static 'logo.jpg' %}" alt="Logo">
+        </div>
+        
+        <div class="heading">
+            <h3>Upload Inventory</h3>
+        </div>
 
-    <div class="logout">
-        {% if user.is_authenticated %}
-        <form action="{% url 'logout' %}" method="POST">
-            {% csrf_token %}
-            <button type="submit"><b>Logout</b></button>
-        </form>
-        {% endif %}
+        <div class="logout">
+            {% if user.is_authenticated %}
+            <form action="{% url 'logout' %}" method="POST">
+                {% csrf_token %}
+                <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i> Logout</button>
+            </form>
+            {% endif %}
+        </div>
     </div>
 
     <div class="button-container">
         <a href="{% url 'notification_list' %}">Inventory History</a>
         <a href="{% url 'site_analysis' %}">Inventory Analysis</a>
         <a href="{% url 'admin' %}">Dashboard</a>
-        <!-- <a href="{% url 'home' %}">Home</a> -->
     </div>
 
-    <!-- Bell Icon (Right-Top Corner) with a link -->
+    <!-- Bell Icon with a link -->
     <div class="notification-container">
         <a href="{% url 'real_time_notification_list' %}">
             <i class="fas fa-bell notification-bell"></i>
@@ -278,10 +310,18 @@
         </a>
     </div>
 
+    {% if messages %}
+        <div class="error-container">
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
     <div class="container">
         <div class="form-wrapper">
-            <h3>Upload Inventory</h3>
-
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form-group">
@@ -311,18 +351,6 @@
                 </div>
             </form>
         </div>
-
-        <!-- Error Messages Box (Below the form) -->
-        {% if messages %}
-        <div class="error-container">
-            <div class="error-title">Error Messages:</div>
-            <ul>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
     </div>
 </body>
 </html>

@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Visitor's Gate Pass</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         body {
             font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -178,26 +179,27 @@
         .logout {
             position: fixed; /* Ensures the button stays fixed at the top-right corner */
             top: 10px;
-            right: 40px;
+            right: 60px;
             z-index: 2;
         }
 
         .logout button {
-            background-color: #0044cc;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            display: block;
-            width: auto;
+        background-color: #0044cc;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+        display: inline-flex; /* Ensure the icon and text are on the same line */
+        align-items: center;  /* Vertically center the icon with the text */
+        width: auto;
         }
 
-        .logout button:hover {
-            background-color: #0033aa;
+        .logout button i {
+            margin-right: 8px;  /* Space between the icon and text */
         }
     </style>
 </head>
@@ -206,7 +208,7 @@
         {% if user.is_authenticated %}
         <form action="{% url 'logout' %}" method="POST">
             {% csrf_token %}
-            <button type="submit"><b>Logout</b></button>
+            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i> Logout</button>
         </form>
         {% endif %}
     </div>
