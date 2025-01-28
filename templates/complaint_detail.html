@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ complaint_type|title }} Complaints</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -51,7 +52,7 @@
 
         a {
             display: inline-block;
-            background-color: #011a35;
+            background-color: #007bff;
             color: white;
             padding: 10px 15px;
             text-align: center;
@@ -90,7 +91,7 @@
         .top-right {
             position: fixed; /* Use fixed positioning so it stays at the top-right of the screen */
             top: 0px; /* Add some margin from the top */
-            right: 120px; /* Add some margin from the right */
+            right: 150px; /* Add some margin from the right */
             z-index: 1000; /* Ensure it stays above other content */
         }
 
@@ -124,14 +125,27 @@
             position: fixed;
             top: 17px;
             right: 10px;
-            z-index: 2; /* Ensure it stays on top of other content */
-            background-color: rgb(16, 2, 95);
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background-color 0.2s ease;
+            z-index: 2;
         }
+
+        .logout button {
+            background-color: #007bff; /* Blue background */
+            color: white;               /* White text */
+            border: none;               /* No border */
+            padding: 10px 20px;         /* Padding around the text */
+            font-size: 16px;            /* Adjust font size */
+            border-radius: 5px;         /* Rounded corners */
+            cursor: pointer;           /* Pointer cursor on hover */
+            font-weight: bold;          /* Bold text */
+            transition: background-color 0.3s; /* Smooth hover transition */
+            display: block;
+            width: auto;                /* Auto width based on content */
+        }
+
+        .logout button:hover {
+            background-color: #0056b3;  /* Darker blue on hover */
+        }
+
     </style>
 </head>
 <body>
@@ -139,7 +153,7 @@
         {% if user.is_authenticated %}
         <form action="{% url 'logout' %}" method="POST">
             {% csrf_token %}
-            <button type="submit">Logout</button>
+            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 6px;"></i> Logout</button>
         </form>
         {% endif %}
     </div>
