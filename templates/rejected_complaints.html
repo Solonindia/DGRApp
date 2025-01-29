@@ -260,7 +260,7 @@
     </div>
     <div class="button-container">
         <a href="{% url 'complaint_form' %}" class="bottom-left-link"><b>New Complaint</b></a>
-        <a href="{% url 'rejected_complaints' %}"><b>Rejected Complaints</b></a>
+        <a href="{% url 'existing_complaints' %}"><b>Existing Complaints</b></a>
         <a href="{% url 'final_complaints_user' %}"><b>Closed Complaints</b></a>
         <a href="{% url 'user' %}" class="bottom-left-link"><b>Dashboard</b></a>
     </div>
@@ -301,8 +301,12 @@
                             {% endif %}
                         {% endwith %}
                     </div><br>
-                    <!-- Button link to edit complaint details -->
-                    <a href="{% url 'edit_complaint' complaint.id %}" class="button-link">Add all the details to close complaint</a>
+            <form action="{% url 'delete_user_complaint' complaint.id %}" method="POST" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" style="background-color: red; color: white; border: none; padding: 5px 10px; border-radius: 5px;">
+                    Delete
+                </button>
+            </form>
                 </div>
             </li>
         {% empty %}

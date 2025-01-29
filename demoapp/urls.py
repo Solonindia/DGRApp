@@ -20,13 +20,9 @@ urlpatterns = [
     path('superuser/history/', views.final_complaints, name='final_complaints'),
     path('delete_complaint/<int:complaint_id>/', views.delete_complaint, name='delete_complaint'),
     path('superuser/complaint_analysis/', views.complaint_analysis, name='complaint_analysis'),
-    path('complaints/<str:type>/<str:site_name>/', views.ComplaintDetailView, name='complaints_detail'),
-
-    # path('superuser/', visitor_log_view, name='visitor_log'),  # Home page with the visitor log form
-    # path('superuser/visitor-log/', visitor_log_list, name='visitor_log_list'),  # List of visitor logs
-    # path('user/visitor-log-list/', visitor_log_list_user, name='visitor_log_list_user'), 
-    # path('download/<int:log_id>/', download_visitor_log_pdf, name='download_visitor_log_pdf'),  # Download PDF
-    # path('superuser/visitor-log/<int:log_id>/delete/', delete_visitor_log, name='delete_visitor_log'),  # New URL for delete
+    path('complaints/<str:type>/<str:site_name>/', views.ComplaintDetailView, name='complaints_detail'), 
+    path('reject_complaint/', views.rejected_complaints, name='rejected_complaints'),
     path('export_complaints/<str:type>/<str:site_name>/', views.export_complaints_to_csv, name='export_complaints_to_csv'),  
     path('logout/', CustomLogoutView.as_view(), name='logout'),
+    path('delete_user_complaint/<int:complaint_id>/', views.delete_user_complaint, name='delete_user_complaint'),
 ]

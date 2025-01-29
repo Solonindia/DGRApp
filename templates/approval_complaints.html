@@ -1,264 +1,290 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Approval Complaints</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-    body {
-        font-family: Verdana, Geneva, Tahoma, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f4f4f4;
-        color: #333;
-        height: 100vh; /* Ensure the body takes the full height of the viewport */
-        overflow: auto; /* Allows scrolling */
-        position: relative;
-    }
-    body::before {
-        content: "";
-        position: fixed;
-        top: 10%; /* 2px space at the top */
-        left: 0;
-        width: 100%;
-        height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
-        background-image: url("{% static 'solar9.jpg' %}");
-        filter: blur(1px);
-        background-size: cover; /* Ensure the background image covers the entire area */
-        background-repeat: no-repeat; /* Prevents the image from repeating */
-        background-attachment: fixed; /* Keeps the background image fixed while scrolling */
-        background-position: center; /* Centers the background image */
-        z-index: -1; /* Places the blurred background behind the content */
-    }
-    .logo {
-        position: fixed; /* Fix the logo in place */
-        top: 10px;
-        left: 10px;
-        z-index: 2; /* Ensure it's above other content */
-    }
-    .logo img {
-        width: 100px;
-        height: auto;
-    }
-    h3 {
-        color: rgb(3, 3, 65);
-        text-align: center;
-        margin-bottom: 5%;
-    }
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            height: 100vh;
+            overflow: hidden; /* Prevent the body from scrolling */
+            position: relative;
+        }
 
-    .complaints-container {
-        width: 80%;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        margin-left: 10%;
-        display: flex;
-        flex-direction: column;
-    }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 10%;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 4px);
+            background-image: url("{% static 'solar9.jpg' %}");
+            filter: blur(1px);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            z-index: -1;
+        }
 
-    .complaint-card {
-        margin-left: 16%;
-        margin-right: 36%;
-        background-color: #bed2e4; /* Light blue background for each complaint card */
-        padding: 2%;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        overflow: hidden;
-        width:87%;
-        transition: height 0.3s ease;
-        margin-bottom: 0px;
-        border-radius: 8px; /* Rounded corners for complaint cards */
-        border: 1px solid #080808; 
-    }
-    .complaint-header {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 30px;
-        margin-bottom: 10px;
-    }
-    .complaint-header div {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .complaint-header div strong {
-        display: block;
-    }
-    .view-more-link {
-        color: darkblue;
-        cursor: pointer;
-        font-weight: bold;
-        display: inline; /* Ensure the link behaves as an inline element */
-        margin: 0; /* Remove any margin */
-        padding: 0; /* Remove any padding */
-        text-decoration: none; /* Ensure no underlining is applied initially */
-    }
-    .complaint-details,
-    .image-container,
-    .approve-button {
-        display: none;
-    }
-    .complaint-details {
-        grid-template-columns: 160px 1fr;
-        row-gap: 8px;
-        margin-top: 10px;
-    }
-    .complaint-details p {
-        margin: 0;
-        white-space: pre-wrap;
-    }
-    .nature-of-complaint {
-        max-height: 150px;
-        overflow-y: auto;
-        word-wrap: break-word;
-    }
-    .image-container {
-    margin-top: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    display: none; /* Hide images initially */
-    }
-    .image-container img {
-        width: 120px;
-        height: auto;
-        margin-right: 10px;
-        margin-bottom: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: transform 0.2s ease;
-    }
+        h3 {
+            color: rgb(3, 3, 65);
+            text-align: center;
+            margin: 0;
+            padding-top: 30px; /* Added padding to push the title down */
+            font-size: 24px;
+        }
 
-    .image-container img:hover {
-        transform: scale(1.05);
-    }
+        .logo {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 2;
+        }
 
-    .approve-button {
-        background-color: #020202;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 20px;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-        width: 19%;
-        margin-left: 40%;
-        margin-top: 15px;
-    }
+        .logo img {
+            width: 100px;
+            height: auto;
+        }
 
-    .approve-button:hover {
-        background-color: #01125a;
-    }
+        .complaints-container {
+            width: 100%;
+            margin-top: 120px; /* Added space for the fixed elements */
+            max-height: calc(100vh - 120px); /* Ensure container doesn’t overflow */
+            padding: 10px;
+        }
 
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.8);
-    }
+        .button-container {
+            text-align: left;
+            position: fixed;
+            top: 120px;
+            left: 0;
+            background-color: rgba(2, 37, 70, 0.7);
+            height: calc(100vh - 120px);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto; /* Make button container scrollable */
+        }
 
-    .modal-content {
-        margin: 5% auto;
-        display: block;
-        width: 80%;
-        max-width: 800px;
-    }
+        .button-container a {
+            color: white;
+            padding: 10px 20px;
+            text-align: left;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            display: block;
+            transition: background-color 0.3s, text-decoration 0.3s;
+        }
 
-    .close {
-        position: absolute;
-        top: 20px;
-        right: 30px;
-        color: #fff;
-        font-size: 40px;
-        font-weight: bold;
-        cursor: pointer;
-    }
+        .button-container a:hover {
+            text-decoration: underline;
+        }
 
-    .close:hover {
-        color: #f1c40f;
-    }
+        .logout {
+            position: fixed;
+            top: 10px;
+            right: 30px;
+            z-index: 3;
+        }
 
-    .no-complaints {
-        text-align: center;
-        font-size: 20px;
-        color: #f73d0e;
-        background-color: #f4f4f4;
-        height: 20%;
-        margin-left: 20%;
-        animation: blink-animation 1s step-start infinite;
-    }
-    @keyframes blink-animation {
+        .logout button {
+            background-color: rgba(2, 37, 70, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: block;
+        }
+
+        .logout button:hover {
+            background-color: rgba(2, 37, 70, 0.7);
+        }
+
+        .complaint-card {
+            margin-left: 14%;
+            margin-right: 36%;
+            background-color: #bed2e4;
+            padding: 2%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            width: 80%;
+            transition: height 0.3s ease;
+            margin-bottom: 0px;
+            border-radius: 8px;
+            border: 1px solid #080808;
+        }
+
+        .complaint-header {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            margin-bottom: 10px;
+        }
+
+        .complaint-header div {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .complaint-header div strong {
+            display: block;
+        }
+
+        .view-more-link {
+            color: darkblue;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline;
+            margin: 0;
+            padding: 0;
+            text-decoration: none;
+        }
+
+        .complaint-details,
+        .image-container,
+        .approve-reject-buttons,
+        .remarks-field {
+            display: none; /* Hide the remarks field initially */
+        }
+
+        .complaint-details {
+            grid-template-columns: 160px 1fr;
+            row-gap: 8px;
+            margin-top: 10px;
+        }
+
+        .complaint-details p {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        .nature-of-complaint {
+            max-height: 150px;
+            overflow-y: auto;
+            word-wrap: break-word;
+        }
+
+        .image-container {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .image-container img {
+            width: 120px;
+            height: auto;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .image-container img:hover {
+            transform: scale(1.05);
+        }
+
+        .approve-reject-buttons button {
+            background-color: #277b9c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 16px; /* Reduced padding for smaller buttons */
+            font-size: 12px; /* Smaller font size */
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            width: 100px; /* Fixed width for consistent button size */
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        /* Center the buttons horizontally */
+        .approve-reject-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 15px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            margin: 5% auto;
+            display: block;
+            width: 80%;
+            max-width: 800px;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #f1c40f;
+        }
+
+        .no-complaints {
+            text-align: center;
+            font-size: 20px;
+            color: #f73d0e;
+            background-color: #f4f4f4;
+            height: 20%;
+            margin-left: 20%;
+            animation: blink-animation 1s step-start infinite;
+        }
+
+        @keyframes blink-animation {
             50% {
                 opacity: 0;
             }
         }
-    
-    .complaint-serial-number {
-        font-size: 18px;
-        font-weight: bold;
-        color: #003366; /* Dark blue for serial numbers */
-    }
-    .button-container {
-        text-align: left;
-        position: fixed;
-        top: 11%; /* Adjust to set vertical position */
-        left: 0; /* Adjust to set horizontal position */
-        background-color: rgba(2, 37, 70, 0.7); /* Semi-transparent blue background */
-        height: 90%; /* Adjust height as needed */
-        padding: 10px; /* Padding around the container */
-        border-radius: 5px; /* Rounded corners for the container */
-        display: flex;
-        flex-direction: column; /* Stack items vertically */
-        gap: 10px; /* Space between the buttons */
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for visual effect */
-        backdrop-filter: blur(1px); /* Optional: Blurs the area behind the container */
-    }
-    .button-container a {
-        color: white; /* Text color */
-        padding: 10px 20px;
-        text-align: left;
-        text-decoration: none;
-        font-size: 16px;
-        border-radius: 5px; /* Rounded corners for the buttons */
-        display: block; /* Ensures the link takes up full width */
-        transition: background-color 0.3s, text-decoration 0.3s; /* Smooth transition */
-    }
-    .button-container a:hover {
-        text-decoration: underline; /* Underline on hover */
-    }
-    .logout {
-        position: fixed; /* Ensures the button stays fixed at the top-right corner */
-        top: 20px;
-        right: 30px;
-        z-index: 2;
-    }
 
-    .logout button {
-        background-color: rgba(2, 37, 70, 0.7);
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 14px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.3s;
-        display: block;
-        width: auto;
-    }
+        .complaint-serial-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #003366;
+        }
 
-    .logout button:hover {
-        background-color: rgba(2, 37, 70, 0.7);
-    }
-</style>
+    </style>
 </head>
+
 <body>
     <div class="logout">
         {% if user.is_authenticated %}
@@ -267,74 +293,83 @@
             <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i> Logout</button>
         </form>
         {% endif %}
-        </div>
+    </div>
+
     <h3>Pending Complaints for Approval</h3>
+
     <div class="complaints-container">
         <div class="logo">
             <img src="{% static 'logo.jpg' %}" alt="Logo">
         </div>
+
         <div class="button-container">
             <a href="{% url 'final_complaints' %}"><b>Closed Complaints</b></a>
             <a href="{% url 'complaint_analysis' %}"><b>Analysis</b></a>
             <a href="{% url 'admin' %}"><b>Dashboard</b></a>
-            <!-- <a href="{% url 'home' %}"><b>Home</b></a> -->
         </div>
-        {% if complaints %}
-            {% for complaint in complaints %}
-                <div class="complaint-card">
-                    <!-- Display Serial Number -->
-                    <div class="complaint-serial-number">{{ forloop.counter }}</div>
-                    <div class="complaint-header">
-                        <div>
-                            <strong>Complaint ID:</strong> {{ complaint.complaint_id }}
-                        </div>
-                        <div>
-                            <strong>Location:</strong>
-                                {{ complaint.location }}
-                        </div>
-                        <div>
-                            <strong>Product/Equipment:</strong> {{ complaint.equipment }}
-                        </div>
-                        <div class="view-more-link" onclick="toggleDetails(this)">View More</div>
-                    </div>
-                    <div class="complaint-details">
-                        <div><strong>Project Owner:</strong></div> <div>{{ complaint.company_name }}</div>
-                        <div><strong>Site Name:</strong></div> <div>{{ complaint.site_name }}</div>
-                        <div><strong>Priority:</strong></div> <div>{{ complaint.priority }}</div>
-                        <div><strong>Complaint Raised by:</strong></div> <div>{{ complaint.complaint_raised_by }}</div>
-                        <div><strong>Nature of Complaint:</strong></div> 
-                        <div class="nature-of-complaint">
-                            <p>{{ complaint.nature_of_complaint|default:"N/A" }}</p>
-                        </div>
-                        <div><strong>Start Date:</strong></div> <div>{{ complaint.start_date|date:"Y-m-d" }}</div>
-                    </div>
-                    <div class="image-container">
-                        {% with images=complaint.get_images %}
-                            {% if images %}
-                                {% for image in images %}
-                                <img src="{{ image }}" alt="Complaint Image" onclick="openModal('{{ image }}')">
-                                {% endfor %}
-                            {% else %}
-                                <p>No images uploaded.</p>
-                            {% endif %}
-                        {% endwith %}
-                    </div>
-                    
-                   
 
-                    <form action="{% url 'accept_complaint' complaint.id %}" method="post">
-                        {% csrf_token %}
-                        <div>
-                            <strong>Add Remarks:</strong>
-                            <input type="text" name="remarks" placeholder="Enter remarks here..." value="{{ complaint.remarks|default:'' }}" id="remarks-{{ complaint.id }}">
-                        </div>
-                        <button type="submit" class="approve-button"><b>Approve</b></button>
-                    </form>
-                    <!-- <button class="approve-button" onclick="location.href=`{% url 'accept_complaint' complaint.id %}`"><b>APPROVE</b></button> -->
+        {% if complaints %}
+        {% for complaint in complaints %}
+        <div class="complaint-card">
+            <!-- Display Serial Number -->
+            <div class="complaint-serial-number">{{ forloop.counter }}</div>
+            <div class="complaint-header">
+                <div>
+                    <strong>Complaint ID:</strong> {{ complaint.complaint_id }}
                 </div>
-            {% endfor %}
+                <div>
+                    <strong>Location:</strong> {{ complaint.location }}
+                </div>
+                <div>
+                    <strong>Product/Equipment:</strong> {{ complaint.equipment }}
+                </div>
+                <div class="view-more-link" onclick="toggleDetails(this)">View More</div>
+            </div>
+
+            <!-- Complaint details (initially hidden) -->
+            <div class="complaint-details" style="display: none;">
+                <div><strong>Project Owner:</strong></div> <div>{{ complaint.company_name }}</div>
+                <div><strong>Site Name:</strong></div> <div>{{ complaint.site_name }}</div>
+                <div><strong>Priority:</strong></div> <div>{{ complaint.priority }}</div>
+                <div><strong>Complaint Raised by:</strong></div> <div>{{ complaint.complaint_raised_by }}</div>
+                <div><strong>Nature of Complaint:</strong></div>
+                <div class="nature-of-complaint">
+                    <p>{{ complaint.nature_of_complaint|default:"N/A" }}</p>
+                </div>
+                <div><strong>Start Date:</strong></div> <div>{{ complaint.start_date|date:"Y-m-d" }}</div> <br>
+            </div>
+
+            <!-- Remarks field (initially hidden) -->
+            <div class="remarks-field">
+                <strong>Add Remarks:</strong>
+                <input type="text" name="remarks" placeholder="Enter remarks here..." value="{{ complaint.remarks|default:'' }}" id="remarks-{{ complaint.id }}">
+            </div>
+
+            <!-- Image container (always visible) -->
+            <div class="image-container">
+                {% with images=complaint.get_images %}
+                {% if images %}
+                {% for image in images %}
+                <img src="{{ image }}" alt="Complaint Image" onclick="openModal('{{ image }}')">
+                {% endfor %}
+                {% else %}
+                <p>No images uploaded.</p>
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            <!-- Approve/Reject buttons (initially hidden) -->
+            <form action="{% url 'accept_complaint' complaint.id %}" method="post">
+                {% csrf_token %}
+                <div class="approve-reject-buttons" style="display: none;">
+                    <button type="submit" name="action" value="approve" class="approve-button"><b>Approve</b></button>
+                    <button type="submit" name="action" value="reject" class="reject-button"><b>Reject</b></button>
+                </div>
+            </form>
+        </div>
+        {% endfor %}
         {% else %}
-            <div class="no-complaints">No complaints are pending for approval.</div>
+        <div class="no-complaints">No complaints are pending for approval.</div>
         {% endif %}
     </div>
 
@@ -343,6 +378,7 @@
         <span class="close" onclick="closeModal()">&times;</span>
         <img class="modal-content" id="modal-img">
     </div>
+
     <script>
         function openModal(src) {
             document.getElementById("modal-img").src = src;
@@ -356,15 +392,28 @@
         function toggleDetails(element) {
             var card = element.closest('.complaint-card');
             var details = card.querySelector('.complaint-details');
-            var images = card.querySelector('.image-container');
-            var button = card.querySelector('.approve-button');
-            var isHidden = details.style.display === 'none';
+            var remarksField = card.querySelector('.remarks-field');
+            var buttons = card.querySelector('.approve-reject-buttons');
+            var viewMoreLink = card.querySelector('.view-more-link');
 
-            details.style.display = isHidden ? 'grid' : 'none';
-            images.style.display = isHidden ? 'flex' : 'none';
-            button.style.display = isHidden ? 'block' : 'none';
-            element.textContent = isHidden ? 'View Less' : 'View More';
+            // Check if the details are currently visible
+            if (details.style.display === 'none') {
+                // Show details, remarks field, and approve/reject buttons
+                details.style.display = 'grid';
+                remarksField.style.display = 'block';
+                buttons.style.display = 'flex';
+                // Change "View More" to "View Less"
+                viewMoreLink.textContent = 'View Less';
+            } else {
+                // Hide details, remarks field, and approve/reject buttons
+                details.style.display = 'none';
+                remarksField.style.display = 'none';
+                buttons.style.display = 'none';
+                // Change "View Less" to "View More"
+                viewMoreLink.textContent = 'View More';
+            }
         }
     </script>
 </body>
+
 </html>
