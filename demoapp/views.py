@@ -235,6 +235,31 @@ def approval_complaints(request):
     complaints_list = Complaint.objects.filter(status='Pending').order_by('-created_at')
     return render(request, 'approval_complaints.html', {'complaints': complaints_list})
 
+# @login_required(login_url='/superuser/login/')
+# def accept_complaint(request, complaint_id):
+#     if not request.user.is_superuser:
+#         return HttpResponseForbidden("Access Denied: You do not have admin privileges.")
+
+#     complaint = get_object_or_404(Complaint, id=complaint_id)
+
+#     if request.method == 'POST':
+#         remarks = request.POST.get('remarks')
+#         if remarks:
+#             complaint.remarks = remarks  # Update remarks if provided
+
+#         # Update complaint status to 'Accepted'
+#         complaint.status = 'Accepted'
+#         complaint.save()
+
+#         # Redirect to the approval complaints page to show updated list
+#         return redirect('approval_complaints')  # Replace 'approval_complaints' with your URL name if different
+
+#     # If the request is not POST, redirect back to the complaints page
+#     return redirect('approval_complaints')
+
+
+
+
 @login_required(login_url='/superuser/login/')
 def accept_complaint(request, complaint_id):
     if not request.user.is_superuser:
@@ -243,19 +268,70 @@ def accept_complaint(request, complaint_id):
     complaint = get_object_or_404(Complaint, id=complaint_id)
 
     if request.method == 'POST':
-        remarks = request.POST.get('remarks')
+        remarks = request.POST.get('remarks')  # Get the remarks entered in the form
+        action = request.POST.get('action')  # Get the action (approve or reject)
+
         if remarks:
             complaint.remarks = remarks  # Update remarks if provided
 
-        # Update complaint status to 'Accepted'
-        complaint.status = 'Accepted'
-        complaint.save()
+        # Handle the action
+        if action == 'approve':
+            complaint.status = 'Accepted'  # Update status to Accepted
+            complaint.save()
+            return redirect('approval_complaints')  # Redirect to approval complaints page
 
-        # Redirect to the approval complaints page to show updated list
-        return redirect('approval_complaints')  # Replace 'approval_complaints' with your URL name if different
+        elif action == 'reject':
+            complaint.status = 'Rejected'  # Update status to Rejected
+            complaint.save()
+            return redirect('approval_complaints')  # Redirect to rejected complaints page
 
-    # If the request is not POST, redirect back to the complaints page
+    # If not POST, redirect back to the complaints page
     return redirect('approval_complaints')
+
+
+
+
+@login_required(login_url='/user/login/')
+def rejected_complaints(request):
+    username = request.user.username
+    complaints_list = Complaint.objects.filter(status='Rejected', dup_username=username).order_by('-created_at')
+    complaints = complaints_list
+    return render(request, 'rejected_complaints.html', {'complaints': complaints})
+
+
+
+from django.core.files.storage import default_storage
+@login_required(login_url='/user/login/')
+def delete_user_complaint(request, complaint_id):
+    complaint = get_object_or_404(Complaint, id=complaint_id)
+
+    # Check if the current user is the one who created the complaint (or any other permissions)
+    if complaint.dup_username == request.user.username:
+        
+        # Delete images if they exist
+        if complaint.images:
+            try:
+                image_list = json.loads(complaint.images)
+                for image_url in image_list:
+                    image_path = image_url.replace('/media/', '')  # Adjust this based on your media URL settings
+                    if default_storage.exists(image_path):
+                        default_storage.delete(image_path)
+            except json.JSONDecodeError:
+                pass  # Handle cases where the images field isn't a valid JSON
+        
+        # Delete the PDF file if it exists
+        if complaint.pdf_file:
+            complaint.pdf_file.delete(save=False)
+
+        # Delete the complaint instance from the database
+        complaint.delete()
+
+    # Redirect back to the complaints list after deletion
+    return redirect('rejected_complaints')  # Update with the correct URL name if necessary
+
+
+
+
 
 
 @login_required(login_url='/user/login/')

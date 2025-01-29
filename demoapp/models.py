@@ -15,6 +15,7 @@ class Complaint(models.Model):
         ('High', 'High'),
         ('Medium', 'Medium'),
         ('Low', 'Low'),
+        ('Rejected', 'Rejected'),  # Add 'Rejected' status
     ]
 
     CLAIM_CHOICES = [
@@ -94,74 +95,6 @@ class Complaint(models.Model):
         self.complaint_id = unique_id
 
         return unique_id
-
-    # def generate_complaint_id(self):
-    #     """Generates a unique Complaint ID based on year and serial number."""
-    #     now = timezone.now()
-    #     year = now.year  # Get the current year
-        
-    #     # Generate the base complaint ID in the format YYYY
-    #     base_id = f"{year}"
-
-    #     # Get the last complaint's serial number from the database
-    #     last_complaint = Complaint.objects.all().order_by('-serial_number').first()
-
-    #     # If complaints exist, get the highest serial number and increment it by 1
-    #     if last_complaint and last_complaint.serial_number is not None:
-    #         serial_number = last_complaint.serial_number + 1
-    #     else:
-    #         serial_number = 1  # Start from 1 if no complaints exist
-
-    #     # Format the Complaint ID as YYYYSS (where SS is the serial number)
-    #     complaint_id = f"{base_id}{serial_number:03d}"  # Ensure serial number has 3 digits (001, 002, ..., 999)
-
-    #     # Optionally, check for uniqueness if you're using the same serial number for multiple complaints in one day
-    #     count = 1
-    #     unique_id = complaint_id
-    #     while Complaint.objects.filter(complaint_id=unique_id).exists():
-    #         unique_id = f"{complaint_id}{count:03d}"  # Append a counter to ensure uniqueness
-    #         count += 1
-
-    #     # Assign the serial_number and generated Complaint ID to this instance
-    #     self.serial_number = serial_number
-    #     self.complaint_id = unique_id
-
-    #     return unique_id
-
-    # def generate_complaint_id(self):
-    #     """Generates a unique Complaint ID based on year and serial number."""
-    #     now = timezone.now()
-    #     year = now.year  # Get the current year
-        
-    #     # Generate the base complaint ID in the format YYYY
-    #     base_id = f"{year}"
-
-    #     # Get the last complaint for the given year and the highest serial number
-    #     last_complaint = Complaint.objects.filter(
-    #         created_at__year=year
-    #     ).order_by('-serial_number').first()
-
-    #     # If no complaints exist for the current year, start serial number from 1
-    #     if last_complaint and last_complaint.serial_number is not None:
-    #         serial_number = last_complaint.serial_number + 1
-    #     else:
-    #         serial_number = 1  # Start from 1 if no complaints exist for this year
-
-    #     # Format the Complaint ID as YYYYSS (where SS is the serial number)
-    #     complaint_id = f"{base_id}{serial_number:02d}"  # Ensure serial number has 2 digits (01, 02, ..., 99)
-
-    #     # Optionally, check for uniqueness if you're using the same serial number for multiple complaints in one day
-    #     count = 1
-    #     unique_id = complaint_id
-    #     while Complaint.objects.filter(complaint_id=unique_id).exists():
-    #         unique_id = f"{complaint_id}{count:03d}"  # Append a counter to ensure uniqueness
-    #         count += 1
-
-    #     # Assign the serial_number and generated Complaint ID to this instance
-    #     self.serial_number = serial_number
-    #     self.complaint_id = unique_id
-
-    #     return unique_id
     
     def save(self, *args, **kwargs):
         """Override save method to ensure complaint_id and serial_number are set."""
