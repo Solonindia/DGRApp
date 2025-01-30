@@ -326,7 +326,7 @@ def delete_user_complaint(request, complaint_id):
         # Delete the complaint instance from the database
         complaint.delete()
 
-    # Redirect back to the complaints list after deletion
+    # Redirect back to the complaints list after deletion 
     return redirect('rejected_complaints')  # Update with the correct URL name if necessary
 
 
