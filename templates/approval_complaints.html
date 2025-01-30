@@ -15,8 +15,7 @@
             background-color: #f4f4f4;
             color: #333;
             height: 100vh;
-            overflow: hidden; /* Prevent the body from scrolling */
-            position: relative;
+            overflow: hidden;
         }
 
         body::before {
@@ -39,7 +38,7 @@
             color: rgb(3, 3, 65);
             text-align: center;
             margin: 0;
-            padding-top: 30px; /* Added padding to push the title down */
+            padding-top: 30px;
             font-size: 24px;
         }
 
@@ -55,13 +54,6 @@
             height: auto;
         }
 
-        .complaints-container {
-            width: 100%;
-            margin-top: 120px; /* Added space for the fixed elements */
-            max-height: calc(100vh - 120px); /* Ensure container doesn’t overflow */
-            padding: 10px;
-        }
-
         .button-container {
             text-align: left;
             position: fixed;
@@ -74,7 +66,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            overflow-y: auto; /* Make button container scrollable */
+            overflow-y: auto;
         }
 
         .button-container a {
@@ -116,9 +108,14 @@
             background-color: rgba(2, 37, 70, 0.7);
         }
 
+        .complaints-container {
+            margin-left: 400px; /* Make space for the fixed button container */
+            padding: 10px;
+            max-height: calc(100vh - 120px); /* Ensure the content doesn't overflow */
+            overflow-y: scroll; /* Enable scrolling */
+        }
+
         .complaint-card {
-            margin-left: 14%;
-            margin-right: 36%;
             background-color: #bed2e4;
             padding: 2%;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -126,11 +123,10 @@
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden;
-            width: 80%;
-            transition: height 0.3s ease;
-            margin-bottom: 0px;
+            margin-top: 60px;
             border-radius: 8px;
             border: 1px solid #080808;
+            width: 80%;
         }
 
         .complaint-header {
@@ -154,17 +150,30 @@
             color: darkblue;
             cursor: pointer;
             font-weight: bold;
-            display: inline;
-            margin: 0;
-            padding: 0;
+            display: flex; /* Use flexbox for centering */
+            align-items: center; /* Vertically center text */
+            justify-content: center; /* Horizontally center text */
+            padding: 6px 12px; /* Add padding for better spacing */
+            font-size: 12px;
             text-decoration: none;
+            border: 1px solid darkblue;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
+            width: auto;
+            max-width: 100px; /* You can adjust the width */
+            text-align: center;
+            height: 30px; /* Set a height for the box */
         }
 
+        .view-more-link:hover {
+            background-color: #2a87d0;
+            color: white;
+        }
         .complaint-details,
         .image-container,
         .approve-reject-buttons,
         .remarks-field {
-            display: none; /* Hide the remarks field initially */
+            display: none;
         }
 
         .complaint-details {
@@ -191,7 +200,7 @@
         }
 
         .image-container img {
-            width: 120px;
+            width: 80px;
             height: auto;
             margin-right: 10px;
             margin-bottom: 10px;
@@ -210,16 +219,15 @@
             color: white;
             border: none;
             border-radius: 5px;
-            padding: 12px 16px; /* Reduced padding for smaller buttons */
-            font-size: 12px; /* Smaller font size */
+            padding: 12px 16px;
+            font-size: 12px;
             cursor: pointer;
             transition: background-color 0.2s ease;
-            width: 100px; /* Fixed width for consistent button size */
+            width: 100px;
             margin-top: 10px;
             text-align: center;
         }
 
-        /* Center the buttons horizontally */
         .approve-reject-buttons {
             display: flex;
             justify-content: center;
@@ -261,13 +269,18 @@
         }
 
         .no-complaints {
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* text-align: center; */
             font-size: 20px;
             color: #f73d0e;
             background-color: #f4f4f4;
-            height: 20%;
+            height: 30%; /* Adjust height to position the message lower */
+            margin-top: 5%; /* Space from the top */
             margin-left: 20%;
             animation: blink-animation 1s step-start infinite;
+            font-weight: bold;
         }
 
         @keyframes blink-animation {
@@ -281,7 +294,6 @@
             font-weight: bold;
             color: #003366;
         }
-
     </style>
 </head>
 
@@ -311,22 +323,14 @@
         {% if complaints %}
         {% for complaint in complaints %}
         <div class="complaint-card">
-            <!-- Display Serial Number -->
             <div class="complaint-serial-number">{{ forloop.counter }}</div>
             <div class="complaint-header">
-                <div>
-                    <strong>Complaint ID:</strong> {{ complaint.complaint_id }}
-                </div>
-                <div>
-                    <strong>Location:</strong> {{ complaint.location }}
-                </div>
-                <div>
-                    <strong>Product/Equipment:</strong> {{ complaint.equipment }}
-                </div>
+                <div><strong>Complaint ID:</strong> {{ complaint.complaint_id }}</div>
+                <div><strong>Location:</strong> {{ complaint.location }}</div>
+                <div><strong>Product/Equipment:</strong> {{ complaint.equipment }}</div>
                 <div class="view-more-link" onclick="toggleDetails(this)">View More</div>
             </div>
 
-            <!-- Complaint details (initially hidden) -->
             <div class="complaint-details" style="display: none;">
                 <div><strong>Project Owner:</strong></div> <div>{{ complaint.company_name }}</div>
                 <div><strong>Site Name:</strong></div> <div>{{ complaint.site_name }}</div>
@@ -339,13 +343,11 @@
                 <div><strong>Start Date:</strong></div> <div>{{ complaint.start_date|date:"Y-m-d" }}</div> <br>
             </div>
 
-            <!-- Remarks field (initially hidden) -->
             <div class="remarks-field">
                 <strong>Add Remarks:</strong>
                 <input type="text" name="remarks" placeholder="Enter remarks here..." value="{{ complaint.remarks|default:'' }}" id="remarks-{{ complaint.id }}">
             </div>
 
-            <!-- Image container (always visible) -->
             <div class="image-container">
                 {% with images=complaint.get_images %}
                 {% if images %}
@@ -358,7 +360,6 @@
                 {% endwith %}
             </div>
 
-            <!-- Approve/Reject buttons (initially hidden) -->
             <form action="{% url 'accept_complaint' complaint.id %}" method="post">
                 {% csrf_token %}
                 <div class="approve-reject-buttons" style="display: none;">
@@ -373,7 +374,6 @@
         {% endif %}
     </div>
 
-    <!-- Modal Structure -->
     <div id="myModal" class="modal">
         <span class="close" onclick="closeModal()">&times;</span>
         <img class="modal-content" id="modal-img">
@@ -396,20 +396,15 @@
             var buttons = card.querySelector('.approve-reject-buttons');
             var viewMoreLink = card.querySelector('.view-more-link');
 
-            // Check if the details are currently visible
             if (details.style.display === 'none') {
-                // Show details, remarks field, and approve/reject buttons
                 details.style.display = 'grid';
                 remarksField.style.display = 'block';
                 buttons.style.display = 'flex';
-                // Change "View More" to "View Less"
                 viewMoreLink.textContent = 'View Less';
             } else {
-                // Hide details, remarks field, and approve/reject buttons
                 details.style.display = 'none';
                 remarksField.style.display = 'none';
                 buttons.style.display = 'none';
-                // Change "View Less" to "View More"
                 viewMoreLink.textContent = 'View More';
             }
         }
