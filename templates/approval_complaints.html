@@ -37,8 +37,8 @@
         h3 {
             color: rgb(3, 3, 65);
             text-align: center;
-            margin: 0;
-            padding-top: 30px;
+            margin-left: 10px;
+            padding-top: 18px;
             font-size: 24px;
         }
 
@@ -109,11 +109,15 @@
         }
 
         .complaints-container {
-            margin-left: 400px; /* Make space for the fixed button container */
-            padding: 10px;
-            max-height: calc(100vh - 120px); /* Ensure the content doesn't overflow */
-            overflow-y: scroll; /* Enable scrolling */
+            margin-left: 300px; /* Adjust based on the width of your sidebar (e.g., 250px) */
+            padding: 5px;
+            max-height: calc(100vh - 100px); /* Ensures that the container doesn't overflow vertically */
+            overflow-y: auto; /* Enable vertical scrolling */
+            overflow-x: hidden; /* Ensure horizontal scrolling doesn't appear */
+            width: calc(100% - 250px); /* Ensures content fills the remaining width */
+            box-sizing: border-box; /* Ensures padding doesn't affect width calculations */
         }
+
 
         .complaint-card {
             background-color: #bed2e4;
@@ -123,7 +127,7 @@
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden;
-            margin-top: 60px;
+            margin-top: 50px;
             border-radius: 8px;
             border: 1px solid #080808;
             width: 80%;
@@ -132,7 +136,7 @@
         .complaint-header {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 30px;
+            gap: 10px;
             margin-bottom: 10px;
         }
 
@@ -166,8 +170,9 @@
         }
 
         .view-more-link:hover {
-            background-color: #2a87d0;
+            background-color: #277b9c;
             color: white;
+            text-decoration: underline;
         }
         .complaint-details,
         .image-container,
@@ -200,7 +205,7 @@
         }
 
         .image-container img {
-            width: 80px;
+            width: 60px;
             height: auto;
             margin-right: 10px;
             margin-bottom: 10px;
@@ -270,17 +275,29 @@
 
         .no-complaints {
             display: flex;
-            justify-content: center;
+            justify-content: center; /* Centers the text horizontally */
             align-items: center;
-            /* text-align: center; */
             font-size: 20px;
             color: #f73d0e;
-            background-color: #f4f4f4;
-            height: 30%; /* Adjust height to position the message lower */
+            background-color: #ffffff; /* White background */
+            height: auto; /* Height adjusts based on the content */
             margin-top: 5%; /* Space from the top */
-            margin-left: 20%;
-            animation: blink-animation 1s step-start infinite;
+            margin-left: 0; /* Removes left margin to make it full width */
+            margin-right: 0; /* Removes right margin */
+            padding: 10px 20px; /* Padding around the text */
             font-weight: bold;
+            animation: blink-animation 1s step-start infinite;
+            width: 70%; /* Full width of the container */
+            box-sizing: border-box; /* Includes padding in the element's total size */
+            border-radius: 8px; /* Optional: Adds rounded corners */
+            position: absolute; /* This makes sure the message is always at the top */
+            top: 10%; /* Adjust as necessary to position it where you want */
+        }
+
+        @keyframes blink-animation {
+            50% {
+                opacity: 0;
+            }
         }
 
         @keyframes blink-animation {
@@ -327,13 +344,15 @@
             <div class="complaint-header">
                 <div><strong>Complaint ID:</strong> {{ complaint.complaint_id }}</div>
                 <div><strong>Location:</strong> {{ complaint.location }}</div>
-                <div><strong>Product/Equipment:</strong> {{ complaint.equipment }}</div>
+                <div><strong>Site Name:</strong> {{ complaint.site_name }}</div>
+                <!-- <div><strong>Product/Equipment:</strong> {{ complaint.equipment }}</div> -->
                 <div class="view-more-link" onclick="toggleDetails(this)">View More</div>
             </div>
 
             <div class="complaint-details" style="display: none;">
+                <div><strong>Product/: <br>Equipment</strong></div> <div>{{ complaint.equipment }}</div>
                 <div><strong>Project Owner:</strong></div> <div>{{ complaint.company_name }}</div>
-                <div><strong>Site Name:</strong></div> <div>{{ complaint.site_name }}</div>
+                <!-- <div><strong>Site Name:</strong></div> <div>{{ complaint.site_name }}</div> -->
                 <div><strong>Priority:</strong></div> <div>{{ complaint.priority }}</div>
                 <div><strong>Complaint Raised by:</strong></div> <div>{{ complaint.complaint_raised_by }}</div>
                 <div><strong>Nature of Complaint:</strong></div>
