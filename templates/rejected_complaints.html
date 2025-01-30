@@ -254,7 +254,7 @@
         </form>
         {% endif %}
     </div>
-    <h3>Accepted Complaints</h3>
+    <h3>Rejected Complaints</h3>
     <div class="logo">
         <img src="{% static 'logo.jpg' %}" alt="Logo">
     </div>
@@ -310,7 +310,7 @@
                 </div>
             </li>
         {% empty %}
-            <li class="no">No accepted complaints found.</li>
+            <li class="no">No rejected complaints found.</li>
         {% endfor %}
     </ul>
 </div>
