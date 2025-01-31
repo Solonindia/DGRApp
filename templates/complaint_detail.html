@@ -14,7 +14,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1500px;
             margin: auto;
             border-radius: 8px;
             padding: 30px;
@@ -44,6 +44,19 @@
         th {
             background-color: #007bff;
             color: white;
+        }
+
+        /* Apply changes only to Complaint Open Date and Complaint Closed Date columns */
+        td:nth-child(9), td:nth-child(16) { /* 9th is Complaint Open Date, 10th is Complaint Closed Date */
+            white-space: nowrap;   /* Prevent text from wrapping */
+            overflow: hidden;      /* Ensures content doesn't overflow */
+            text-overflow: ellipsis; /* Adds "..." if the content overflows */
+            width: 120px; /* Adjust this width as necessary */
+        }
+
+        th:nth-child(9), th:nth-child(16) {
+            white-space: nowrap;   /* Prevent header text from wrapping */
+            width: 120px; /* Adjust this width as necessary */
         }
 
         tr:hover {
@@ -83,7 +96,7 @@
             width: 100px;
             height: auto;
         }
-        
+
         .pdf-container, img {
             max-width: 80px;
         }
@@ -121,6 +134,7 @@
         .search-button:hover {
             background-color: #0056b3;
         }
+
         .logout {
             position: fixed;
             top: 17px;
@@ -146,6 +160,25 @@
             background-color: #0056b3;  /* Darker blue on hover */
         }
 
+        /* Position the "Back to Complaint Analysis" button */
+        .back-to-analysis {
+            position: fixed;
+            top: 60px; /* Adjust this value to place it below the logo */
+            left: 10px; /* Adjust this value to align it to the left */
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .back-to-analysis:hover {
+            background-color: #0056b3;
+        }
+
     </style>
 </head>
 <body>
@@ -160,6 +193,10 @@
     <div class="logo">
         <img src="{% static 'logo.jpg' %}" alt="Logo">
     </div>
+    
+    <!-- Back to Complaint Analysis Button -->
+    <a href="{% url 'complaint_analysis' %}" class="back-to-analysis">Back to Complaint Analysis</a>
+
     <div class="top-right">
         <a href="{% url 'export_complaints_to_csv' complaint_type site_name|default:'All' %}">Export to CSV</a> 
     </div>
@@ -184,7 +221,7 @@
                         <th>Priority</th>
                         <th>Complaint Raised By</th>
                         <th>Nature of Complaint</th>
-                        <th>Complaint Open Date</th>
+                        <th>Complaint <br>Open Date</th>
                         
                         <!-- Extra columns only for closed complaints -->
                         {% if complaint_type == 'closed' %}
@@ -194,7 +231,7 @@
                             <th>Claim Type</th>
                             <th>Parts Replaced for Rectification</th>
                             <th>Attended By</th>
-                            <th>Complaint Closed Date</th>
+                            <th>Complaint <br> Closed Date</th>
                         {% endif %}
                         
                         <th>Images</th>
@@ -250,7 +287,6 @@
         {% else %}
             <p>No {{ complaint_type }} complaints found for this selection.</p>
         {% endif %}
-        <a href="{% url 'complaint_analysis' %}">Back to Complaint Analysis</a>
     </div>
 
     <script>
