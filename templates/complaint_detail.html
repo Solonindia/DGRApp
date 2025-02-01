@@ -4,49 +4,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ complaint_type|title }} Complaints</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Complaints Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+
     <style>
-        body {
+        /* General Wrapper */
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 2px;
         }
 
-        .container {
-            max-width: 1500px;
-            margin: auto;
-            border-radius: 8px;
-            padding: 30px;
+        /* Top Border (10% height) */
+        .top-border {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 10%;
+            padding: 15px;
+            background-color: whitesmoke;
+            border-bottom: 2px solid white;
         }
 
-        h2 {
+        /* Top Left: Logo and Back to Analysis Button */
+        .top-left {
+            display: flex;
+            align-items: center; /* Align items horizontally */
+            gap: 20px; /* Space between logo and button */
+        }
+
+        .top-left .logo img {
+            height: 50px;
+        }
+
+        .back-to-analysis-btn {
+            padding: 8px 15px;
+            /* background-color: #007bff; */
+            color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
             text-align: center;
-            color: #1a3e8c;
-            margin-bottom: 20px;
-            font-size: 24px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            font-size: 14px;
+        .back-to-analysis-btn:hover {
+            color: #031324; /* Darker blue on hover */
         }
 
-        th, td {
-            border: 1px solid #0a0a0a;
-            padding: 12px;
-            text-align: left;
-            transition: background-color 0.3s;
+        /* Center Section */
+        .top-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            flex: 1;
         }
 
-        th {
+        .heading-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px; /* Space between heading and search */
+        }
+
+        /* Button Container for Back to Analysis */
+        .button-container {
+            margin-top: 15px;
+        }
+
+        /* Search bar and label */
+        .search-container {
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
+        }
+
+        .search-container input {
+            padding: 5px 10px;
+            margin-right: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .search-container button {
+            padding: 6px 15px;
             background-color: #007bff;
             color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+
+        /* Blue Button Style */
+        .blue-button {
+            background-color: #007bff; /* Blue background */
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
         }
 
-        /* Apply changes only to Complaint Open Date and Complaint Closed Date columns */
+        .blue-button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .logout-btn {
+            background-color: #ff6347;
+            padding: 8px 15px;
+            border-radius: 4px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .logout-btn:hover {
+            background-color: #e04f2e; /* Darker red on hover */
+        }
+
+        .export-btn {
+            background-color: #007bff;
+            padding: 8px 15px;
+            border-radius: 4px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .export-btn:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .top-right form button {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background-color: #ff6347;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .top-right a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        /* Bottom Border (Table Section) */
+        .bottom-border {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* Table Styles */
+        .table-container {
+            width: 100%;
+            max-height: 700px; /* Set the maximum height for the table */
+            margin-top: 20px;
+            margin-bottom: 10px; /* Adds 10px margin from the bottom to the scroll */
+        }
+
+        #complaintsTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        #complaintsTable th, #complaintsTable td {
+            border: 1px solid #000;
+            padding: 12px;
+            text-align: center;
+        }
+
+        #complaintsTable th {
+            background-color: #007bff;
+            font-weight: bold;
+            color: white;
+            
+        }
+
+
+        /* Image Styles */
+        #complaintsTable td img {
+            max-width: 50px;
+            cursor: pointer;
+        }
+
         td:nth-child(9), td:nth-child(16) { /* 9th is Complaint Open Date, 10th is Complaint Closed Date */
             white-space: nowrap;   /* Prevent text from wrapping */
             overflow: hidden;      /* Ensures content doesn't overflow */
@@ -59,262 +213,204 @@
             width: 120px; /* Adjust this width as necessary */
         }
 
-        tr:hover {
-            background-color: #d1ecf1;
-        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .top-border {
+                flex-direction: column;
+                align-items: center;
+            }
 
-        a {
-            display: inline-block;
-            background-color: #007bff;
-            color: white;
-            padding: 10px 15px;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-            margin-top: 20px;
-        }
+            .top-left, .top-center, .top-right {
+                width: 100%;
+                text-align: center;
+            }
 
-        a:hover {
-            background-color: #0056b3;
+            .search-container {
+                margin-left: 0;
+                margin-top: 10px;
+            }
         }
-
-        p {
-            text-align: center;
-            color: #777;
-            font-size: 16px;
-        }
-
-        .logo {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 2;
-        }
-
-        .logo img {
-            width: 100px;
-            height: auto;
-        }
-
-        .pdf-container, img {
-            max-width: 80px;
-        }
-
-        .top-right {
-            position: fixed; /* Use fixed positioning so it stays at the top-right of the screen */
-            top: 0px; /* Add some margin from the top */
-            right: 150px; /* Add some margin from the right */
-            z-index: 1000; /* Ensure it stays above other content */
-        }
-
-        .search-container {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .search-input {
-            padding: 8px;
-            font-size: 16px;
-            width: 250px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-
-        .search-button {
-            padding: 8px 16px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .search-button:hover {
-            background-color: #0056b3;
-        }
-
-        .logout {
-            position: fixed;
-            top: 17px;
-            right: 10px;
-            z-index: 2;
-        }
-
-        .logout button {
-            background-color: #007bff; /* Blue background */
-            color: white;               /* White text */
-            border: none;               /* No border */
-            padding: 10px 20px;         /* Padding around the text */
-            font-size: 16px;            /* Adjust font size */
-            border-radius: 5px;         /* Rounded corners */
-            cursor: pointer;           /* Pointer cursor on hover */
-            font-weight: bold;          /* Bold text */
-            transition: background-color 0.3s; /* Smooth hover transition */
-            display: block;
-            width: auto;                /* Auto width based on content */
-        }
-
-        .logout button:hover {
-            background-color: #0056b3;  /* Darker blue on hover */
-        }
-
-        /* Position the "Back to Complaint Analysis" button */
-        .back-to-analysis {
-            position: fixed;
-            top: 60px; /* Adjust this value to place it below the logo */
-            left: 10px; /* Adjust this value to align it to the left */
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-
-        .back-to-analysis:hover {
-            background-color: #0056b3;
-        }
-
     </style>
 </head>
 <body>
-    <div class="logout">
-        {% if user.is_authenticated %}
-        <form action="{% url 'logout' %}" method="POST">
-            {% csrf_token %}
-            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 6px;"></i> Logout</button>
-        </form>
-        {% endif %}
-    </div>
-    <div class="logo">
-        <img src="{% static 'logo.jpg' %}" alt="Logo">
-    </div>
-    
-    <!-- Back to Complaint Analysis Button -->
-    <a href="{% url 'complaint_analysis' %}" class="back-to-analysis">Back to Complaint Analysis</a>
 
-    <div class="top-right">
-        <a href="{% url 'export_complaints_to_csv' complaint_type site_name|default:'All' %}">Export to CSV</a> 
-    </div>
-    <div class="container">
-        <h2>{{ complaint_type|title }} Complaints</h2>
-        
-        <!-- Search form -->
-        <div class="search-container">
-            <input type="text" id="searchInput" class="search-input" placeholder="Search by Complaint ID" onkeyup="filterComplaints()">
-            <button class="search-button" onclick="filterComplaints()">Search</button>
+<div class="wrapper">
+    <!-- Top Border (10% height) -->
+    <div class="top-border">
+        <!-- Top Left: Logo and Back to Analysis Button -->
+        <div class="top-left">
+            <div class="logo">
+                <img src="{% static 'logo.jpg' %}" alt="Logo">
+            </div>
+            <a href="{% url 'complaint_analysis' %}">
+                <button class="back-to-analysis-btn">
+                    <i class="fas fa-arrow-left"></i> Back 
+                </button>
+                <!-- <button class="back-to-analysis-btn">Back to Analysis</button> -->
+            </a>
+
         </div>
 
-        {% if complaints %}
-            <table id="complaintsTable">
-                <thead>
-                    <tr>
-                        <th>Complaint ID</th>
-                        <th>Location</th>
-                        <th>Equipment</th>
-                        <th>Project Owner</th>
-                        <th>Site Name</th>
-                        <th>Priority</th>
-                        <th>Complaint Raised By</th>
-                        <th>Nature of Complaint</th>
-                        <th>Complaint <br>Open Date</th>
-                        
-                        <!-- Extra columns only for closed complaints -->
-                        {% if complaint_type == 'closed' %}
-                            <th>Summary of Action Taken</th>
-                            <th>Root Cause</th>
-                            <th>Preventive Action</th>
-                            <th>Claim Type</th>
-                            <th>Parts Replaced for Rectification</th>
-                            <th>Attended By</th>
-                            <th>Complaint <br> Closed Date</th>
-                        {% endif %}
-                        
-                        <th>Images</th>
-                        <th>PDFs</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for complaint in complaints %}
-                        <tr>
-                            <td>{{ complaint.complaint_id }}</td>
-                            <td>{{ complaint.location }}</td>
-                            <td>{{ complaint.equipment }}</td>
-                            <td>{{ complaint.company_name }}</td>
-                            <td>{{ complaint.site_name }}</td>
-                            <td>{{ complaint.priority }}</td>
-                            <td>{{ complaint.complaint_raised_by }}</td>
-                            <td>{{ complaint.nature_of_complaint }}</td>
-                            <td>{{ complaint.start_date|date:"Y-m-d" }}</td>
-                            
-                            <!-- Extra details for closed complaints -->
-                            {% if complaint_type == 'closed' %}
-                                <td>{{ complaint.summary_of_action_taken }}</td>
-                                <td>{{ complaint.root_cause }}</td>
-                                <td>{{ complaint.preventive_action }}</td>
-                                <td>{{ complaint.claim_type }}</td>
-                                <td>{{ complaint.parts_replaced_for_rectification }}</td>
-                                <td>{{ complaint.attended_by }}</td>
-                                <td>{{ complaint.end_date|date:"Y-m-d" }}</td>
-                            {% endif %}
-                            
-                            <td>
-                                {% with images=complaint.get_images %}
-                                    {% if images %}
-                                        {% for image in images %}
-                                            <img src="{{ image }}" alt="Complaint Image" onclick="openModal('{{ image }}')">
-                                        {% endfor %}
-                                    {% else %}
-                                        <p>No images uploaded.</p>
-                                    {% endif %}
-                                {% endwith %}
-                            </td>
-                            <td>
-                                {% if complaint.pdf_file %}
-                                <a href="{{ complaint.pdf_file.url }}" target="_blank">View PDF</a>
-                                {% else %}
-                                    <p>No PDF's uploaded</p>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>No {{ complaint_type }} complaints found for this selection.</p>
-        {% endif %}
+        <!-- Top Center: Heading, Back to Analysis, and Search -->
+        <div class="top-center">
+            <div class="heading-container">
+                <h1>{{ complaint_type|title }} Complaints</h1>
+            </div>
+            
+            <div class="search-container">
+                <label for="searchInput"> </label>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by Complaint ID..." onkeyup="filterComplaints()">
+                <button class="search-button" onclick="filterComplaints()">Search</button>
+            </div>
+        </div>
+
+        <!-- Top Right: Logout and Export -->
+        <div class="top-right">
+            {% if user.is_authenticated %}
+                <form action="{% url 'logout' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </form>
+            {% endif %}
+            <a href="{% url 'export_complaints_to_csv' complaint_type site_name|default:'All' %}">
+                <button class="export-btn">Export to CSV</button>
+            </a>
+        </div>
     </div>
 
-    <script>
-        function filterComplaints() {
-            const searchInput = document.getElementById('searchInput').value.toLowerCase();
-            const table = document.getElementById('complaintsTable');
-            const rows = table.getElementsByTagName('tr');
+    <!-- Bottom Border (Table Section) -->
+    <div class="bottom-border">
+        <div class="container">
+            {% if complaints %}
+                <div class="table-container">
+                    <table id="complaintsTable">
+                        <thead>
+                            <tr>
+                                <th>Complaint ID</th>
+                                <th>Location</th>
+                                <th>Equipment</th>
+                                <th>Project Owner</th>
+                                <th>Site Name</th>
+                                <th>Priority</th>
+                                <th>Complaint Raised By</th>
+                                <th>Nature of Complaint</th>
+                                <th>Complaint <br> Open Date</th>
 
-            for (let i = 1; i < rows.length; i++) {
-                let cells = rows[i].getElementsByTagName('td');
-                let complaintId = cells[0].textContent || cells[0].innerText;
+                                {% if complaint_type == 'closed' %}
+                                    <th>Summary of Action Taken</th>
+                                    <th>Root Cause</th>
+                                    <th>Preventive Action</th>
+                                    <th>Claim Type</th>
+                                    <th>Parts Replaced for Rectification</th>
+                                    <th>Attended By</th>
+                                    <th>Complaint <br> Closed Date</th>
+                                {% endif %}
 
-                if (complaintId.toLowerCase().indexOf(searchInput) > -1) {
-                    rows[i].style.display = '';
-                } else {
-                    rows[i].style.display = 'none';
-                }
+                                <th>Images</th>
+                                <th>PDFs</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for complaint in complaints %}
+                                <tr>
+                                    <td>{{ complaint.complaint_id }}</td>
+                                    <td>{{ complaint.location }}</td>
+                                    <td>{{ complaint.equipment }}</td>
+                                    <td>{{ complaint.company_name }}</td>
+                                    <td>{{ complaint.site_name }}</td>
+                                    <td>{{ complaint.priority }}</td>
+                                    <td>{{ complaint.complaint_raised_by }}</td>
+                                    <td>{{ complaint.nature_of_complaint }}</td>
+                                    <td>{{ complaint.start_date|date:"Y-m-d" }}</td>
+
+                                    {% if complaint_type == 'closed' %}
+                                        <td>{{ complaint.summary_of_action_taken }}</td>
+                                        <td>{{ complaint.root_cause }}</td>
+                                        <td>{{ complaint.preventive_action }}</td>
+                                        <td>{{ complaint.claim_type }}</td>
+                                        <td>{{ complaint.parts_replaced_for_rectification }}</td>
+                                        <td>{{ complaint.attended_by }}</td>
+                                        <td>{{ complaint.end_date|date:"Y-m-d" }}</td>
+                                    {% endif %}
+
+                                    <td>
+                                        {% with images=complaint.get_images %}
+                                            {% if images %}
+                                                {% for image in images %}
+                                                    <img src="{{ image }}" alt="Complaint Image" onclick="openModal('{{ image }}')">
+                                                {% endfor %}
+                                            {% else %}
+                                                <p>No images uploaded.</p>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% if complaint.pdf_file %}
+                                            <a href="{{ complaint.pdf_file.url }}" target="_blank">View PDF</a>
+                                        {% else %}
+                                            <p>No PDF's uploaded</p>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>No {{ complaint_type }} complaints found for this selection.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Filter function for complaints table based on Complaint ID
+function filterComplaints() {
+    var input = document.getElementById("searchInput");
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById("complaintsTable");
+    var tr = table.getElementsByTagName("tr");
+
+    // Loop through table rows and hide those that don't match the search
+    for (var i = 1; i < tr.length; i++) {
+        var td = tr[i].getElementsByTagName("td")[0]; // Get the Complaint ID column
+        if (td) {
+            var txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
             }
         }
+    }
+}
 
-        function openModal(src) {
-            document.getElementById("modal-img").src = src;
-            document.getElementById("myModal").style.display = "block";
-        }
+// Function to open image in a modal
+function openModal(imageUrl) {
+    var modal = document.createElement("div");
+    modal.style.position = "fixed";
+    modal.style.top = "0";
+    modal.style.left = "0";
+    modal.style.width = "100%";
+    modal.style.height = "100%";
+    modal.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+    modal.style.display = "flex";
+    modal.style.alignItems = "center";
+    modal.style.justifyContent = "center";
 
-        function closeModal() {
-            document.getElementById("myModal").style.display = "none";
-        }
-    </script>
+    var img = document.createElement("img");
+    img.src = imageUrl;
+    img.style.maxWidth = "80%";
+    img.style.maxHeight = "80%";
+    modal.appendChild(img);
+
+    modal.onclick = function() {
+        modal.remove();
+    };
+
+    document.body.appendChild(modal);
+}
+</script>
+
 </body>
 </html>
