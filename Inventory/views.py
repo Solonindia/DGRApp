@@ -121,8 +121,8 @@ def edit_inventory(request, site_name):
                 utc_time = timezone.now()
                 Kolkata_timezone = pytz.timezone('Asia/Kolkata')
                 india_time = utc_time.astimezone(Kolkata_timezone)
-                # india_time = india_time.replace(tzinfo=Kolkata_timezone)  
-                india_time = timezone.make_aware(india_time, Kolkata_timezone)
+                india_time = india_time.replace(tzinfo=Kolkata_timezone)  
+                # india_time = timezone.make_aware(india_time, Kolkata_timezone)
                 
                 # Create notifications for the updated row
                 Notification.objects.create(
