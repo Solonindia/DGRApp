@@ -115,6 +115,7 @@ TIME_ZONE = 'UTC'  # or any other time zone you are using
 USE_TZ = True 
 USE_I18N = True
 USE_L10N = True
+TIME_ZONE = 'Asia/Kolkata'
 
 STATIC_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/'
 STATICFILES_STORAGE = 'storages.backends.azure_storage.AzureStorage'
