@@ -217,9 +217,6 @@ def download_visitor_log_pdf(request, log_id):
             p.drawString(content_x + max_label_width + 10, content_y, line)
             content_y -= line_height  # Move down for the next line
 
-        # **Do not add extra space after each field, only adjust once for the wrapped lines**
-        # No extra space added, only decremented for wrapped lines
-        # Move to the next field
 
         # Check if we need to create a new page
         if content_y < margin:
