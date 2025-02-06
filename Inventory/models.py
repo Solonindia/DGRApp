@@ -32,7 +32,7 @@ class Notification(models.Model):
     opening_stock = models.IntegerField(default=0)
     consumption = models.IntegerField(null=True, blank=True)
     closing_stock = models.IntegerField(null=True, blank=True)
-    timestamp = models.DateTimeField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Notification for {self.material_code} at {self.timestamp}"
@@ -45,8 +45,8 @@ class RealTimeNotification(models.Model):
     consumption = models.IntegerField(null=True, blank=True)
     closing_stock = models.IntegerField(null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
-    is_read = models.BooleanField(default=False)  # Track whether the notification is read
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Store the user who performed the action
+    is_read = models.BooleanField(default=False) 
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  
 
     def __str__(self):
         return f"Real-time Notification for {self.material_code} at {self.timestamp}"
