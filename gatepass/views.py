@@ -12,6 +12,7 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from demoapp.views import admin_login_view,user_login_view
+import pytz
 
 @login_required(login_url='/superuser/login/')
 def visitor_log_view(request):
@@ -33,15 +34,20 @@ def visitor_log_view(request):
             gate_pass_issue_datetime_str = request.POST.get('gate_pass_issue_datetime')
             visitor_image = request.FILES.get('visitor_image')
 
-            # Convert datetime strings to datetime objects (ensure the correct format)
+            indian_timezone = pytz.timezone('Asia/Kolkata')
+
             valid_from_datetime = datetime.strptime(valid_from_datetime_str, '%Y-%m-%dT%H:%M')
             valid_to_datetime = datetime.strptime(valid_to_datetime_str, '%Y-%m-%dT%H:%M')
             gate_pass_issue_datetime = datetime.strptime(gate_pass_issue_datetime_str, '%Y-%m-%dT%H:%M')
 
-            # Convert naive datetime to timezone-aware datetime
-            valid_from_datetime = timezone.make_aware(valid_from_datetime)
-            valid_to_datetime = timezone.make_aware(valid_to_datetime)
-            gate_pass_issue_datetime = timezone.make_aware(gate_pass_issue_datetime)
+            # Make them timezone-aware in the correct timezone
+            valid_from_datetime = indian_timezone.localize(valid_from_datetime)
+            valid_to_datetime = indian_timezone.localize(valid_to_datetime)
+            gate_pass_issue_datetime = indian_timezone.localize(gate_pass_issue_datetime)
+
+            print("Valid From:", valid_from_datetime)  # Should show correct IST time
+            print("Valid To:", valid_to_datetime)
+            print("Gate Pass Issue Datetime:", gate_pass_issue_datetime)
 
             # Create VisitorLog instance and save it
             visitor_log = VisitorLog.objects.create(
@@ -273,6 +279,8 @@ def download_visitor_log_pdf(request, log_id):
     return response
 
 
+from django.utils.timezone import make_aware
+from datetime import datetime, timedelta
 
 @login_required(login_url='/superuser/login/')
 def delete_visitor_log(request, log_id):
@@ -303,15 +311,14 @@ def visitor_log_user_view(request):
             gate_pass_issue_datetime_str = request.POST.get('gate_pass_issue_datetime')
             visitor_image = request.FILES.get('visitor_image')
 
-            # Convert datetime strings to datetime objects (ensure the correct format)
-            valid_from_datetime = datetime.strptime(valid_from_datetime_str, '%Y-%m-%dT%H:%M')
-            valid_to_datetime = datetime.strptime(valid_to_datetime_str, '%Y-%m-%dT%H:%M')
-            gate_pass_issue_datetime = datetime.strptime(gate_pass_issue_datetime_str, '%Y-%m-%dT%H:%M')
+            # Convert to timezone-aware datetime and add 5 hours 30 minutes
+            valid_from_datetime = make_aware(datetime.strptime(valid_from_datetime_str, '%Y-%m-%dT%H:%M')) + timedelta(hours=5, minutes=30)
+            valid_to_datetime = make_aware(datetime.strptime(valid_to_datetime_str, '%Y-%m-%dT%H:%M')) + timedelta(hours=5, minutes=30)
+            gate_pass_issue_datetime = make_aware(datetime.strptime(gate_pass_issue_datetime_str, '%Y-%m-%dT%H:%M')) + timedelta(hours=5, minutes=30)
 
-            # Convert naive datetime to timezone-aware datetime
-            valid_from_datetime = timezone.make_aware(valid_from_datetime)
-            valid_to_datetime = timezone.make_aware(valid_to_datetime)
-            gate_pass_issue_datetime = timezone.make_aware(gate_pass_issue_datetime)
+            print("Valid From (IST):", valid_from_datetime.strftime('%Y-%m-%d %H:%M:%S'))
+            print("Valid To (IST):", valid_to_datetime.strftime('%Y-%m-%d %H:%M:%S'))
+            print("Gate Pass Issue Datetime (IST):", gate_pass_issue_datetime.strftime('%Y-%m-%d %H:%M:%S'))
 
             # Create VisitorLog instance and save it
             visitor_log = VisitorLog.objects.create(
@@ -327,10 +334,10 @@ def visitor_log_user_view(request):
                 relationship=relationship,
                 gate_pass_issue_datetime=gate_pass_issue_datetime,
                 visitor_image=visitor_image,
-                dup_username=username  # Pass the username as dup_username here
+                dup_username=username  # Save username
             )
 
-            gatepass_id = visitor_log.pk  # Access the generated gatepass_id (using the primary key)
+            gatepass_id = visitor_log.pk  # Get the generated gatepass ID
 
             return JsonResponse({
                 'success': True,
@@ -339,17 +346,15 @@ def visitor_log_user_view(request):
                 }
             })
         except Exception as e:
-            # Handle any errors, for example if datetime parsing fails or required fields are missing
             return JsonResponse({
                 'success': False,
                 'message': f"Error: {str(e)}"
-            })
-    
+            }, status=400)
+
     elif request.method == "GET":
         gatepass = VisitorLog(name_of_plant="Sample Company") 
-        gatepass_id = gatepass.generate_gatepass_id()  # Generate the temporary complaint ID
-        return render(request, 'visitor_log_user.html', {'gatepass_id': gatepass_id})
-
+        gatepass_id = gatepass.generate_gatepass_id()  # Generate a temporary gatepass ID
+        return render(request, 'visitor_log_user.html', {'gatepass_id': gatepass_id})  
 
 @login_required(login_url='/user/login/')
 def visitor_log_list_user(request):

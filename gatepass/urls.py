@@ -13,7 +13,6 @@ urlpatterns = [
     path('download/<int:log_id>/', views.download_visitor_log_pdf, name='download_visitor_log_pdf'),  # Download PDF
     path('visitor-log/<int:log_id>/delete/', views.delete_visitor_log, name='delete_visitor_log'),  # New URL for delete
     path('visitor-log-user/', views.visitor_log_user_view, name='visitor_log_user_view'),  # List of visitor logs
-
     path('superuser/login/',views.admin_login_view,name="login1"),
     path('user/login/', views.user_login_view, name='login'),
 ]

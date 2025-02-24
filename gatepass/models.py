@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+import pytz
 
 class VisitorLog(models.Model):
     name_of_plant = models.CharField(max_length=100)
@@ -19,9 +20,18 @@ class VisitorLog(models.Model):
     gatepass_id = models.CharField(max_length=255, blank=True, editable=False)
     dup_username = models.CharField(max_length=255, blank=True, null=True)
 
-    def __str__(self):
-        return f"Visitor: {self.visitor_name} - {self.name_of_plant}"
+    def save(self, *args, **kwargs):
+        indian_timezone = pytz.timezone('Asia/Kolkata')
+        
+        # Convert UTC to IST before saving
+        if self.valid_from_datetime:
+            self.valid_from_datetime = self.valid_from_datetime.astimezone(indian_timezone)
+        if self.valid_to_datetime:
+            self.valid_to_datetime = self.valid_to_datetime.astimezone(indian_timezone)
+        if self.gate_pass_issue_datetime:
+            self.gate_pass_issue_datetime = self.gate_pass_issue_datetime.astimezone(indian_timezone)
 
+        super().save(*args, **kwargs)
 
     def generate_gatepass_id(self):
         """Generates a unique Complaint ID based on year and serial number."""
