@@ -22,7 +22,7 @@
         .button-container {
             text-align: left;
             position: fixed;
-            top: 10%;
+            top: 14%;
             left: 0;
             background-color: rgba(2, 37, 70, 0.7);
             height: 90%;
@@ -276,7 +276,7 @@
                 <th>Type</th>
                 <th>Category</th>
                 <th>Opening Stock</th>
-                
+                <th>Unit Value (INR)</th>
             </tr>
         </thead>
         <tbody>
@@ -288,6 +288,7 @@
                 <td>{{ item.type }}</td>
                 <td>{{ item.category }}</td>
                 <td>{{ item.opening_stock }}</td>
+                <td>{{ item.unit_value }}</td>
                 
             </tr>
             {% endfor %}
@@ -303,6 +304,7 @@
                 <th>Consumption</th>
                 <th>Closing Stock</th>
                 <th>Timestamp</th>
+                <th>unit value</th>
             </tr>
         </thead>
         <tbody>
@@ -313,6 +315,7 @@
                 <td>{{ notification.consumption }}</td>
                 <td>{{ notification.closing_stock }}</td>
                 <td>{{ notification.timestamp }}</td>
+                <td>{{ notification.unit_value }}</td>
             </tr>
             {% endfor %}
         </tbody>

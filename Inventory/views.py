@@ -8,6 +8,7 @@ import pandas as pd
 from django.contrib.auth.models import User
 from demoapp.views import admin_login_view,user_login_view
 from django.contrib.auth.decorators import login_required
+import math
 
 @login_required(login_url='/superuser/login/')
 def upload_inventory(request):
@@ -31,21 +32,62 @@ def upload_inventory(request):
 
         if file.name.endswith('.xlsx') or file.name.endswith('.xls'):
             try:
-                # Read the Excel file
-                df = pd.read_excel(file, header=2)  # Skipping the first 2 rows
+                # Step 1: Read first few rows without header
+                temp_df = pd.read_excel(file, header=None)
+                
+                # Step 2: Define expected column names
+                expected_columns = ['Material Code', 'Material Description', 'Owner', 'Type', 'Category', 'Opening Stock']#,'Unit Value \n(INR)']
 
-                # Cleaning the data: drop rows with missing 'Material Description'
+                # Step 3: Detect header row dynamically
+                header_row_index = None
+                for i in range(min(10, len(temp_df))):  # Check first 10 rows
+                    row_values = temp_df.iloc[i].astype(str).str.strip().tolist()
+                    if all(col in row_values for col in expected_columns):
+                        header_row_index = i
+                        break
+
+                if header_row_index is None:
+                    messages.error(request, "Header row with expected columns not found in uploaded Excel file.")
+                    return redirect('upload_inventory')
+
+                # Step 4: Re-read with correct header row
+                df = pd.read_excel(file, header=header_row_index)
+                # print(df)
+
+                # Step 5: Clean the data
                 df_cleaned = df.dropna(subset=['Material Description'])
                 columns = df_cleaned.columns.tolist()
+                print(columns)
 
                 # Get or create the site
                 site, created = Site.objects.get_or_create(name=site_name)
 
-                # Get the user based on user_name (either admin selecting a user or the current user)
-                #user = User.objects.get(username=user_name)
 
-                # Save inventory data to the database, linking to the site and user
+                # Save inventory data
                 for _, row in df_cleaned.iterrows():
+
+                    # Safely handle NaN or blank values
+                    opening_stock_raw = row.get('Opening Stock', 0)
+
+                    if pd.isna(opening_stock_raw) or str(opening_stock_raw).strip() == '':
+                        opening_stock_value = 0
+                    else:
+                        try:
+                            opening_stock_value = int(float(opening_stock_raw))  # Convert safely
+                        except ValueError:
+                            opening_stock_value = 0  # fallback if it still fails
+
+
+                    unit_value_raw = row.get('Unit Value \n(INR)', 0)
+
+                    if pd.isna(unit_value_raw) or str(unit_value_raw).strip() == '':
+                        unit_value = 0
+                    else:
+                        try:
+                            unit_value = float(unit_value_raw)  # use float, since unit value may be decimal
+                        except ValueError:
+                            unit_value = 0
+
                     Inventory.objects.create(
                         site=site,
                         material_code=row['Material Code'],
@@ -53,18 +95,85 @@ def upload_inventory(request):
                         owner=row['Owner'],
                         type=row['Type'],
                         category=row['Category'],
-                        opening_stock=row['Opening Stock \n(FY-2024-25)'],
-                        user=user  # Link the data to the specific user
+                        opening_stock=opening_stock_value,#row['Opening Stock'],# \n(FY-2024-25)'],
+                        unit_value=unit_value, 
+                        user=user
                     )
 
                 messages.success(request, 'Inventory data loaded and saved successfully.')
+
             except Exception as e:
                 messages.error(request, f"Error reading the file: {e}")
         else:
             messages.error(request, 'Please upload a valid Excel file.')
 
-    return render(request, 'upload_inventory.html', {'excel_data': excel_data, 'columns': columns, 'site_name': site_name,
-    'unread_notifications': unread_notifications})
+    return render(request, 'upload_inventory.html', {
+        'excel_data': excel_data,
+        'columns': columns,
+        'site_name': site_name,
+        'unread_notifications': unread_notifications
+    })
+
+
+
+
+# def upload_inventory(request):
+#     excel_data = None
+#     columns = None
+#     site_name = None
+#     user_name = None
+#     # Count unread notifications
+#     unread_notifications = RealTimeNotification.objects.filter(is_read=False).count()
+
+#     if request.method == 'POST' and 'file' in request.FILES:
+#         file = request.FILES['file']
+#         site_name = request.POST.get('site_name')
+#         user_name = request.POST.get('user_name')
+
+#         try:
+#             user = User.objects.get(username=user_name)
+#         except User.DoesNotExist:
+#             messages.error(request, f"User '{user_name}' does not exist. Please register the user first.")
+#             return redirect('upload_inventory')
+
+#         if file.name.endswith('.xlsx') or file.name.endswith('.xls'):
+#             try:
+#                 # Read the Excel file
+#                 df = pd.read_excel(file, header=2)  # Skipping the first 2 rows
+#                 print(df)
+
+#                 # Cleaning the data: drop rows with missing 'Material Description'
+#                 df_cleaned = df.dropna(subset=['Material Description'])
+#                 columns = df_cleaned.columns.tolist()
+#                 print(columns)
+
+#                 # Get or create the site
+#                 site, created = Site.objects.get_or_create(name=site_name)
+
+#                 # Get the user based on user_name (either admin selecting a user or the current user)
+#                 #user = User.objects.get(username=user_name)
+
+#                 # Save inventory data to the database, linking to the site and user
+#                 for _, row in df_cleaned.iterrows():
+#                     Inventory.objects.create(
+#                         site=site,
+#                         material_code=row['Material Code'],
+#                         material_desc=row['Material Description'],
+#                         owner=row['Owner'],
+#                         type=row['Type'],
+#                         category=row['Category'],
+#                         opening_stock=row['Opening Stock \n(FY-2024-25)'],
+#                         user=user  # Link the data to the specific user
+#                     )
+
+#                 messages.success(request, 'Inventory data loaded and saved successfully.')
+#             except Exception as e:
+#                 messages.error(request, f"Error reading the file: {e}")
+#         else:
+#             messages.error(request, 'Please upload a valid Excel file.')
+
+#     return render(request, 'upload_inventory.html', {'excel_data': excel_data, 'columns': columns, 'site_name': site_name,
+#     'unread_notifications': unread_notifications})
 
 
 from django.shortcuts import render, redirect
@@ -131,7 +240,9 @@ def edit_inventory(request, site_name):
                     opening_stock=inventory.opening_stock,
                     consumption=consumption,
                     closing_stock=closing_stock,
-                    timestamp=india_time
+                    timestamp=india_time,
+                    unit_value = inventory.unit_value
+
                 )
 
                 RealTimeNotification.objects.create(
@@ -262,35 +373,68 @@ def site_analysis(request):
             selected_site = Site.objects.get(name=site_name)
             inventories = Inventory.objects.filter(site=selected_site)
 
-            # Prepare data for the chart
+            # Prepare chart data
             chart_labels = [inventory.material_code for inventory in inventories]
             chart_data = [inventory.opening_stock for inventory in inventories]
 
-        # Handle stock updates
-        if 'update_stock' in request.POST:
-            # Iterate through the inventories and update stock values
+            # Calculate total_value for display
             for inventory in inventories:
-                # Retrieve the new stock value from the POST data
+                unit_value = inventory.unit_value if inventory.unit_value else 0
+                opening_stock = inventory.opening_stock if inventory.opening_stock else 0
+                inventory.total_value = unit_value * opening_stock
+
+        # Handle stock update
+        if 'update_stock' in request.POST:
+            site_name = request.POST.get('site_name')
+            selected_site = Site.objects.get(name=site_name)
+            inventories = Inventory.objects.filter(site=selected_site)
+
+            for inventory in inventories:
+                current_stock = inventory.opening_stock or 0
+                current_unit_value = inventory.unit_value or 0.0
+
+                # Get new values from form
                 new_stock = request.POST.get(f"stock_{inventory.id}")
+                new_unit_value = request.POST.get(f"unit_value_{inventory.id}")
+
+                has_changes = False
+
+                # Check and update stock
                 if new_stock:
-                    new_stock = int(new_stock)
-                    # Update the Inventory model
-                    inventory.opening_stock = new_stock
+                    try:
+                        new_stock = int(new_stock)
+                        if new_stock != current_stock:
+                            inventory.opening_stock = new_stock
+                            has_changes = True
+                    except ValueError:
+                        pass
+
+                # Check and update unit value
+                if new_unit_value:
+                    try:
+                        new_unit_value = float(new_unit_value)
+                        if new_unit_value != current_unit_value:
+                            inventory.unit_value = new_unit_value
+                            has_changes = True
+                    except ValueError:
+                        pass
+
+                # Save and create notification only if there are changes
+                if has_changes:
                     inventory.save()
 
-                    # Create a notification for the update
                     Notification.objects.create(
                         site=inventory.site,
                         material_code=inventory.material_code,
-                        opening_stock=new_stock,
+                        opening_stock=inventory.opening_stock,
                         consumption=None,
-                        closing_stock=None
+                        closing_stock=None,
+                        unit_value = inventory.unit_value
                     )
 
-            # After updating, reload the page with the updated inventories
-            return redirect('site_analysis')  # Redirect to avoid re-posting on refresh
+            return redirect('site_analysis')
 
-    # Convert lists to JSON format before passing them to the template
+    # Convert chart data to JSON for chart rendering
     chart_labels_json = json.dumps(chart_labels)
     chart_data_json = json.dumps(chart_data)
 
@@ -298,9 +442,82 @@ def site_analysis(request):
         'sites': sites,
         'selected_site': selected_site,
         'inventories': inventories,
-        'chart_labels': chart_labels_json,  # Ensure data is passed in JSON format
-        'chart_data': chart_data_json,  # Ensure data is passed in JSON format
+        'chart_labels': chart_labels_json,
+        'chart_data': chart_data_json,
         'unread_notifications': unread_notifications
     })
+
+
+
+# def site_analysis(request):
+#     sites = Site.objects.all()
+#     selected_site = None
+#     inventories = None
+#     chart_data = []
+#     chart_labels = []
+#     unread_notifications = RealTimeNotification.objects.filter(is_read=False).count()
+
+#     if request.method == 'POST':
+#         # Handle site selection
+#         if 'site_name' in request.POST:
+#             site_name = request.POST['site_name']
+#             selected_site = Site.objects.get(name=site_name)
+#             inventories = Inventory.objects.filter(site=selected_site)
+
+#             # Prepare data for the chart
+#             chart_labels = [inventory.material_code for inventory in inventories]
+#             chart_data = [inventory.opening_stock for inventory in inventories]
+
+#             # ✅ Calculate total_value for display
+#             for inventory in inventories:
+#                 unit_value = inventory.unit_value if inventory.unit_value else 0
+#                 opening_stock = inventory.opening_stock if inventory.opening_stock else 0
+#                 inventory.total_value = unit_value * opening_stock
+
+#         # Handle stock updates
+#         if 'update_stock' in request.POST:
+#             # Iterate through the inventories and update stock values
+#             for inventory in inventories:
+#                 # Retrieve the new stock value from the POST data
+#                 new_stock = request.POST.get(f"stock_{inventory.id}")
+#                 if new_stock:
+#                     new_stock = int(new_stock)
+#                     # Update the Inventory model
+#                     inventory.opening_stock = new_stock
+                
+#                 # ✅ Retrieve the new unit value from POST
+#                 new_unit_value = request.POST.get(f"unit_value_{inventory.id}")
+#                 if new_unit_value:
+#                     try:
+#                         new_unit_value = float(new_unit_value)
+#                         inventory.unit_value = new_unit_value
+#                     except ValueError:
+#                         pass  # If input is invalid, just ignore
+#                 inventory.save()
+
+#                 # Create a notification for the update
+#                 Notification.objects.create(
+#                     site=inventory.site,
+#                     material_code=inventory.material_code,
+#                     opening_stock=new_stock,
+#                     consumption=None,
+#                     closing_stock=None
+#                 )
+
+#             # After updating, reload the page with the updated inventories
+#             return redirect('site_analysis')  # Redirect to avoid re-posting on refresh
+
+#     # Convert lists to JSON format before passing them to the template
+#     chart_labels_json = json.dumps(chart_labels)
+#     chart_data_json = json.dumps(chart_data)
+
+#     return render(request, 'site_analysis.html', {
+#         'sites': sites,
+#         'selected_site': selected_site,
+#         'inventories': inventories,
+#         'chart_labels': chart_labels_json,  # Ensure data is passed in JSON format
+#         'chart_data': chart_data_json,  # Ensure data is passed in JSON format
+#         'unread_notifications': unread_notifications
+#     })
 
 

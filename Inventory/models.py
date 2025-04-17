@@ -19,6 +19,8 @@ class Inventory(models.Model):
     type = models.CharField(max_length=100)
     category = models.CharField(max_length=100)
     opening_stock = models.IntegerField()
+    unit_value = models.FloatField(default=0)
+    
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Add this field
 
@@ -33,6 +35,7 @@ class Notification(models.Model):
     consumption = models.IntegerField(null=True, blank=True)
     closing_stock = models.IntegerField(null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    unit_value = models.FloatField(default=0) 
 
     def __str__(self):
         return f"Notification for {self.material_code} at {self.timestamp}"

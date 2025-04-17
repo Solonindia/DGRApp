@@ -29,7 +29,7 @@
         /* Sidebar Styling */
         .button-container {
             position: fixed;
-            top: 10%;
+            top: 12%;
             left: 0;
             background-color: rgba(2, 37, 70, 0.8);
             height: 90%;
@@ -256,8 +256,8 @@
         /* Bell Icon (Positioned Slightly Left and Lower in the Top-Right Corner) */
         .notification-container {
             position: fixed;
-            top: 40px; /* Keeps the icon slightly lower */
-            right: 60px; /* Adjusted to move the icon a bit left */
+            top: 30px; /* Keeps the icon slightly lower */
+            right: 27px; /* Adjusted to move the icon a bit left */
             z-index: 100;
         }
 
@@ -314,8 +314,8 @@
 
         .logout {
             position: fixed; /* Ensures the button stays fixed at the top-right corner */
-            top: 50px;
-            right: 140px;
+            top: 40px;
+            right: 90px;
             z-index: 2;
         }
 
@@ -409,6 +409,8 @@
                             <th>Type</th>
                             <th>Category</th>
                             <th>Opening Stock</th>
+                            <th>Unit Value (INR)</th>
+                            <th>Total Value (INR)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -423,6 +425,11 @@
                                     <td>
                                         <input type="number" name="stock_{{ inventory.id }}" value="{{ inventory.opening_stock }}">
                                     </td>
+                                    <!-- <td>{{ inventory.unit_value }}</td> -->
+                                    <td>
+                                        <input type="number" step="0.01" name="unit_value_{{ inventory.id }}" value="{{ inventory.unit_value }}">
+                                    </td>
+                                    <td>₹{{ inventory.total_value|floatformat:"2" }}</td>
                                 </tr>
                             {% endfor %}
                         {% else %}
