@@ -285,6 +285,7 @@
                         <th>Owner</th>
                         <th>Type</th>
                         <th>Category</th>
+                        <th>UOM</th>
                         <th>Opening Stock</th>
                         <th>Consumption</th>
                     </tr>
@@ -297,6 +298,7 @@
                         <td>{{ item.owner }}</td>
                         <td>{{ item.type }}</td>
                         <td>{{ item.category }}</td>
+                        <td>{{ item.uom }}</td>
                         <td>{{ item.opening_stock }}</td>
                         <td>
                             <input type="number" name="consumption_{{ item.id }}" value="0" min="0">

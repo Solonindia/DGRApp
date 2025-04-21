@@ -194,6 +194,8 @@
                             <tr>
                                 <th>Site Name</th>
                                 <th>Material Code</th>
+                                <th>Material Desc</th>
+                                <th>UOM</th>
                                 <th>Opening Stock</th>
                                 <th>Consumption</th>
                                 <th>Closing Stock</th>
@@ -206,6 +208,8 @@
                             <tr class="{% if not notification.is_read %}unread{% else %}read{% endif %}">
                                 <td>{{ notification.site.name }}</td>
                                 <td>{{ notification.material_code }}</td>
+                                <td>{{ notification.material_desc }}</td>
+                                <td>{{ notification.uom }}</td>
                                 <td>{{ notification.opening_stock }}</td>
                                 <td>{{ notification.consumption }}</td>
                                 <td>{{ notification.closing_stock }}</td>
