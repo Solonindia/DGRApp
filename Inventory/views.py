@@ -36,7 +36,7 @@ def upload_inventory(request):
                 temp_df = pd.read_excel(file, header=None)
                 
                 # Step 2: Define expected column names
-                expected_columns = ['Material Code', 'Material Description', 'Owner', 'Type', 'Category', 'Opening Stock']#,'Unit Value \n(INR)']
+                expected_columns = ['Material Code', 'Material Description', 'Owner', 'Type', 'Category', 'UOM','Opening Stock']#,'Unit Value \n(INR)']
 
                 # Step 3: Detect header row dynamically
                 header_row_index = None
@@ -95,6 +95,7 @@ def upload_inventory(request):
                         owner=row['Owner'],
                         type=row['Type'],
                         category=row['Category'],
+                        uom=row['UOM'], 
                         opening_stock=opening_stock_value,#row['Opening Stock'],# \n(FY-2024-25)'],
                         unit_value=unit_value, 
                         user=user
@@ -237,6 +238,8 @@ def edit_inventory(request, site_name):
                 Notification.objects.create(
                     site=site,
                     material_code=inventory.material_code,
+                    material_desc = inventory.material_desc,
+                    uom = inventory.uom,
                     opening_stock=inventory.opening_stock,
                     consumption=consumption,
                     closing_stock=closing_stock,
@@ -248,6 +251,8 @@ def edit_inventory(request, site_name):
                 RealTimeNotification.objects.create(
                     site=site,
                     material_code=inventory.material_code,
+                    material_desc = inventory.material_desc,
+                    uom = inventory.uom,
                     opening_stock=inventory.opening_stock,
                     consumption=consumption,
                     closing_stock=closing_stock,

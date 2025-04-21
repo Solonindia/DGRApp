@@ -275,6 +275,7 @@
                 <th>Owner</th>
                 <th>Type</th>
                 <th>Category</th>
+                <th>UOM</th>
                 <th>Opening Stock</th>
                 <th>Unit Value (INR)</th>
             </tr>
@@ -287,6 +288,7 @@
                 <td>{{ item.owner }}</td>
                 <td>{{ item.type }}</td>
                 <td>{{ item.category }}</td>
+                <td>{{ item.uom }}</td>
                 <td>{{ item.opening_stock }}</td>
                 <td>{{ item.unit_value }}</td>
                 
@@ -300,6 +302,8 @@
         <thead>
             <tr>
                 <th>Material Code</th>
+                <th>Material Desc</th>
+                <th>UOM</th>
                 <th>Opening Stock</th>
                 <th>Consumption</th>
                 <th>Closing Stock</th>
@@ -311,6 +315,8 @@
             {% for notification in notifications %}
             <tr>
                 <td>{{ notification.material_code }}</td>
+                <td>{{ notification.material_desc }}</td>
+                <td>{{ notification.uom }}</td>
                 <td>{{ notification.opening_stock }}</td>
                 <td>{{ notification.consumption }}</td>
                 <td>{{ notification.closing_stock }}</td>
