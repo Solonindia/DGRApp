@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Inventory</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        .form-container {
+            max-width: 500px;
+            margin: auto;
+            padding: 25px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #aaa;
+        }
+        .form-buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .form-buttons button {
+            padding: 8px 20px;
+            margin: 0 10px;
+            border: none;
+            background-color: #02354a;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .form-buttons a {
+            color: #02354a;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Edit Inventory Item</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <label for="material_code">Material Code:</label>
+            <input type="text" name="material_code" value="{{ inventory.material_code }}" required>
+
+            <label for="material_desc">Material Description:</label>
+            <input type="text" name="material_desc" value="{{ inventory.material_desc }}" required>
+
+            <label for="uom">UOM:</label>
+            <input type="text" name="uom" value="{{ inventory.uom }}" required>
+
+            <label for="owner">Owner:</label>
+            <input type="text" name="owner" value="{{ inventory.owner }}" required>
+
+            <label for="type">Type:</label>
+            <input type="text" name="type" value="{{ inventory.type }}" required>
+
+            <label for="category">Category:</label>
+            <input type="text" name="category" value="{{ inventory.category }}" required>
+
+            <label for="opening_stock">opening stock:</label>
+            <input type="text" name="opening_stock" value="{{ inventory.opening_stock }}" required>
+
+            <label for="unit value">unit value:</label>
+            <input type="text" name="unit_value" value="{{ inventory.unit_value }}" required>
+
+            <div>
+                <label for="total_value">Total Value:</label>
+                <input type="text" id="total_value" name="total_value" value="₹{{ total_value|floatformat:2 }}" readonly>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit">Save Changes</button>
+                <a href="{% url 'site_analysis' %}?site_name={{ site_name }}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
