@@ -371,75 +371,20 @@ def site_analysis(request):
     chart_labels = []
     unread_notifications = RealTimeNotification.objects.filter(is_read=False).count()
 
-    if request.method == 'POST':
-        # Handle site selection
-        if 'site_name' in request.POST:
-            site_name = request.POST['site_name']
+    if request.method == 'POST' or 'site_name' in request.GET:
+        site_name = request.POST.get('site_name') or request.GET.get('site_name')
+        if site_name:
             selected_site = Site.objects.get(name=site_name)
             inventories = Inventory.objects.filter(site=selected_site)
 
-            # Prepare chart data
-            chart_labels = [inventory.material_code for inventory in inventories]
-            chart_data = [inventory.opening_stock for inventory in inventories]
+            chart_labels = [inv.material_code for inv in inventories]
+            chart_data = [inv.opening_stock for inv in inventories]
 
-            # Calculate total_value for display
-            for inventory in inventories:
-                unit_value = inventory.unit_value if inventory.unit_value else 0
-                opening_stock = inventory.opening_stock if inventory.opening_stock else 0
-                inventory.total_value = unit_value * opening_stock
+            for inv in inventories:
+                unit_val = inv.unit_value or 0
+                opening = inv.opening_stock or 0
+                inv.total_value = unit_val * opening
 
-        # Handle stock update
-        if 'update_stock' in request.POST:
-            site_name = request.POST.get('site_name')
-            selected_site = Site.objects.get(name=site_name)
-            inventories = Inventory.objects.filter(site=selected_site)
-
-            for inventory in inventories:
-                current_stock = inventory.opening_stock or 0
-                current_unit_value = inventory.unit_value or 0.0
-
-                # Get new values from form
-                new_stock = request.POST.get(f"stock_{inventory.id}")
-                new_unit_value = request.POST.get(f"unit_value_{inventory.id}")
-
-                has_changes = False
-
-                # Check and update stock
-                if new_stock:
-                    try:
-                        new_stock = int(new_stock)
-                        if new_stock != current_stock:
-                            inventory.opening_stock = new_stock
-                            has_changes = True
-                    except ValueError:
-                        pass
-
-                # Check and update unit value
-                if new_unit_value:
-                    try:
-                        new_unit_value = float(new_unit_value)
-                        if new_unit_value != current_unit_value:
-                            inventory.unit_value = new_unit_value
-                            has_changes = True
-                    except ValueError:
-                        pass
-
-                # Save and create notification only if there are changes
-                if has_changes:
-                    inventory.save()
-
-                    Notification.objects.create(
-                        site=inventory.site,
-                        material_code=inventory.material_code,
-                        opening_stock=inventory.opening_stock,
-                        consumption=None,
-                        closing_stock=None,
-                        unit_value = inventory.unit_value
-                    )
-
-            return redirect('site_analysis')
-
-    # Convert chart data to JSON for chart rendering
     chart_labels_json = json.dumps(chart_labels)
     chart_data_json = json.dumps(chart_data)
 
@@ -454,6 +399,8 @@ def site_analysis(request):
 
 
 
+
+
 # def site_analysis(request):
 #     sites = Site.objects.all()
 #     selected_site = None
@@ -462,57 +409,74 @@ def site_analysis(request):
 #     chart_labels = []
 #     unread_notifications = RealTimeNotification.objects.filter(is_read=False).count()
 
-#     if request.method == 'POST':
-#         # Handle site selection
-#         if 'site_name' in request.POST:
-#             site_name = request.POST['site_name']
+#     if request.method == 'POST' or 'site_name' in request.GET:
+#         site_name = request.POST.get('site_name') or request.GET.get('site_name')
+#         if site_name:
 #             selected_site = Site.objects.get(name=site_name)
 #             inventories = Inventory.objects.filter(site=selected_site)
 
-#             # Prepare data for the chart
-#             chart_labels = [inventory.material_code for inventory in inventories]
-#             chart_data = [inventory.opening_stock for inventory in inventories]
+#             chart_labels = [inv.material_code for inv in inventories]
+#             chart_data = [inv.opening_stock for inv in inventories]
 
-#             # ✅ Calculate total_value for display
-#             for inventory in inventories:
-#                 unit_value = inventory.unit_value if inventory.unit_value else 0
-#                 opening_stock = inventory.opening_stock if inventory.opening_stock else 0
-#                 inventory.total_value = unit_value * opening_stock
+#             for inv in inventories:
+#                 unit_val = inv.unit_value or 0
+#                 opening = inv.opening_stock or 0
+#                 inv.total_value = unit_val * opening
 
-#         # Handle stock updates
+#         # Handle stock update
 #         if 'update_stock' in request.POST:
-#             # Iterate through the inventories and update stock values
+#             site_name = request.POST.get('site_name')
+#             selected_site = Site.objects.get(name=site_name)
+#             inventories = Inventory.objects.filter(site=selected_site)
+
 #             for inventory in inventories:
-#                 # Retrieve the new stock value from the POST data
+#                 current_stock = inventory.opening_stock or 0
+#                 current_unit_value = inventory.unit_value or 0.0
+
+#                 # Get new values from form
 #                 new_stock = request.POST.get(f"stock_{inventory.id}")
-#                 if new_stock:
-#                     new_stock = int(new_stock)
-#                     # Update the Inventory model
-#                     inventory.opening_stock = new_stock
-                
-#                 # ✅ Retrieve the new unit value from POST
 #                 new_unit_value = request.POST.get(f"unit_value_{inventory.id}")
+
+#                 has_changes = False
+
+#                 # Check and update stock
+#                 if new_stock:
+#                     try:
+#                         new_stock = int(new_stock)
+#                         if new_stock != current_stock:
+#                             inventory.opening_stock = new_stock
+#                             has_changes = True
+#                     except ValueError:
+#                         pass
+
+#                 # Check and update unit value
 #                 if new_unit_value:
 #                     try:
 #                         new_unit_value = float(new_unit_value)
-#                         inventory.unit_value = new_unit_value
+#                         if new_unit_value != current_unit_value:
+#                             inventory.unit_value = new_unit_value
+#                             has_changes = True
 #                     except ValueError:
-#                         pass  # If input is invalid, just ignore
-#                 inventory.save()
+#                         pass
 
-#                 # Create a notification for the update
-#                 Notification.objects.create(
-#                     site=inventory.site,
-#                     material_code=inventory.material_code,
-#                     opening_stock=new_stock,
-#                     consumption=None,
-#                     closing_stock=None
-#                 )
+#                 # Save and create notification only if there are changes
+#                 if has_changes:
+#                     inventory.save()
 
-#             # After updating, reload the page with the updated inventories
-#             return redirect('site_analysis')  # Redirect to avoid re-posting on refresh
+#                     Notification.objects.create(
+#                         site=inventory.site,
+#                         material_code=inventory.material_code,
+#                         material_desc = inventory.material_desc,
+#                         uom = inventory.uom,
+#                         opening_stock=inventory.opening_stock,
+#                         consumption=None,
+#                         closing_stock=None,
+#                         unit_value = inventory.unit_value
+#                     )
 
-#     # Convert lists to JSON format before passing them to the template
+#             return redirect('site_analysis')
+
+#     # Convert chart data to JSON for chart rendering
 #     chart_labels_json = json.dumps(chart_labels)
 #     chart_data_json = json.dumps(chart_data)
 
@@ -520,9 +484,117 @@ def site_analysis(request):
 #         'sites': sites,
 #         'selected_site': selected_site,
 #         'inventories': inventories,
-#         'chart_labels': chart_labels_json,  # Ensure data is passed in JSON format
-#         'chart_data': chart_data_json,  # Ensure data is passed in JSON format
+#         'chart_labels': chart_labels_json,
+#         'chart_data': chart_data_json,
 #         'unread_notifications': unread_notifications
 #     })
 
 
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+
+# def edit_inventory1(request, inventory_id):
+#     inventory = get_object_or_404(Inventory, id=inventory_id)
+
+#     if request.method == 'POST':
+#         inventory.material_code = request.POST.get('material_code')
+#         inventory.material_desc = request.POST.get('material_desc')
+#         inventory.uom = request.POST.get('uom')
+#         inventory.owner = request.POST.get('owner')
+#         inventory.type = request.POST.get('type')
+#         inventory.category = request.POST.get('category')
+#         inventory.save()
+#         return redirect('site_analysis')
+
+#     return render(request, 'edit_inventory1.html', {'inventory': inventory})
+
+
+# def edit_inventory1(request, inventory_id):
+#     inventory = get_object_or_404(Inventory, id=inventory_id)
+#     site_name = request.GET.get('site_name') or request.POST.get('site_name')
+
+#     if request.method == 'POST':
+#         inventory.material_code = request.POST.get('material_code')
+#         inventory.material_desc = request.POST.get('material_desc')
+#         inventory.uom = request.POST.get('uom')
+#         inventory.owner = request.POST.get('owner')
+#         inventory.type = request.POST.get('type')
+#         inventory.category = request.POST.get('category')
+#         inventory.save()
+#         return redirect(f"{reverse('site_analysis')}?site_name={site_name}")
+
+#     return render(request, 'edit_inventory1.html', {
+#         'inventory': inventory,
+#         'site_name': site_name
+#     })
+
+from django.shortcuts import get_object_or_404, redirect, render
+from .models import Inventory, Site
+from django.http import HttpResponseRedirect
+
+# def edit_inventory1(request, inventory_id):
+#     # Get the inventory item to edit
+#     inventory = get_object_or_404(Inventory, id=inventory_id)
+    
+#     # Get the site name from the GET parameter
+#     site_name = request.GET.get('site_name')
+#     selected_site = get_object_or_404(Site, name=site_name) if site_name else None
+    
+#     if request.method == 'POST':
+#         # Save the updated inventory details
+#         inventory.material_code = request.POST.get('material_code')
+#         inventory.material_desc = request.POST.get('material_desc')
+#         inventory.uom = request.POST.get('uom')
+#         inventory.owner = request.POST.get('owner')
+#         inventory.type = request.POST.get('type')
+#         inventory.category = request.POST.get('category')
+#         inventory.save()
+#         redirect_url = reverse('site_analysis') + f'?site_name={site_name}'
+#         return HttpResponseRedirect(redirect_url)
+#         # return redirect(f'/site-analysis/?site_name={site_name}')
+
+#         # After saving, redirect back to the same site with the updated inventory
+#         # return redirect('site_analysis')  # This automatically uses the site from the context of the previous page
+#         # return redirect(reverse('site_analysis') + f'?site_name={site_name}')
+
+
+#     # If the page is a GET request, render the edit page with the current inventory and selected site
+#     return render(request, 'edit_inventory1.html', {
+#         'inventory': inventory,
+#         'site_name': site_name,  # Pass the site name to the form for redirection after saving
+#         'selected_site': selected_site
+#     })
+
+
+
+
+from django.urls import reverse
+from django.http import HttpResponseRedirect
+
+def edit_inventory1(request, inventory_id):
+    inventory = get_object_or_404(Inventory, id=inventory_id)
+    site_name = request.GET.get('site_name')
+
+    if request.method == 'POST':
+        inventory.material_code = request.POST.get('material_code')
+        inventory.material_desc = request.POST.get('material_desc')
+        inventory.uom = request.POST.get('uom')
+        inventory.owner = request.POST.get('owner')
+        inventory.type = request.POST.get('type')
+        inventory.category = request.POST.get('category')
+        inventory.opening_stock = request.POST.get('opening_stock')
+        inventory.unit_value = request.POST.get('unit_value')
+        inventory.save()
+
+        # redirect to same site
+        redirect_url = reverse('site_analysis') + f'?site_name={site_name}'
+        return HttpResponseRedirect(redirect_url)
+    total_value = (inventory.opening_stock or 0) * (inventory.unit_value or 0)
+
+    selected_site = get_object_or_404(Site, name=site_name) if site_name else None
+    return render(request, 'edit_inventory1.html', {
+        'inventory': inventory,
+        'site_name': site_name,
+        'selected_site': selected_site,
+        'total_value': total_value
+    })

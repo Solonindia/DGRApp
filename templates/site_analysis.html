@@ -417,21 +417,30 @@
                     <tbody>
                         {% if inventories %}
                             {% for inventory in inventories %}
-                                <tr>
+                                <tr >
                                     <td>{{ inventory.material_code }}</td>
                                     <td>{{ inventory.material_desc }}</td>
                                     <td>{{ inventory.owner }}</td>
                                     <td>{{ inventory.type }}</td>
                                     <td>{{ inventory.category }}</td>
                                     <td>{{ inventory.uom }}</td>
-                                    <td>
+                                    <td>{{ inventory.opening_stock }}</td>  <!-- No input, just value -->
+                <!-- <td>{{ inventory.unit_value }}</td> -->
+                                    <td>{{ inventory.unit_value }}</td>
+                                    <!-- <td>
                                         <input type="number" name="stock_{{ inventory.id }}" value="{{ inventory.opening_stock }}">
-                                    </td>
+                                    </td> -->
                                     <!-- <td>{{ inventory.unit_value }}</td> -->
-                                    <td>
+                                    <!-- <td>
                                         <input type="number" step="0.01" name="unit_value_{{ inventory.id }}" value="{{ inventory.unit_value }}">
-                                    </td>
+                                    </td> -->
                                     <td>₹{{ inventory.total_value|floatformat:"2" }}</td>
+                                    <td>
+                                    <a href="{% url 'edit_inventory1' inventory.id %}?site_name={{ selected_site.name }}" class="edit-btn">Edit</a>
+                                    </td>
+                                    <!-- <td>
+                                        <a href="{% url 'edit_inventory1' inventory.id %}" class="edit-btn">Edit</a>
+                                    </td> -->
                                 </tr>
                             {% endfor %}
                         {% else %}
@@ -442,7 +451,7 @@
                     </tbody>
                 </table>
 
-                <button type="submit" id="update_button" name="update_stock">Update Stocks</button>
+                <!-- <button type="submit" id="update_button" name="update_stock">Update Stocks</button> -->
             </form>
 
             <!-- Bar Chart to display the inventory data -->
@@ -527,6 +536,7 @@
             </script>
         {% endif %}
     </div>
+    
 </body>
 
 </html>
