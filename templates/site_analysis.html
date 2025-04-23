@@ -393,7 +393,13 @@
         </form>
 
         {% if selected_site %}
-            <h2>Inventory for {{ selected_site.name }}</h2>
+            <!-- <h2>Inventory for {{ selected_site.name }}</h2> -->
+            <h2>
+                Inventory for {{ selected_site.name }}
+                {% if total_site_value %}
+                    – ₹{{ total_site_value|floatformat:2 }}
+                {% endif %}
+            </h2>
 
             <!-- Inventory Table -->
             <form method="POST">
@@ -424,8 +430,7 @@
                                     <td>{{ inventory.type }}</td>
                                     <td>{{ inventory.category }}</td>
                                     <td>{{ inventory.uom }}</td>
-                                    <td>{{ inventory.opening_stock }}</td>  <!-- No input, just value -->
-                <!-- <td>{{ inventory.unit_value }}</td> -->
+                                    <td>{{ inventory.opening_stock }}</td>
                                     <td>{{ inventory.unit_value }}</td>
                                     <!-- <td>
                                         <input type="number" name="stock_{{ inventory.id }}" value="{{ inventory.opening_stock }}">
@@ -455,13 +460,13 @@
             </form>
 
             <!-- Bar Chart to display the inventory data -->
-            <div class="chart-container-wrapper">
+            <!-- <div class="chart-container-wrapper">
                 <div class="chart-container" style="width: 80%; max-width: 600px; margin: 20px auto;">
                     <canvas id="inventoryChart"></canvas>
                 </div>
-            </div>
+            </div> -->
             
-            <script>
+            <!-- <script>
                 // Parse the chart data passed from Django as JSON
                 const chartLabels = JSON.parse('{{ chart_labels|escapejs }}');
                 const chartData = JSON.parse('{{ chart_data|escapejs }}');
@@ -533,7 +538,7 @@
                         }
                     });
                 }
-            </script>
+            </script> -->
         {% endif %}
     </div>
     

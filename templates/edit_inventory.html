@@ -267,8 +267,11 @@
 
         <!-- Search form -->
         <form method="GET">
-            <label for="material_code">Search by Material Code:</label>
-            <input type="text" id="material_code" name="material_code" value="{{ search_query }}">
+            <label for="material_desc">Search by Material Description:</label>
+            <input type="text" id="material_desc" name="material_desc" value="{{ search_query }}" placeholder="Type to search...">
+
+            <!-- <label for="material_code">Search by Material Code:</label>
+            <input type="text" id="material_code" name="material_code" value="{{ search_query }}"> -->
             <button type="submit">Search</button>
         </form>
 

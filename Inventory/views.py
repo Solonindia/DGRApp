@@ -205,10 +205,14 @@ def edit_inventory(request, site_name):
         raise Http404("Site not found")
     
     # Fetch inventory data for the specific site
-    search_query = request.GET.get('material_code', '')
+    # search_query = request.GET.get('material_code', '')
+    search_query = request.GET.get('material_desc', '')
+
 
     if search_query:
-        inventory_items = Inventory.objects.filter(site=site, user=request.user, material_code__icontains=search_query)
+        inventory_items = Inventory.objects.filter(site=site, user=request.user, material_desc__icontains=search_query)
+
+        # inventory_items = Inventory.objects.filter(site=site, user=request.user, material_code__icontains=search_query)
     else:
         inventory_items = Inventory.objects.filter(site=site, user=request.user)
 
@@ -346,11 +350,9 @@ def notification_list(request):
             # Handle invalid date format
             notifications = []
 
-    
-    # Count unread notifications
+
     unread_notifications = RealTimeNotification.objects.filter(is_read=False).count()
 
-    # Render the template and pass the context
     return render(request, 'notification_list.html', {
         'notifications': notifications,
         'sites': sites,
@@ -370,20 +372,28 @@ def site_analysis(request):
     chart_data = []
     chart_labels = []
     unread_notifications = RealTimeNotification.objects.filter(is_read=False).count()
+    total_site_value = 0  # <- Add this line
 
     if request.method == 'POST' or 'site_name' in request.GET:
         site_name = request.POST.get('site_name') or request.GET.get('site_name')
         if site_name:
-            selected_site = Site.objects.get(name=site_name)
-            inventories = Inventory.objects.filter(site=selected_site)
+            try:
+                selected_site = Site.objects.get(name=site_name)
+                inventories = Inventory.objects.filter(site=selected_site)
 
-            chart_labels = [inv.material_code for inv in inventories]
-            chart_data = [inv.opening_stock for inv in inventories]
+                chart_labels = [inv.material_code for inv in inventories]
+                chart_data = [inv.opening_stock for inv in inventories]
 
-            for inv in inventories:
-                unit_val = inv.unit_value or 0
-                opening = inv.opening_stock or 0
-                inv.total_value = unit_val * opening
+                for inv in inventories:
+                    unit_val = inv.unit_value or 0
+                    opening = inv.opening_stock or 0
+                    inv.total_value = unit_val * opening
+
+                # ✅ Sum all total values
+                total_site_value = sum((inv.unit_value or 0) * (inv.opening_stock or 0) for inv in inventories)
+
+            except Site.DoesNotExist:
+                selected_site = None
 
     chart_labels_json = json.dumps(chart_labels)
     chart_data_json = json.dumps(chart_data)
@@ -394,11 +404,46 @@ def site_analysis(request):
         'inventories': inventories,
         'chart_labels': chart_labels_json,
         'chart_data': chart_data_json,
-        'unread_notifications': unread_notifications
+        'unread_notifications': unread_notifications,
+        'total_site_value': total_site_value  # <- Pass to template
     })
 
 
 
+
+# def site_analysis(request):
+#     sites = Site.objects.all()
+#     selected_site = None
+#     inventories = None
+#     chart_data = []
+#     chart_labels = []
+#     unread_notifications = RealTimeNotification.objects.filter(is_read=False).count()
+
+#     if request.method == 'POST' or 'site_name' in request.GET:
+#         site_name = request.POST.get('site_name') or request.GET.get('site_name')
+#         if site_name:
+#             selected_site = Site.objects.get(name=site_name)
+#             inventories = Inventory.objects.filter(site=selected_site)
+
+#             chart_labels = [inv.material_code for inv in inventories]
+#             chart_data = [inv.opening_stock for inv in inventories]
+
+#             for inv in inventories:
+#                 unit_val = inv.unit_value or 0
+#                 opening = inv.opening_stock or 0
+#                 inv.total_value = unit_val * opening
+
+#     chart_labels_json = json.dumps(chart_labels)
+#     chart_data_json = json.dumps(chart_data)
+
+#     return render(request, 'site_analysis.html', {
+#         'sites': sites,
+#         'selected_site': selected_site,
+#         'inventories': inventories,
+#         'chart_labels': chart_labels_json,
+#         'chart_data': chart_data_json,
+#         'unread_notifications': unread_notifications
+#     })
 
 
 # def site_analysis(request):
@@ -489,91 +534,51 @@ def site_analysis(request):
 #         'unread_notifications': unread_notifications
 #     })
 
-
-from django.shortcuts import get_object_or_404
-from django.urls import reverse
-
-# def edit_inventory1(request, inventory_id):
-#     inventory = get_object_or_404(Inventory, id=inventory_id)
-
-#     if request.method == 'POST':
-#         inventory.material_code = request.POST.get('material_code')
-#         inventory.material_desc = request.POST.get('material_desc')
-#         inventory.uom = request.POST.get('uom')
-#         inventory.owner = request.POST.get('owner')
-#         inventory.type = request.POST.get('type')
-#         inventory.category = request.POST.get('category')
-#         inventory.save()
-#         return redirect('site_analysis')
-
-#     return render(request, 'edit_inventory1.html', {'inventory': inventory})
-
-
-# def edit_inventory1(request, inventory_id):
-#     inventory = get_object_or_404(Inventory, id=inventory_id)
-#     site_name = request.GET.get('site_name') or request.POST.get('site_name')
-
-#     if request.method == 'POST':
-#         inventory.material_code = request.POST.get('material_code')
-#         inventory.material_desc = request.POST.get('material_desc')
-#         inventory.uom = request.POST.get('uom')
-#         inventory.owner = request.POST.get('owner')
-#         inventory.type = request.POST.get('type')
-#         inventory.category = request.POST.get('category')
-#         inventory.save()
-#         return redirect(f"{reverse('site_analysis')}?site_name={site_name}")
-
-#     return render(request, 'edit_inventory1.html', {
-#         'inventory': inventory,
-#         'site_name': site_name
-#     })
-
 from django.shortcuts import get_object_or_404, redirect, render
 from .models import Inventory, Site
+from django.urls import reverse
 from django.http import HttpResponseRedirect
 
 # def edit_inventory1(request, inventory_id):
-#     # Get the inventory item to edit
 #     inventory = get_object_or_404(Inventory, id=inventory_id)
-    
-#     # Get the site name from the GET parameter
 #     site_name = request.GET.get('site_name')
-#     selected_site = get_object_or_404(Site, name=site_name) if site_name else None
-    
+
 #     if request.method == 'POST':
-#         # Save the updated inventory details
 #         inventory.material_code = request.POST.get('material_code')
 #         inventory.material_desc = request.POST.get('material_desc')
 #         inventory.uom = request.POST.get('uom')
 #         inventory.owner = request.POST.get('owner')
 #         inventory.type = request.POST.get('type')
 #         inventory.category = request.POST.get('category')
+#         inventory.opening_stock = request.POST.get('opening_stock')
+#         inventory.unit_value = request.POST.get('unit_value')
 #         inventory.save()
+
+#         # redirect to same site
 #         redirect_url = reverse('site_analysis') + f'?site_name={site_name}'
 #         return HttpResponseRedirect(redirect_url)
-#         # return redirect(f'/site-analysis/?site_name={site_name}')
+#     total_value = (inventory.opening_stock or 0) * (inventory.unit_value or 0)
 
-#         # After saving, redirect back to the same site with the updated inventory
-#         # return redirect('site_analysis')  # This automatically uses the site from the context of the previous page
-#         # return redirect(reverse('site_analysis') + f'?site_name={site_name}')
-
-
-#     # If the page is a GET request, render the edit page with the current inventory and selected site
+#     selected_site = get_object_or_404(Site, name=site_name) if site_name else None
 #     return render(request, 'edit_inventory1.html', {
 #         'inventory': inventory,
-#         'site_name': site_name,  # Pass the site name to the form for redirection after saving
-#         'selected_site': selected_site
+#         'site_name': site_name,
+#         'selected_site': selected_site,
+#         'total_value': total_value
 #     })
 
-
-
-
-from django.urls import reverse
-from django.http import HttpResponseRedirect
 
 def edit_inventory1(request, inventory_id):
     inventory = get_object_or_404(Inventory, id=inventory_id)
     site_name = request.GET.get('site_name')
+
+    # ✅ Always fetch site safely
+    selected_site = None
+    if site_name:
+        try:
+            selected_site = Site.objects.get(name=site_name)
+        except Site.DoesNotExist:
+            selected_site = None  # Or handle error if you want
 
     if request.method == 'POST':
         inventory.material_code = request.POST.get('material_code')
@@ -586,15 +591,21 @@ def edit_inventory1(request, inventory_id):
         inventory.unit_value = request.POST.get('unit_value')
         inventory.save()
 
-        # redirect to same site
         redirect_url = reverse('site_analysis') + f'?site_name={site_name}'
         return HttpResponseRedirect(redirect_url)
+
     total_value = (inventory.opening_stock or 0) * (inventory.unit_value or 0)
 
-    selected_site = get_object_or_404(Site, name=site_name) if site_name else None
+    # ✅ Only calculate sum if site is found
+    total_site_value = 0
+    if selected_site:
+        inventory_items = Inventory.objects.filter(site=selected_site)
+        total_site_value = sum((item.opening_stock or 0) * (item.unit_value or 0) for item in inventory_items)
+
     return render(request, 'edit_inventory1.html', {
         'inventory': inventory,
         'site_name': site_name,
         'selected_site': selected_site,
-        'total_value': total_value
+        'total_value': total_value,
+        'total_site_value': total_site_value
     })
