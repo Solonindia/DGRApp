@@ -22,7 +22,7 @@
         .button-container {
             text-align: left;
             position: fixed;
-            top: 10%;
+            top: 14%;
             left: 0;
             background-color: rgba(2, 37, 70, 0.7);
             height: 90%;
@@ -267,8 +267,11 @@
 
         <!-- Search form -->
         <form method="GET">
-            <label for="material_code">Search by Material Code:</label>
-            <input type="text" id="material_code" name="material_code" value="{{ search_query }}">
+            <label for="material_desc">Search by Material Description:</label>
+            <input type="text" id="material_desc" name="material_desc" value="{{ search_query }}" placeholder="Type to search...">
+
+            <!-- <label for="material_code">Search by Material Code:</label>
+            <input type="text" id="material_code" name="material_code" value="{{ search_query }}"> -->
             <button type="submit">Search</button>
         </form>
 
@@ -285,6 +288,7 @@
                         <th>Owner</th>
                         <th>Type</th>
                         <th>Category</th>
+                        <th>UOM</th>
                         <th>Opening Stock</th>
                         <th>Consumption</th>
                     </tr>
@@ -297,6 +301,7 @@
                         <td>{{ item.owner }}</td>
                         <td>{{ item.type }}</td>
                         <td>{{ item.category }}</td>
+                        <td>{{ item.uom }}</td>
                         <td>{{ item.opening_stock }}</td>
                         <td>
                             <input type="number" name="consumption_{{ item.id }}" value="0" min="0">

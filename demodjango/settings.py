@@ -118,15 +118,35 @@ USE_L10N = True
 TIME_ZONE = 'Asia/Kolkata'
 USE_TZ = True
 
-STATIC_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/'
-STATICFILES_STORAGE = 'storages.backends.azure_storage.AzureStorage'
-# Static files
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static'
+# STATIC_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/'
+# STATICFILES_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 
-LOGOUT_REDIRECT_URL = '/home/'
+# # Static files
+# STATIC_URL = '/static/'
+# STATIC_ROOT = BASE_DIR / 'static'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# LOGOUT_REDIRECT_URL = '/home/'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+if DEBUG:
+    # Local setup
+    STATIC_URL = '/static/'
+    STATIC_ROOT = BASE_DIR / 'static'
+    LOGOUT_REDIRECT_URL = '/home/'
+
+
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+else:
+    # Azure setup
+    STATIC_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/'
+    STATICFILES_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+    DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+    LOGOUT_REDIRECT_URL = '/home/'

@@ -18,7 +18,10 @@ class Inventory(models.Model):
     owner = models.CharField(max_length=255)
     type = models.CharField(max_length=100)
     category = models.CharField(max_length=100)
+    uom = models.CharField(max_length=50,default="No's")
     opening_stock = models.IntegerField()
+    unit_value = models.FloatField(default=0)
+    
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Add this field
 
@@ -29,10 +32,13 @@ class Inventory(models.Model):
 class Notification(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
     material_code = models.CharField(max_length=100)
+    material_desc = models.CharField(max_length=255,default=None)
+    uom = models.CharField(max_length=50,default="No's")
     opening_stock = models.IntegerField(default=0)
     consumption = models.IntegerField(null=True, blank=True)
     closing_stock = models.IntegerField(null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    unit_value = models.FloatField(default=0) 
 
     def __str__(self):
         return f"Notification for {self.material_code} at {self.timestamp}"
@@ -41,6 +47,8 @@ class Notification(models.Model):
 class RealTimeNotification(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
     material_code = models.CharField(max_length=100)
+    material_desc = models.CharField(max_length=255,default=None)
+    uom = models.CharField(max_length=50,default="No's")
     opening_stock = models.IntegerField(default=0)
     consumption = models.IntegerField(null=True, blank=True)
     closing_stock = models.IntegerField(null=True, blank=True)

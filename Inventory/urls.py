@@ -9,5 +9,6 @@ urlpatterns = [
     path('notification_list/',views.notification_list, name='notification_list'),
     path('real-time-notifications/', views.real_time_notification_list, name='real_time_notification_list'),
     path('site-analysis/', views.site_analysis, name='site_analysis'),
+    path('edit-inventory/<int:inventory_id>/', views.edit_inventory1, name='edit_inventory1'),
 
 ]
