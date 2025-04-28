@@ -394,10 +394,16 @@
 
         {% if selected_site %}
             <!-- <h2>Inventory for {{ selected_site.name }}</h2> -->
-            <h2>
+            <!-- <h2>
                 Inventory for {{ selected_site.name }}
                 {% if total_site_value %}
                     – ₹{{ total_site_value|floatformat:2 }}
+                {% endif %}
+            </h2> -->
+
+            <h2>Total Inventory Value: 
+                {% if total_site_value %}
+                    ₹{{ total_site_value|floatformat:2 }}
                 {% endif %}
             </h2>
 
