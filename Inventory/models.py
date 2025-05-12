@@ -20,13 +20,21 @@ class Inventory(models.Model):
     category = models.CharField(max_length=100)
     uom = models.CharField(max_length=50,default="No's")
     opening_stock = models.IntegerField()
+    fixed_stock = models.IntegerField(blank=True, null=True)
     unit_value = models.FloatField(default=0)
     
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Add this field
 
+
+
     def __str__(self):
         return f"{self.material_code} - {self.material_desc}"
+    
+    def save(self, *args, **kwargs):
+        if self.fixed_stock is None:
+            self.fixed_stock = self.opening_stock
+        super().save(*args, **kwargs)
 
 
 class Notification(models.Model):
