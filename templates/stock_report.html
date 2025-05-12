@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Report - {{ site.name }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 30px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            margin: 0 8px;
+        }
+
+        input[type="date"] {
+            padding: 10px;
+            width: 180px;
+            border-radius: 6px;
+            border: 1px solid #bbb;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #1a242f;
+        }
+
+        table {
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #2c3e50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9fbfd;
+        }
+
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+
+        .btn-link {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    margin-left: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-link:hover {
+    background-color: #1a242f;
+}
+
+    </style>
+</head>
+<body>
+
+<h2>Stock Report for Site: {{ site.name }}</h2>
+
+<!-- Filter Form -->
+<form method="GET">
+    <label for="start_date">Start Date:</label>
+    <input type="date" name="start_date" value="{{ start_date }}">
+    <label for="end_date">End Date:</label>
+    <input type="date" name="end_date" value="{{ end_date }}">
+    <button type="submit">🔍 Search</button>
+    <!-- <a href="{% url 'user' %}" class="btn-link">🏠 Dashboard</a> -->
+</form>
+
+<!-- Download Excel Button -->
+<form method="GET" action="{% url 'export_stock_report' site.name %}" style="text-align: center; margin-bottom: 30px;">
+    <input type="hidden" name="start_date" value="{{ start_date }}">
+    <input type="hidden" name="end_date" value="{{ end_date }}">
+    <button type="submit">📥 Download Excel Report</button>
+    <a href="{% url 'user' %}" class="btn-link">🏠 Dashboard</a>
+</form>
+
+<!-- Table -->
+<table>
+    <thead>
+        <tr>
+            <th>Material Code</th>
+            <th>Material Description</th>
+            <th>Owner</th>
+            <th>Type</th>
+            <th>Category</th>
+            <th>UOM</th>
+            <th>Opening Stock</th>
+            <th>Consumption</th>
+            <th>Available Stock</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in inventory_items %}
+        <tr>
+            <td>{{ item.material_code }}</td>
+            <td>{{ item.material_desc }}</td>
+            <td>{{ item.owner }}</td>
+            <td>{{ item.type }}</td>
+            <td>{{ item.category }}</td>
+            <td>{{ item.uom }}</td>
+            <td>{{ item.fixed_stock }}</td>
+            <td>{{ item.closing_stock }}</td>
+            <td>{{ item.opening_stock }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="9" class="no-data">No inventory found for the selected date range.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>

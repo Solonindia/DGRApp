@@ -10,5 +10,7 @@ urlpatterns = [
     path('real-time-notifications/', views.real_time_notification_list, name='real_time_notification_list'),
     path('site-analysis/', views.site_analysis, name='site_analysis'),
     path('edit-inventory/<int:inventory_id>/', views.edit_inventory1, name='edit_inventory1'),
+    path('inventory/stock-report/<str:site_name>/', views.stock_report_view, name='stock_report'),
+    path('inventory/export-stock-report/<str:site_name>/', views.export_stock_report_excel, name='export_stock_report'),
 
 ]
