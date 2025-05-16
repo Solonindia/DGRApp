@@ -422,8 +422,9 @@
                             <th>Category</th>
                             <th>UOM</th>
                             <th>Opening Stock</th> <!-- fixed stock -->
+                            <!-- <th>Available Stock</th> -->
+                            <th>Consumption</th>
                             <th>Available Stock</th>
-                            <th>Consumption Stock</th>
                             <th>Unit Value (INR)</th>
                             <th>Total Value (INR)</th>
                         </tr>
@@ -439,23 +440,16 @@
                                     <td>{{ inventory.category }}</td>
                                     <td>{{ inventory.uom }}</td>
                                     <td>{{ inventory.fixed_stock }}</td>
-                                    <td>{{ inventory.opening_stock }}</td>
+                                    <!-- <td>{{ inventory.opening_stock }}</td> -->
                                     <td>{{ inventory.final_stock }}</td>
+                                    <td>{{ inventory.opening_stock }}</td>
                                     <td>{{ inventory.unit_value }}</td>
-                                    <!-- <td>
-                                        <input type="number" name="stock_{{ inventory.id }}" value="{{ inventory.opening_stock }}">
-                                    </td> -->
-                                    <!-- <td>{{ inventory.unit_value }}</td> -->
-                                    <!-- <td>
-                                        <input type="number" step="0.01" name="unit_value_{{ inventory.id }}" value="{{ inventory.unit_value }}">
-                                    </td> -->
+
                                     <td>₹{{ inventory.total_value|floatformat:"2" }}</td>
                                     <td>
                                     <a href="{% url 'edit_inventory1' inventory.id %}?site_name={{ selected_site.name }}" class="edit-btn">Edit</a>
                                     </td>
-                                    <!-- <td>
-                                        <a href="{% url 'edit_inventory1' inventory.id %}" class="edit-btn">Edit</a>
-                                    </td> -->
+                                    
                                 </tr>
                             {% endfor %}
                         {% else %}
