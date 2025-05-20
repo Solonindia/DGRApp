@@ -553,7 +553,7 @@ def site_analysis(request):
                     opening = inv.opening_stock or 0
                     fixed = inv.fixed_stock or 0
                     inv.total_value = unit_val * opening
-                    inv.final_stock = fixed - opening
+                    inv.final_stock = max(fixed - opening,0)
 
                 # ✅ Sum all total values
                 total_site_value = sum((inv.unit_value or 0) * (inv.opening_stock or 0) for inv in inventories)
