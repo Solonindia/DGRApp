@@ -38,7 +38,7 @@ class Complaint(models.Model):
     claim_type = models.CharField(max_length=20, choices=CLAIM_CHOICES)
     nature_of_complaint = models.TextField(blank=True, null=True)
     images = models.TextField(blank=False, null=True)
-    location = models.CharField(max_length=50, default='Hyderabad')
+    location = models.CharField(max_length=300, default='Hyderabad')
     start_date = models.DateField(default=timezone.now)
     end_date = models.DateField(blank=True, null=True)
     summary_of_action_taken = models.TextField(blank=True, null=True)
