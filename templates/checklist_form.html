@@ -1,0 +1,708 @@
+{% load static %}
+{% load custom_tags %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ report_type }} Checklist Form</title>
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-size: cover;
+            font-family:'Times New Roman', Times, serif;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: rgb(0, 2, 82);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .navbar a:hover {
+            color: #0073e6;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #003366;
+        }
+
+        form {
+            max-width: 1100px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.08);
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .form-group {
+            flex: 1 1 48%;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="email"],
+        select {
+            width: 70%;
+            padding: 2px 2px;
+            border: none;
+            border-bottom: 2px solid #ccc;
+            background: transparent;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            border-bottom-color: #007bff;
+        }
+
+        span {
+            display: inline-block;
+            padding: 8px 10px;
+            color: #333;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .form-section {
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 6px 10px;
+            background-color: white;
+            color: #0056b3;
+            border:2px solid #a1c4fd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        button:hover {
+          background-color: #007bff;
+          color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <img src="{% static 'logo.jpg' %}" alt="Solon Logo" class="logo">
+    <div class="nav-links">
+        <a href="{% url 'add_checklist_item' %}">Add Checklist Item</a>
+        <a href="{% url 'history_servicereport' %}">History</a>
+    </div>
+</div><br>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% if edit_id %}
+        <input type="hidden" name="edit_id" value="{{ edit_id }}">
+    {% endif %}
+
+    <table border="1" cellspacing="0" cellpadding="8" style="width: 100%; border-collapse: collapse; background-color: #fff;">
+        <tr>
+            <th colspan="4" style="text-align:center; font-size: 20px; background-color:#e6f0ff;">
+                Preventive Maintenance Inspection - Checklist Form
+            </th>
+        </tr>
+        <tr>
+            <td><strong>Name of Project:</strong></td>
+            <td><input type="text" name="project_name" value="{{ form_data.project_name|default:'' }}"></td>
+            <td><strong>Date of Issue:</strong></td>
+            <td>{{ Date }}<input type="hidden" name="Date" value="{{ Date }}"></td>
+        </tr>
+        <tr>
+            <td><strong>Name of Location:</strong></td>
+            <td><input type="text" name="project_location" value="{{ form_data.project_location|default:'' }}"></td>
+            <td><strong>Format No:</strong></td>
+            <td>{{ format_no }}</td>
+        </tr>
+        <tr>
+            <td><strong>Department:</strong></td>
+            <td>Operations & Maintenance</td>
+            <td><strong>Make:</strong></td>
+            <td>
+                <input type="text" name="make" id="make" value="{{ form_data.make|default:'' }}" {% if form_data.make == 'N/A' %}disabled{% endif %}>
+                <input type="checkbox" onclick="toggleNA(this, 'make')" {% if form_data.make == 'N/A' %}checked{% endif %}> N/A
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Date of Inspection:</strong></td>
+            <td>
+                <input type="date" name="inspection_date" id="inspection_date" value="{{ form_data.inspection_date|default:'' }}" onchange="updateNextDate()">
+            </td>
+            <td><strong>Type:</strong></td>
+            <td>
+                <input type="text" name="Type" id="Type" value="{{ form_data.Type|default:'' }}" {% if form_data.Type == 'N/A' %}disabled{% endif %}>
+                <input type="checkbox" onclick="toggleNA(this, 'Type')" {% if form_data.Type == 'N/A' %}checked{% endif %}> N/A
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Period of Inspection:</strong></td>
+            <td>
+                <select name="inspection_period" id="inspection_period" onchange="updateNextDate(); filterChecklistRows();">
+                    <option value="">-- Select --</option>
+                    {% for option in inspection_period_options %}
+                        <option value="{{ option.name }}" data-days="{{ option.days }}" {% if form_data.inspection_period == option.name %}selected{% endif %}>{{ option.name }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td><strong>S.No:</strong></td>
+            <td>
+                <input type="text" name="s_no" id="s-no" value="{{ form_data.s_no|default:'' }}" {% if form_data.s_no == 'N/A' %}disabled{% endif %}>
+                <input type="checkbox" onclick="toggleNA(this, 's-no')" {% if form_data.s_no == 'N/A' %}checked{% endif %}> N/A
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Next Inspection Date:</strong></td>
+            <td>
+                <input type="text" id="next_inspection_date" name="next_inspection_date" readonly value="{{ form_data.next_inspection_date|default:'' }}">
+            </td>
+            <td><strong>Rating:</strong></td>
+            <td>
+                <input type="text" name="rating" id="rating" value="{{ form_data.rating|default:'' }}" {% if form_data.rating == 'N/A' %}disabled{% endif %}>
+                <input type="checkbox" onclick="toggleNA(this, 'rating')" {% if form_data.rating == 'N/A' %}checked{% endif %}> N/A
+            </td>
+        </tr>
+
+        <!-- Checklist Header -->
+        <tr>
+            <th colspan="4" style="text-align:center; font-size: 16px; background-color:#e6f0ff;">
+                {{ report_type }} Check List
+            </th>
+        </tr>
+        <tr>
+            <th>S. No.</th>
+            <th>Check Points</th>
+            <th>Status</th>
+            <th>Remark</th>
+        </tr>
+
+        <!-- Checklist Loop -->
+        {% for item in checklist %}
+        <tr class="checklist-row" data-frequency="{{ item.frequency_level }}">
+            <td>{{ forloop.counter }}</td>
+            <td>{{ item.checkpoint }}</td>
+            <td>
+                {% with idx=forloop.counter|stringformat:"s" %}
+                    {% with select_key="status_select_"|add:idx %}
+                        {% with custom_key="status_"|add:idx %}
+                            <select name="status_select_{{ idx }}" onchange="toggleCustomStatus(this, '{{ idx }}')">
+                                <option value="">select</option>
+                                <option value="YES" {% if form_data|get_item:select_key == "YES" %}selected{% endif %}>YES</option>
+                                <option value="NO" {% if form_data|get_item:select_key == "NO" %}selected{% endif %}>NO</option>
+                                <option value="CUSTOM" {% if form_data|get_item:select_key == "CUSTOM" %}selected{% endif %}>Others</option>
+                            </select>
+                            <input type="text" name="status_{{ idx }}" id="custom_status_{{ idx }}"placeholder="Add others" value="{{ form_data|get_item:custom_key|default:'' }}" class="{% if form_data|get_item:select_key == 'CUSTOM' %}visible{% else %}hidden{% endif %}">
+                        {% endwith %}
+                    {% endwith %}
+                {% endwith %}
+            </td>
+            <td>
+                {% with remark_idx=forloop.counter|stringformat:"s" %}
+                    {% with remark_key="remark_"|add:remark_idx %}
+                        <input type="text" name="remark_{{ remark_idx }}" value="{{ form_data|get_item:remark_key|default:'' }}">
+                    {% endwith %}
+                {% endwith %}
+            </td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <th colspan="4" style="text-align:center; font-size: 16px; background-color:#e6f0ff;">
+            Upload Images (Up to 6)
+          </th>
+        </tr>
+
+      <tr>
+        <td colspan="4">
+          <table style="width: 100%; text-align: center; border-collapse: collapse;">
+            
+      <!-- First Row: Image 1 to 3 -->
+      <tr>
+        {% for i in "123" %}
+        <td style="padding: 15px;">
+          <div style="width: 250px; height: 250px; border: 1px solid #ccc; border-radius: 10px; overflow: hidden; background-color: #f0f0f0;">
+            {% with img_key="image"|add:i %}
+              {% if form_data|get_item:img_key %}
+                <img id="preview_img_{{ i }}" src="{{ form_data|get_item:img_key }}"
+                     style="width: 100%; height: 100%; object-fit: cover;" />
+              {% else %}
+                <img id="preview_img_{{ i }}"
+                     style="width: 100%; height: 100%; object-fit: cover; display:none;" />
+              {% endif %}
+            {% endwith %}
+          </div>
+
+          <div style="display: flex; justify-content: center; gap: 5px; margin-top: 5px;">
+            <input type="file" name="image{{ i }}" accept="image/*"
+                   onchange="previewImage(this, 'preview_img_{{ i }}')"
+                   style="width: 150px;">
+            <button type="button" onclick="openCamera('{{ i }}')" style="padding: 4px 10px; font-size: 12px;">Take📷</button>
+          </div>
+
+          <input type="hidden" id="captured_image_{{ i }}" name="captured_image_{{ i }}">
+        </td>
+        {% endfor %}
+      </tr>
+
+      <!-- Second Row: Image 4 to 6 -->
+      <tr>
+        {% for i in "456" %}
+        <td style="padding: 15px;">
+          <div style="width: 250px; height: 250px; border: 1px solid #ccc; border-radius: 10px; overflow: hidden; background-color: #f0f0f0;">
+            {% with img_key="image"|add:i %}
+              {% if form_data|get_item:img_key %}
+                <img id="preview_img_{{ i }}" src="{{ form_data|get_item:img_key }}"
+                     style="width: 100%; height: 100%; object-fit: cover;" />
+              {% else %}
+                <img id="preview_img_{{ i }}"
+                     style="width: 100%; height: 100%; object-fit: cover; display:none;" />
+              {% endif %}
+            {% endwith %}
+          </div>
+
+          <div style="display: flex; justify-content: center; gap: 5px; margin-top: 5px;">
+            <input type="file" name="image{{ i }}" accept="image/*"
+                   onchange="previewImage(this, 'preview_img_{{ i }}')"
+                   style="width: 150px;">
+            <button type="button" onclick="openCamera('{{ i }}')" style="padding: 4px 10px; font-size: 12px;">Take📷</button>
+          </div>
+
+          <input type="hidden" id="captured_image_{{ i }}" name="captured_image_{{ i }}">
+        </td>
+        {% endfor %}
+      </tr>
+    </table>
+  </td>
+</tr>
+
+<!-- Camera modal section -->
+<div id="cameraModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8);">
+  <div style="position:absolute; top:10%; left:50%; transform:translateX(-50%); text-align:center;">
+    <video id="video" width="320" height="240" autoplay style="border:2px solid white;"></video><br>
+    <button type="button" onclick="takeSnapshot()" style="margin-top: 10px;">📸 OK</button>
+    <button type="button" onclick="closeCamera()" style="margin-top: 10px;">❌</button>
+  </div>
+</div>
+<canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+
+<tr>
+  <th colspan="2" style="text-align:center; font-size: 16px; background-color:#e6f0ff;border-right: none;">Authorized Signatory (Customer)</th>
+  <th colspan="2" style="text-align:center; font-size: 16px; background-color:#e6f0ff;">Authorized Signatory (SOLON)</th>
+</tr>
+<tr>
+  <td colspan="4">
+    <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+      <tr>
+        <!-- Photo Box with Vertical Line -->
+        <td style="width: 50%; border-right: none; padding: 0;">
+          <div style="width: 100%; height: 220px; border: none; background: #f9f9f9; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+            {% if form_data.signature %}
+              <img id="signature_preview" src="{{ form_data.signature }}"
+                   style="max-width: 100%; max-height: 100%; display: block;" />
+            {% elif form_data.signature_pad_data %}
+              <img id="signature_preview" src="{{ form_data.signature_pad_data }}"
+                   style="max-width: 100%; max-height: 100%; display: block;" />
+            {% else %}
+              <img id="signature_preview"
+                   style="max-width: 100%; max-height: 100%; display: none;" />
+            {% endif %}
+          </div>
+          <div style="margin-top: 10px; text-align: center;">
+            <button type="button" onclick="document.getElementById('signature_upload').click()">🖼️ Upload</button>
+            <button type="button" onclick="toggleSignaturePad()">✍️ Sign</button>
+          </div>
+          <input type="file" name="signature" accept="image/*" id="signature_upload" style="display:none;" onchange="previewImage(this, 'signature_preview')">
+
+        <div id="signatureModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.7);">
+            <div style="position:absolute; top:5%; left:50%; transform:translateX(-50%); text-align:center;">
+                <canvas id="signature_pad" style="border:2px solid #fdfafa;background-color: #e6f0ff;" width="500" height="250"></canvas><br>
+                <button type="button" onclick="clearSignature()">Clear</button>
+                <button type="button" onclick="saveSignature()">Save</button>
+                <button type="button" onclick="cancelSignaturePad()">❌</button>
+            </div>
+        </div>
+        <input type="hidden" name="signature_pad_data" id="signature_pad_data">
+        </td>
+        <!-- Signature Box -->
+        <td style="width: 50%; padding: 0;">
+          <div style="width: 100%; height: 220px; border: none; background: #f9f9f9; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+            {% if form_data.signature1 %}
+              <img id="signature1_preview" src="{{ form_data.signature1 }}"
+                   style="max-width: 100%; max-height: 100%; display: block;" />
+            {% elif form_data.signature_pad_data1 %}
+              <img id="signature1_preview" src="{{ form_data.signature_pad_data1 }}"
+                   style="max-width: 100%; max-height: 100%; display: block;" />
+            {% else %}
+              <img id="signature1_preview"
+                   style="max-width: 100%; max-height: 100%; display: none;" />
+            {% endif %}
+          </div>
+          <div style="margin-top: 10px; text-align: center;">
+            <button type="button" onclick="document.getElementById('signature1_upload').click()">🖼️ Upload</button>
+            <button type="button" onclick="toggleSignature1Pad()">✍️ Sign</button>
+          </div>
+          <input type="file" name="signature1" accept="image/*" id="signature1_upload" style="display:none;" onchange="previewImage(this, 'signature1_preview')">
+
+        <div id="signature1Modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.7);">
+            <div style="position:absolute; top:5%; left:50%; transform:translateX(-50%); text-align:center;">
+                <canvas id="signature1_pad" style="border:2px solid #fdfafa;background-color: #e6f0ff;" width="500" height="250"></canvas><br>
+                <button type="button" onclick="clearSignature1()">Clear</button>
+                <button type="button" onclick="saveSignature1()">Save</button>
+                <button type="button" onclick="cancelSignature1Pad()">❌</button>
+            </div>
+        </div>
+        <input type="hidden" name="signature_pad_data1" id="signature_pad_data1">
+        </td>
+      </tr>
+    </table>
+</tr>
+
+        <!-- Comments and Email -->
+        <tr>
+            <td><strong>Comments:</strong></td>
+            <td colspan="3">{{ comments|linebreaksbr }}</td>
+        </tr>
+        <tr>
+            <td><label for="email">Send Report To (Mail ID)</label></td>
+            <td colspan="3"><input type="email" name="email_to" placeholder="Enter email to send report" id="email_to" value="{{ form_data.email_to|default:'' }}"></td>
+        </tr>
+        <tr>
+            <td colspan="4" style="text-align:center;">
+                <button type="submit" name="preview">Preview</button>
+            </td>
+        </tr>
+    </table>
+</form>
+
+<script>
+let currentImageIndex = null;
+let stream = null;
+
+function openCamera(index) {
+    currentImageIndex = index;
+    document.getElementById('cameraModal').style.display = 'block';
+
+    const video = document.getElementById('video');
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(s => {
+            stream = s;
+            video.srcObject = stream;
+        })
+        .catch(err => {
+            alert("Unable to access camera.");
+            console.error(err);
+        });
+}
+
+function closeCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+    }
+    document.getElementById('cameraModal').style.display = 'none';
+}
+
+function takeSnapshot() {
+    const canvas = document.getElementById('canvas');
+    const video = document.getElementById('video');
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    const imageData = canvas.toDataURL("image/png");
+
+    // Save to hidden field
+    const hiddenInput = document.getElementById(`captured_image_${currentImageIndex}`);
+    hiddenInput.value = imageData;
+
+    // Show preview
+    const preview = document.getElementById(`preview_img_${currentImageIndex}`);
+    preview.src = imageData;
+    preview.style.display = "block";
+
+    closeCamera();
+}
+let signaturePad = null;
+
+function toggleSignaturePad() {
+  const modal = document.getElementById("signatureModal");
+  modal.style.display = "block";
+
+  const canvas = document.getElementById("signature_pad");
+  signaturePad = canvas.getContext("2d");
+  signaturePad.strokeStyle = "#000";
+  signaturePad.lineWidth = 2;
+
+  let drawing = false;
+
+  canvas.onmousedown = e => {
+    drawing = true;
+    signaturePad.beginPath();
+    signaturePad.moveTo(e.offsetX, e.offsetY);
+  };
+
+  canvas.onmousemove = e => {
+    if (drawing) {
+      signaturePad.lineTo(e.offsetX, e.offsetY);
+      signaturePad.stroke();
+    }
+  };
+
+  canvas.onmouseup = () => drawing = false;
+  canvas.onmouseleave = () => drawing = false;
+}
+
+function clearSignature() {
+  const canvas = document.getElementById("signature_pad");
+  signaturePad.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function saveSignature() {
+  const canvas = document.getElementById("signature_pad");
+  const dataUrl = canvas.toDataURL("image/png");
+
+  // Set the preview image
+  const preview = document.getElementById("signature_preview");
+  preview.src = dataUrl;
+  preview.style.display = "block";
+
+  // Store base64 image in hidden input
+  document.getElementById("signature_pad_data").value = dataUrl;
+
+  // ✅ Actually hide the modal
+  cancelSignaturePad();
+
+  // ✅ Clear canvas so it doesn't persist behind preview
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function cancelSignaturePad() {
+  document.getElementById("signatureModal").style.display = "none";
+}
+
+let signature1Pad = null;
+
+function toggleSignature1Pad() {
+  const modal = document.getElementById("signature1Modal");
+  modal.style.display = "block";
+
+  const canvas = document.getElementById("signature1_pad");
+  signature1Pad = canvas.getContext("2d");
+  signature1Pad.strokeStyle = "#000";
+  signature1Pad.lineWidth = 2;
+
+  let drawing = false;
+
+  canvas.onmousedown = e => {
+    drawing = true;
+    signature1Pad.beginPath();
+    signature1Pad.moveTo(e.offsetX, e.offsetY);
+  };
+
+  canvas.onmousemove = e => {
+    if (drawing) {
+      signature1Pad.lineTo(e.offsetX, e.offsetY);
+      signature1Pad.stroke();
+    }
+  };
+
+  canvas.onmouseup = () => drawing = false;
+  canvas.onmouseleave = () => drawing = false;
+}
+
+function clearSignature1() {
+  const canvas = document.getElementById("signature1_pad");
+  signature1Pad.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function saveSignature1() {
+  const canvas = document.getElementById("signature1_pad");
+  const dataUrl = canvas.toDataURL("image/png");
+
+  // Set the preview image
+  const preview = document.getElementById("signature1_preview");
+  preview.src = dataUrl;
+  preview.style.display = "block";
+
+  // Store base64 image in hidden input
+  document.getElementById("signature_pad_data1").value = dataUrl;
+
+  // ✅ Actually hide the modal
+  cancelSignature1Pad();
+
+  // ✅ Clear canvas so it doesn't persist behind preview
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function cancelSignature1Pad() {
+  document.getElementById("signature1Modal").style.display = "none";
+}
+
+function toggleNA(checkbox, inputId) {
+    const input = document.getElementById(inputId);
+    if (checkbox.checked) {
+        input.value = "N/A";
+        input.disabled = true;
+    } else {
+        input.disabled = false;
+        input.value = "";
+    }
+}
+
+function previewImage(input, imgId) {
+    const file = input.files[0];
+    if (file && file.size <= 204800) {  // 200 KB
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = document.getElementById(imgId);
+            img.src = e.target.result;
+            img.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        alert("File must be less than 200KB.");
+        input.value = "";
+    }
+}
+
+function updateNextDate() {
+    const dateInput = document.getElementById('inspection_date').value;
+    const periodSelect = document.getElementById('inspection_period');
+    const selectedOption = periodSelect.options[periodSelect.selectedIndex];
+
+    if (dateInput && selectedOption && selectedOption.dataset.days) {
+        const days = parseInt(selectedOption.dataset.days);
+        const baseDate = new Date(dateInput);
+        baseDate.setDate(baseDate.getDate() + days);
+        const nextDate = baseDate.toISOString().split('T')[0];
+        document.getElementById('next_inspection_date').value = nextDate;
+    } else {
+        document.getElementById('next_inspection_date').value = '';
+    }
+}
+
+function toggleCustomStatus(selectBox, rowId) {
+    const inputBox = document.getElementById('custom_status_' + rowId);
+    if (selectBox.value === 'CUSTOM') {
+        inputBox.style.display = 'inline-block';
+        inputBox.name = 'status_' + rowId;  // ✅ name is needed
+    } else {
+        inputBox.style.display = 'none';
+        inputBox.name = 'status_' + rowId;  // ✅ always present
+        inputBox.value = '';  // clear custom input if not CUSTOM
+    }
+}
+
+function validateSize(input) {
+    const file = input.files[0];
+    if (file && file.size > 204800) {  // 200KB
+        alert("File size must be less than 200KB.");
+        input.value = "";
+    }
+}
+
+function updateCharCount() {
+    const textarea = document.getElementById('comments');
+    const count = textarea.value.length;
+    document.getElementById('charCount').innerText = `${count}/500`;
+}
+window.onload = function () {
+    document.querySelectorAll('select[name^="status_select_"]').forEach(selectBox => {
+        const idx = selectBox.name.split('_').pop();
+        const customInput = document.getElementById('custom_status_' + idx);
+        customInput.name = 'status_' + idx;  // ✅ always set name
+
+        if (selectBox.value === 'CUSTOM') {
+            customInput.style.display = 'inline-block';
+        } else {
+            customInput.style.display = 'none';
+        }
+    });
+};
+
+function removeImage(i) {
+    document.getElementById(`img_wrapper_${i}`).remove();
+    document.getElementById(`input_image_${i}`).style.display = "block";
+    document.getElementById(`removed_image_${i}`).value = "1";
+}
+
+function normalize(str) {
+    return str.toLowerCase().replace(/\s+/g, '-');  // converts "Half Yearly" → "half-yearly"
+}
+
+const frequencyOrder = ['weekly', 'monthly', 'quarterly', 'half yearly', 'annually'];
+
+function filterChecklistRows() {
+    const selected = document.getElementById('inspection_period').value.toLowerCase();
+    const selectedIndex = frequencyOrder.indexOf(selected);
+
+    document.querySelectorAll('.checklist-row').forEach(row => {
+        const rowLevel = parseInt(row.getAttribute('data-frequency'));  // 1 to 5
+        if (isNaN(rowLevel)) return;
+
+        if (rowLevel <= selectedIndex + 1) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+function zoomImage(src) {
+    const modal = document.getElementById("zoomModal");
+    const zoomedImage = document.getElementById("zoomedImage");
+    zoomedImage.src = src;
+    modal.style.display = "block";
+}
+
+function closeZoom() {
+    document.getElementById("zoomModal").style.display = "none";
+}
+</script>
+</body>
+</html>

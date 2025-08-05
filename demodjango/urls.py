@@ -7,9 +7,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('demoapp.urls')),
     path('gatepass/',include('gatepass.urls')),
-    path('inventory/',include('Inventory.urls'))
+    path('inventory/',include('Inventory.urls')),
+    path('service-report/',include('report.urls')),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+

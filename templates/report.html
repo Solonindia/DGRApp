@@ -1,0 +1,157 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Report</title>
+    <style>
+        /* Global Styles for the whole site */
+        body {
+            margin: 0;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-size: cover;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: rgb(0, 2, 82);
+        }
+
+        .navbar img {
+            height: 40px;
+        }
+
+        /* Content Section */
+        .content {
+            padding: 30px;
+        }
+
+        /* Service Report Page Styles */
+        .report-heading {
+            color: #003366;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Button Styles */
+        .main-btn, .report-btn {
+            padding: 12px 25px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-btn:hover, .report-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .sub-buttons {
+            margin-top: 20px;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .report-btn {
+            background-color: #ffffff;
+            border: 2px solid #007BFF;
+            color: #007BFF;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;  /* Makes 3 buttons per row evenly spaced */
+            text-align: center;
+            transition: 0.3s ease;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .report-btn:hover {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        .selected {
+            background-color: #007BFF !important;
+            color: white !important;
+            border: 2px solid #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <img src="{% static 'logo.jpg' %}" alt="Logo" class="logo">
+        <div class="nav-links">
+            <a href="{% url 'add_checklist_item' %}">Add Checklist Item</a>
+            <a href="{% url 'history_servicereport' %}">History</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <h2 class="report-heading">Preventive Maintenance Inspection - Service Reports</h2>
+
+        <!-- Buttons in rows of 3 -->
+        <div id="buttonsContainer" class="sub-buttons">
+            <form method="get" action="{% url 'checklist_form' %}">
+                {% for report in reports %}
+                    {% if forloop.first or forloop.counter0|divisibleby:3 %}
+                        <div class="button-row">
+                    {% endif %}
+
+                    <button type="submit" name="report_type" value="{{ report }}"
+                            class="report-btn {% if report == report_type %}selected{% endif %}">
+                        {{ report }}
+                    </button>
+
+                    {% if forloop.counter|divisibleby:3 or forloop.last %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </form>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function () {
+            document.getElementById('buttonsContainer').style.display = 'block';
+        };
+    </script>
+
+</body>
+</html>

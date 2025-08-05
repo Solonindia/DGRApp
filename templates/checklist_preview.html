@@ -1,0 +1,387 @@
+{% load static %}
+{% load custom_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview - {{ report_type }}</title>
+    <style>
+        /* Global Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            font-family: 'Times New Roman', Times, serif;
+            overflow-y: auto;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: rgb(0, 2, 82);
+        }
+
+        .navbar img {
+            height: 40px;
+        }
+
+        /* Preview Styles */
+        .preview-container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .preview-title {
+            text-align: center;
+            color: #003366;
+            margin-bottom: 25px;
+        }
+
+        .preview-logo {
+            display: block;
+            margin: 0 auto 20px auto;
+            max-height: 60px;
+        }
+
+        .preview-details p {
+            margin: 6px 0;
+            color: #333;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .preview-table th,
+        .preview-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .preview-table th {
+            background-color: #f0f0f0;
+        }
+
+        .image-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .image-box {
+            width: calc(33.33% - 20px);
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .preview-image:hover {
+            transform: scale(1.02);
+        }
+
+        @media (max-width: 768px) {
+            .image-box {
+                width: calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .image-box {
+                width: 100%;
+            }
+        }
+
+        .comments-box {
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0 20px;
+            color: #333;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons button,
+        .download-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .edit-btn {
+            margin-left: 60%;
+            background-color: #ffc107;
+        }
+
+        .edit-btn:hover {
+            background-color: #866603;
+        }
+
+        .save-btn {
+            margin-left: 5%;
+            background-color: #28a745;
+        }
+
+        .save-btn:hover {
+            background-color: #033d0f;
+        }
+
+        .download-btn {
+            background-color: #007bff;
+            margin-top: 15px;
+            width: 40%;
+        }
+
+        .download-btn:hover {
+            background-color: #0056b3;
+        }
+
+        h3 {
+            color: #003366;
+            margin-top: 30px;
+        }
+
+        /* Modal zoom styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9);
+        }
+
+        .modal-content {
+            display: block;
+            margin: 5% auto;
+            max-width: 80%;
+            max-height: 80%;
+            border-radius: 10px;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-content, .close {
+            animation: zoom 0.3s;
+        }
+
+        @keyframes zoom {
+            from {transform: scale(0.7)}
+            to {transform: scale(1)}
+        }
+
+        .preview-image-large {
+            max-width: 250px;
+            max-height: 250px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: zoom-in;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <img src="{% static 'logo.jpg' %}" alt="Logo" class="logo">
+        <div class="nav-links">
+            <a href="{% url 'add_checklist_item' %}">Add Checklist Item</a>
+            <a href="{% url 'history_servicereport' %}">History</a>
+        </div>
+    </div>
+
+    <!-- Preview Content -->
+    <div class="preview-container">
+        <h2 class="preview-title"><i style="color:brown;">Preview</i> - Preventive Maintenance Inspection Checklist - {{ component }}</h2>
+
+        <div class="preview-details" style="display: flex; flex-wrap: wrap; gap: 30px;margin-left: 5%;">
+            <div style="flex: 1; min-width: 250px;">
+                <p><strong>Name of Project:</strong> {{ preview_data.project_name }}</p>
+                <p><strong>Location of project:</strong> {{ preview_data.project_location }}</p>
+                <p><strong>Department:</strong> Operations & Maintenance</p>
+                <p><strong>Date of Inspection:</strong> {{ preview_data.inspection_date }}</p>
+                <p><strong>Period of Inspection:</strong> {{ preview_data.period_of_inspection }}</p>
+                <p><strong>Next Inspection:</strong> {{ preview_data.next_inspection_date }}</p>
+            </div>
+            <div style="flex: 1; min-width: 250px;">
+                <p><strong>Date of Issue:</strong> {{ Date }}</p>
+                <p><strong>Format No:</strong> {{ format_no }}</p>
+                <p><strong>Make:</strong> {{ preview_data.make }}</p>
+                <p><strong>Type:</strong> {{ preview_data.Type }}</p>
+                <p><strong>S.No.:</strong> {{ preview_data.s_no }}</p>
+                <p><strong>Rating:</strong> {{ preview_data.rating }}</p>
+            </div>
+        </div>
+
+        <h3>Checklist</h3>
+        <table class="preview-table">
+            <thead>
+                <tr><th>S.No.</th><th>Checkpoint</th><th>Status</th><th>Remark</th></tr>
+            </thead>
+            <tbody>
+                {% for item in checklist %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.checklist_item.checkpoint }}</td>
+                    <td>{{ item.status }}</td>
+                    <td>{{ item.remark }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Uploaded Images (1–6)</h3>
+        <div class="image-grid">
+            {% for i in "123456" %}
+                {% with image_field="image"|add:i %}
+                    {% with image=preview_data|attr:image_field %}
+                        {% if image %}
+                            <div class="image-box">
+                                <p><strong>Image {{ i }}</strong></p>
+                                <img src="{{ image.url }}" class="preview-image" onclick="showModal(this.src)">
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                {% endwith %}
+            {% endfor %}
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; margin-top: 20px;">
+
+            <div style="text-align: center; flex: 1;">
+                <h3>Customer Signature</h3>
+                {% if preview_data.signature %}
+                    <img src="{{ preview_data.signature.url }}" class="preview-image-large" onclick="showModal(this.src)">
+                {% elif preview_data.signature_pad_data %}
+                    <img src="{{ preview_data.signature_pad_data }}" class="preview-image-large" onclick="showModal(this.src)">
+                {% else %}
+                    <p>Not uploaded</p>
+                {% endif %}
+            </div>
+            <div style="text-align: center; flex: 1;">
+                <h3>Engineer Signature</h3>
+                {% if preview_data.signature1 %}
+                    <img src="{{ preview_data.signature1.url }}" class="preview-image-large" onclick="showModal(this.src)">
+                {% elif preview_data.signature_pad_data1 %}
+                    <img src="{{ preview_data.signature_pad_data1 }}" class="preview-image-large" onclick="showModal(this.src)">
+                {% else %}
+                    <p>Not uploaded</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <p><strong>Comments:</strong></p>
+        <div class="comments-box">{{ comments|linebreaksbr }}</div>
+        <p><strong>Send To:</strong> {{ preview_data.email_to }}</p>
+
+        <form method="post" class="action-buttons">
+            {% csrf_token %}
+            <input type="hidden" name="report_type" value="{{ report_type }}">
+            <input type="hidden" name="edit_id" value="{{ preview_data.id }}">
+            <input type="hidden" name="email_to" value="{{ email_to }}">
+            <button type="submit" name="edit" class="edit-btn">✏️ Edit</button>
+            <button type="submit" name="final_save" class="save-btn">💾 Save</button>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div style="background-color: #fff; margin: 10% auto; padding: 30px; border-radius: 10px; width: 90%; max-width: 500px; text-align: center; box-shadow: 0 0 15px rgba(0,0,0,0.3); position: relative;">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 style="color: green; margin-bottom: 20px;">✅ Service Report saved and shared successfully!</h3>
+            {% if preview_data.id %}
+                <a href="{% url 'download_pdf' preview_data.id %}" class="download-btn" style="text-decoration: none; display: inline-block;">⬇️ Download PDF</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Image Zoom Modal -->
+    <div id="imageModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <script>
+        function closeModal() {
+            document.getElementById("successModal").style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById("successModal");
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+
+        const showModal = "{{ show_modal|yesno:'true,false' }}";
+
+        if (showModal === "true") {
+            window.onload = function() {
+                document.getElementById("successModal").style.display = "block";
+            };
+        }
+
+    </script>
+</body>
+</html>

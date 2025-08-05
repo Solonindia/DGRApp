@@ -1,0 +1,151 @@
+{% load custom_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-size: 14px;
+            font-family: 'Times New Roman', Times, serif;
+            position: relative; /* Added relative position for parent */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            margin: 0 auto;
+        }
+
+        th, td {
+            border: 1px solid #202020;
+            padding: 3px 4px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 5px;
+        }
+
+        img {
+            max-width: 150px;
+            height: auto;
+            border: 1px solid #999;
+        }
+
+        .no-border {
+            border: none !important;
+        }
+
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
+    </style>
+</head>
+<body>
+<table style="width: 100%; table-layout: fixed;">
+    <td colspan="4" style="text-align: right; width:250px; height:40px; border:none;margin-bottom: 5px;">
+        <img src="{{ logo_url }}" alt="Logo" style="height: 60px;"></td>
+     <tr>
+        <td colspan="4" style="text-align:center;" class="section-title"><b style="font-size:xx-large">Preventive Maintenance Inspection Checklist</b><br>SOLON India Private Limited<br> B-72, Phase-1, IDA Jeedimetla<br>Hyderabad, Telangana-500055 (India)</td>
+    </tr>
+    <tr>
+        <td colspan="2" style="width: 50%;"><strong>Name of Project:</strong> {{ response.project_name }}</td>
+        <td colspan="2" style="width: 50%;"><strong>Date of Issue:</strong> {{ Date }}</td>
+    </tr>
+    <tr>
+        <td colspan="2" style="width: 50%;"><strong>Name of Location: </strong> {{ response.project_location }}</td>
+        <td colspan="2" style="width: 50%;"><strong>Format No: </strong>{{ format_no }}</td>
+    </tr>
+    <tr>
+        <td colspan="2" style="width: 50%;"><strong>Department:</strong> Operations & Management</td>
+        <td colspan="2" style="width: 50%;"><strong>Make:</strong>{{ response.make }}</td>
+    </tr>
+    <tr>
+        <td colspan="2" style="width: 50%;"><strong>Date of Inspection: </strong>{{ response.inspection_date }}</td>
+        <td colspan="2" style="width: 50%;"><strong>Type:</strong>{{ response.Type }}</td>
+    </tr>
+    <tr>
+        <td colspan="2" style="width: 50%;"><strong>Period of Inspection: </strong> {{ response.period_of_inspection }}</td>
+        <td colspan="2" style="width: 50%;"><strong>S.No:</strong>{{ response.s_no }}</td>
+    </tr>
+    <tr>
+        <td colspan="2" style="width: 50%;"><strong>Next Inspection Date: </strong>{{ response.next_inspection_date }}</td>
+        <td colspan="2" style="width: 50%;"><strong>Rating:</strong>{{ response.rating }}</td>
+    </tr>
+    <!-- Checklist Section Title -->
+    <tr>
+        <td colspan="4" class="section-title">{{ response.report_type }} Check List</td>
+    </tr>
+
+    <!-- Checklist Table Headers -->
+    <tr>
+        <th style="width: 7%;">S.No</th>
+        <th style="width: 53%;">Check Points</th>
+        <th style="width: 20%;">Status</th>
+        <th style="width: 20%;">Remark</th>
+    </tr>
+    <!-- Checklist Data -->
+    {% for item in checklist %}
+    <tr>
+        <td style="width: 7%;">{{ forloop.counter }}</td>
+        <td style="width: 53%;">{{ item.checklist_item.checkpoint }}</td>
+        <td style="width: 20%;">{{ item.status }}</td>
+        <td style="width: 20%;">{{ item.remark }}</td>
+    </tr>
+    {% endfor %}
+
+
+    <!-- Related Images -->
+    {% if image_urls %}
+    <tr>
+        <td colspan="4" class="section-title">Related Images</td>
+    </tr>
+    <tr>
+        <td colspan="4">
+            <table style="width: 100%; border: none;">
+                <tr>
+                    {% for image_url in image_urls %}
+                        <td style="text-align: center; border: none;">
+                            <img src="{{ image_url }}" alt="Uploaded Image"><br>
+                        </td>
+                        {% if forloop.counter|divisibleby:3 and not forloop.last %}
+                </tr><tr>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            </table>
+        </td>
+    </tr>
+    {% endif %}
+
+   <tr>
+    <td colspan="2" style="text-align: center;"><strong>Customer Signature</strong></td>
+    <td colspan="2" style="text-align: center;"><strong>Engineer Signature</strong></td>
+    </tr>
+    <tr>
+        <td colspan="2" style="text-align: center;">
+            {% if signature_url %}
+                <img src="{{ signature_url }}" alt="Signature" style="width: 150px; height: 150px; object-fit: contain; border: 1px solid #999;">
+            {% endif %}
+        </td>
+        <td colspan="2" style="text-align: center;">
+            {% if signature1_url %}
+                <img src="{{ signature1_url }}" alt="Signature1" style="width: 150px; height: 150px; object-fit: contain; border: 1px solid #999;">
+            {% endif %}
+        </td>
+    </tr>
+    <!-- Comments -->
+    <tr>
+        <td colspan="4"><strong>Comments:</strong><br>{{ comments|linebreaksbr }}</td>
+    </tr>
+</table>
+
+</body>
+</html>

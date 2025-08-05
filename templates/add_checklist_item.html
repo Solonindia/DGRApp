@@ -1,0 +1,163 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Checklist Item</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: rgb(0, 2, 82);
+        }
+
+        .form-page {
+            height: calc(100vh - 80px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .form-card {
+            width: 100%;
+            max-width: 500px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 35px 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-card h2 {
+            margin-bottom: 25px;
+            font-size: 24px;
+            color: #003366;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 0;
+            font-size: 15px;
+            border: none;
+            border-bottom: 2px solid #ccc;
+            background-color: transparent;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-bottom: 2px solid #007BFF;
+        }
+
+        .submit-btn {
+            width: 30%;
+            margin-left: 60%;
+            padding: 12px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .message {
+            text-align: center;
+            color: green;
+            font-weight: bold;
+            font-size: x-large;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <img src="{% static 'logo.jpg' %}" alt="Logo" class="logo">
+        <div class="nav-links">
+            <a href="{% url 'button_page' %}">New Service Report</a>
+            <a href="{% url 'history_servicereport' %}">History</a>
+        </div>
+    </div>
+
+    <!-- Form Content -->
+    <div class="form-page">
+        <div class="form-card">
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="message">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+            <h2>Add New Checklist Item</h2>
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            <div style="color: red;">{{ field.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="submit-btn">Add Item</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

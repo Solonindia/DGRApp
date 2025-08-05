@@ -1,0 +1,223 @@
+{% load static %}
+{% load custom_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <style>
+        /* General Body and Layout Styles */
+        body {
+            margin: 0;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-size: cover;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: rgb(0, 2, 82);
+        }
+
+        .navbar img {
+            height: 40px;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 30px;
+        }
+
+        /* Filter Buttons */
+        .filter-buttons {
+            margin-bottom: 20px;
+        }
+
+        .filter-bar {
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* Button Base Style */
+        .btn-common {
+            padding: 6px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid transparent;
+        }
+
+        /* Active/Selected State */
+        .button-on {
+            background-color: #ffffff;
+            border: 2px solid #007BFF;
+            color: #007BFF;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;
+            text-align: center;
+            transition: 0.3s ease;
+        }
+
+        /* Inactive/Default State */
+        .button-off {
+            padding: 12px 25px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-common:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        /* Project Dropdown */
+        .project-dropdown {
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* Download Section Heading */
+        .download-heading {
+            margin-top: 30px;
+            font-size: 18px;
+            color: #003f88;
+        }
+
+        /* History Table */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        .history-table th,
+        .history-table td {
+            border: 1px solid #ccc;
+            padding: 8px 10px;
+            text-align: center;
+        }
+
+        .history-table th {
+            background-color: #f5f5f5;
+        }
+
+        /* No History Available Message */
+        .no-history-message {
+            font-size: 18px;
+            color: #d9534f;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <img src="{% static 'logo.jpg' %}" alt="Logo" class="logo">
+        <div class="nav-links">
+            <a href="{% url 'button_page' %}">New Service Report</a>
+            <a href="{% url 'add_checklist_item' %}">Add checklist Item</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Report Type Filter Buttons -->
+        <div class="filter-buttons">
+            {% for rt in report_types %}
+                <form method="get" style="display:inline;">
+                    <input type="hidden" name="type" value="{{ rt }}">
+                    <button type="submit" class="btn-common {% if rt == selected_type %}button-on{% else %}button-off{% endif %}">
+                        {{ rt }} - {{ all_histories|dict_count:rt }}
+                    </button>
+                </form>
+            {% endfor %}
+        </div>
+
+        {% if selected_type %}
+        <div class="filter-bar">
+            <!-- Project Dropdown Filter -->
+            <form method="get" style="display:inline;">
+                <input type="hidden" name="type" value="{{ selected_type }}">
+                <select name="project" onchange="this.form.submit()" class="project-dropdown">
+                    <option value="">All Projects</option>
+                    {% for pname in project_names %}
+                        <option value="{{ pname }}" {% if pname == selected_project %}selected{% endif %}>{{ pname }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+        {% endif %}
+
+        {% if histories %}
+            <h3 class="download-heading">Downloads for: {{ selected_type }}</h3>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Date & Time</th>
+                        <th>Project</th>
+                        <th>Location</th>
+                        <th>Service Report</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in histories %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ h.submitted_on|date:"d M Y, H:i" }}</td>
+                        <td>{{ h.checklist.project_name }}</td>
+                        <td>{{ h.checklist.project_location }}</td>
+                        <td><a href="{{ h.pdf_file.url }}" download>📄 Download PDF</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+        {% endif %}
+    </div>
+
+</body>
+</html>
