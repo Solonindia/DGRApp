@@ -126,9 +126,14 @@
     {% endif %}
 
    <tr>
-    <td colspan="2" style="text-align: center;"><strong>Customer Signature</strong></td>
-    <td colspan="2" style="text-align: center;"><strong>Engineer Signature</strong></td>
+    <td colspan="2" style="text-align: center;"><strong>Authorized Signatory (Customer)</strong></td>
+    <td colspan="2" style="text-align: center;"><strong>Authorized Signatory (SOLON)</strong></td>
     </tr>
+    <tr>
+    <td colspan="2" style="width: 50%;"><strong>Name: </strong> {{ response.customer_name }}</td>
+    <td colspan="2" style="width: 50%;"><strong>Name: </strong> {{ response.solon_name }}</td>
+    </tr>
+
     <tr>
         <td colspan="2" style="text-align: center;">
             {% if signature_url %}

@@ -308,29 +308,29 @@
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; margin-top: 20px;">
-
-            <div style="text-align: center; flex: 1;">
-                <h3>Customer Signature</h3>
-                {% if preview_data.signature %}
-                    <img src="{{ preview_data.signature.url }}" class="preview-image-large" onclick="showModal(this.src)">
-                {% elif preview_data.signature_pad_data %}
-                    <img src="{{ preview_data.signature_pad_data }}" class="preview-image-large" onclick="showModal(this.src)">
-                {% else %}
-                    <p>Not uploaded</p>
-                {% endif %}
-            </div>
-            <div style="text-align: center; flex: 1;">
-                <h3>Engineer Signature</h3>
-                {% if preview_data.signature1 %}
-                    <img src="{{ preview_data.signature1.url }}" class="preview-image-large" onclick="showModal(this.src)">
-                {% elif preview_data.signature_pad_data1 %}
-                    <img src="{{ preview_data.signature_pad_data1 }}" class="preview-image-large" onclick="showModal(this.src)">
-                {% else %}
-                    <p>Not uploaded</p>
-                {% endif %}
-            </div>
+        <div style="text-align: center; flex: 1;">
+            <h3>Authorized Signatory (Customer)</h3>
+            <p><strong>Name:</strong> {{ preview_data.customer_name }}</p>
+            {% if preview_data.signature %}
+                <img src="{{ preview_data.signature.url }}" class="preview-image-large" onclick="showModal(this.src)">
+            {% elif preview_data.signature_pad_data %}
+                <img src="{{ preview_data.signature_pad_data }}" class="preview-image-large" onclick="showModal(this.src)">
+            {% else %}
+                <p>Not uploaded</p>
+            {% endif %}
         </div>
-
+        <div style="text-align: center; flex: 1;">
+            <h3>Authorized Signatory (SOLON)</h3>
+            <p><strong>Name:</strong> {{ preview_data.solon_name }}</p>
+            {% if preview_data.signature1 %}
+                <img src="{{ preview_data.signature1.url }}" class="preview-image-large" onclick="showModal(this.src)">
+            {% elif preview_data.signature_pad_data1 %}
+                <img src="{{ preview_data.signature_pad_data1 }}" class="preview-image-large" onclick="showModal(this.src)">
+            {% else %}
+                <p>Not uploaded</p>
+            {% endif %}
+        </div>
+        </div>
         <p><strong>Comments:</strong></p>
         <div class="comments-box">{{ comments|linebreaksbr }}</div>
         <p><strong>Send To:</strong> {{ preview_data.email_to }}</p>

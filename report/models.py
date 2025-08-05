@@ -88,6 +88,8 @@ class ChecklistResponse(models.Model):
     image6 = models.ImageField(upload_to='uploads/', null=True, blank=True,
         validators=[FileExtensionValidator(['jpg', 'jpeg', 'png'])])
 
+    customer_name = models.CharField(max_length=30,null=True, blank=True)
+    solon_name = models.CharField(max_length=30,null=True, blank=True)
     signature_pad_data = models.ImageField(upload_to='signatures/', null=True, blank=True)
     signature = models.ImageField(upload_to='uploads/', null=True, blank=True)
     signature_pad_data1 = models.ImageField(upload_to='signatures/', null=True, blank=True)

@@ -210,7 +210,7 @@
                         <td>{{ h.submitted_on|date:"d M Y, H:i" }}</td>
                         <td>{{ h.checklist.project_name }}</td>
                         <td>{{ h.checklist.project_location }}</td>
-                        <td><a href="{{ h.pdf_file.url }}" download>📄 Download PDF</a></td>
+                        <td><a href="{% url 'download_pdf' h.checklist.id %}" target="_blank">📄 Download PDF</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -218,6 +218,5 @@
         {% else %}
         {% endif %}
     </div>
-
 </body>
 </html>

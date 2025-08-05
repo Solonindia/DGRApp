@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}My Site{% endblock %}</title>
+   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <img src="{% static 'logo.jpg' %}" alt="Logo">
+        <div class="nav-links">
+            {% block nav_links %}
+                <!-- Default links (optional) -->
+            {% endblock %}
+        </div>
+    </div>
+
+    <!-- Page content -->
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -1,10 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.contrib.auth.models import User
-from demoapp.views import admin_login_view,user_login_view
-from django.contrib.auth.decorators import login_required
 
-@login_required
 def my_button_view(request):
     reports = [
         "Module Mounting Structure (MMS)", "Solar PV (SPV)", "String Cable", "String Monitoring Box (SMB)", "Module Cleaning System (MCS)", "Power/HT Cables AC (ACPC)", "LT Cables AC (LTC)", "Inverter (INV)", "Transformer (TRAFO)", "VCB",
@@ -26,7 +22,6 @@ short_codes = {
 from .forms import ChecklistItemForm
 from django.contrib import messages
 
-@login_required(login_url='/superuser/login/')
 def add_checklist_item_view(request):
     if request.method == 'POST':
         form = ChecklistItemForm(request.POST)
@@ -40,10 +35,10 @@ def add_checklist_item_view(request):
     return render(request, 'add_checklist_item.html', {'form': form})
 
 inspection_period_options = [
-    {"name": "Weekly", "days": 7},
-    {"name": "Monthly", "days": 30},
-    {"name": "Quarterly", "days": 90},
-    {"name": "Half Yearly", "days": 180},
+    {"name": "Weekly", "days": 8},
+    {"name": "Monthly", "days": 31},
+    {"name": "Quarterly", "days": 92},
+    {"name": "Half Yearly", "days": 183},
     {"name": "Annually", "days": 365},
 ]
 
@@ -54,7 +49,6 @@ from datetime import date,datetime
 from .utils import parse_date_safe  # assuming you have this helper
 from django.core.files.base import ContentFile
 import base64
-from django.urls import reverse
 
 def parse_date_safe(date_str):
     try:
@@ -62,7 +56,7 @@ def parse_date_safe(date_str):
     except (TypeError, ValueError):
         return None
 
-@login_required
+
 def checklist_form_view(request):
     ip = request.META['REMOTE_ADDR']
     report_type = (
@@ -131,6 +125,8 @@ def checklist_form_view(request):
             response.rating = request.POST.get('rating', '').strip() or 'N/A'
             response.comments = comments
             response.email_to = request.POST.get('email_to') or response.email_to
+            response.customer_name = request.POST.get('customer_name')
+            response.solon_name = request.POST.get('solon_name')
             
             # Update the Date field to the latest Date from ChecklistItem
             response.Date = latest_date
@@ -153,6 +149,8 @@ def checklist_form_view(request):
                 rating=request.POST.get('rating'),
                 comments=comments,
                 email_to=request.POST.get('email_to'),
+                customer_name=request.POST.get('customer_name'),
+                solon_name=request.POST.get('solon_name'),
                 is_draft=True
             )
 
@@ -204,7 +202,7 @@ def checklist_form_view(request):
             )
 
         email_to = request.POST.get('email_to', '')
-        return redirect(f"{reverse('checklist_preview', args=[response.id])}?email_to={email_to}")
+        return redirect(f'/service-report/checklist/preview/{response.id}/?email_to={email_to}')
 
     # ✅ GET or after EDIT
     edit_id = request.GET.get('edit_id')
@@ -234,10 +232,11 @@ def checklist_form_view(request):
             "signature": response.signature.url if response.signature else "",
             "signature1": response.signature1.url if response.signature1 else "",
             "email_to": response.email_to or "",
+            "customer_name": response.customer_name,
+            "solon_name": response.solon_name,
         }
 
         # Set checklist item status and remarks from existing response items
-
         checklist_response_items = ChecklistResponseItem.objects.filter(response=response)
         for idx, item in enumerate(checklist_items, start=1):
             idx_str = str(idx)
@@ -251,7 +250,7 @@ def checklist_form_view(request):
             img = getattr(response, f"image{i}", None)
             if img:
                 form_data[f"image{i}"] = img.url
-
+  
     return render(request, 'checklist_form.html', {
         'report_type': report_type,
         'format_no': f"SIPL/O&M/{short_codes.get(report_type, report_type)}/37" if report_type else "",
@@ -286,7 +285,6 @@ from django.core.files.base import ContentFile
 import uuid
 import pdfkit
 import base64
-from django.contrib.staticfiles import finders 
  
 def checklist_preview_view(request, response_id):
     show_modal = False
@@ -343,6 +341,8 @@ def checklist_preview_view(request, response_id):
                 'Date': latest_date,  # Use the latest date here
                 'comments': response.comments or comments,
                 'email_to': response.email_to,
+                'customer_name': response.customer_name,
+                'solon_name': response.solon_name,
             }
 
             na_fields = ['make', 'Type', 's_no', 'rating']
@@ -403,6 +403,8 @@ def checklist_preview_view(request, response_id):
             response.period_of_inspection = request.POST.get('inspection_period')
             response.next_inspection_date = request.POST.get('next_inspection_date') or None
             response.email_to = request.POST.get('email_to') 
+            response.customer_name = request.POST.get('customer_name')
+            response.solon_name = request.POST.get('solon_name')
 
             for i in range(1, 7):
                 img_field = f'image{i}'
@@ -539,7 +541,7 @@ def checklist_preview_view(request, response_id):
             history = ChecklistHistory.objects.create(
                 checklist=response
             )
-            history.pdf_file.save(f'Checklist_{response.project_name}.pdf', ContentFile(pdf_file.read()))
+            history.pdf_file.save(f'Service Report_{response.project_name}.pdf', ContentFile(pdf_file.read()))
 
             # Reset the pointer in the PDF file
             pdf_file.seek(0)
@@ -575,9 +577,7 @@ def checklist_preview_view(request, response_id):
             pdf_data = BytesIO()
 
             # Set the file path for the watermark image
-            logo_path = finders.find('Images/logo.jpg')
-            if not logo_path:
-                raise FileNotFoundError("Images/logo.jpg not found in static files.")
+            logo_path = os.path.join(settings.BASE_DIR, 'static', 'Images', 'logo.jpg')
 
             # Apply watermark to the PDF (this function should be defined elsewhere in your code)
             pdf_file.seek(0)
@@ -639,7 +639,7 @@ def download_pdf_view(request, response_id):
     selected_level = FREQUENCY_LEVELS.get(selected_freq, 5)
 
     # Set up logo URL
-    logo_url = request.build_absolute_uri(static('/Images/logo.png'))
+    logo_url = request.build_absolute_uri(static('/logo.png'))
 
     # Get checklist items for the report
     checklist_items_master = ChecklistItem.objects.filter(
@@ -693,6 +693,8 @@ def download_pdf_view(request, response_id):
     response.rating = sanitize_text(response.rating)
     response.comments = sanitize_text(response.comments)
     response.email_to = sanitize_text(response.email_to)
+    response.customer_name = sanitize_text(response.customer_name)
+    response.solon_name = sanitize_text(response.solon_name)
 
     for item in checklist_items:
         item.status = sanitize_text(item.status)
@@ -762,7 +764,7 @@ def add_image_watermark_to_pdf(pdf_data, output_buffer, watermark_image_path):
     pdf_writer.write(output_buffer)
     output_buffer.seek(0)
 
-@login_required(login_url='/superuser/login/')
+
 def history_page(request):
     selected_type = request.GET.get('type')
     selected_project = request.GET.get('project')
@@ -793,5 +795,4 @@ def history_page(request):
         'selected_project': selected_project,
         'all_histories': all_histories,
     })
-
 
