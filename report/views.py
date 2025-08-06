@@ -42,6 +42,7 @@ def add_checklist_item_view(request):
     return render(request, 'add_checklist_item.html', {'form': form})
 
 inspection_period_options = [
+    {"name": "Daily", "days": 1},
     {"name": "Weekly", "days": 8},
     {"name": "Monthly", "days": 31},
     {"name": "Quarterly", "days": 92},
@@ -79,6 +80,7 @@ def checklist_form_view(request):
         'Quarterly': 3,
         'Half Yearly': 4,
         'Annually': 5,
+        'Daily': 6,
     }
 
     # Determine selected frequency level
@@ -303,6 +305,7 @@ def checklist_preview_view(request, response_id):
         'Quarterly': 3,
         'Half Yearly': 4,
         'Annually': 5,
+        'Daily': 6,
     }
     selected_freq = response.period_of_inspection or 'Annually'
     selected_level = FREQUENCY_LEVELS.get(selected_freq, 5)
@@ -325,6 +328,7 @@ def checklist_preview_view(request, response_id):
 
     checklist_items = ChecklistResponseItem.objects.filter(response=response, checklist_item__report_type=report_type)
     inspection_period_options = [
+        {'name': 'Daily', 'days': 1},
         {'name': 'Weekly', 'days': 8},
         {'name': 'Monthly', 'days': 31},
         {'name': 'Quarterly', 'days': 91},
@@ -639,6 +643,7 @@ def download_pdf_view(request, response_id):
         'Quarterly': 3,
         'Half Yearly': 4,
         'Annually': 5,
+        'Daily': 6,
     }
 
     # Determine frequency level and default to 'Annually'
