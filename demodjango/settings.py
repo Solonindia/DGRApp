@@ -1,7 +1,6 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-from django.core.files.storage import FileSystemStorage
 
 # Load environment variables from .env file
 load_dotenv()
@@ -20,7 +19,7 @@ DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 
 # Other Django settings (e.g., Secret Key)
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = [
     'oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
     '127.0.0.1',
@@ -38,7 +37,7 @@ INSTALLED_APPS = [
     'demoapp',
     'gatepass',
     'Inventory',
-    'report',
+    'report'
 ]
 
 MIDDLEWARE = [
@@ -134,20 +133,18 @@ USE_TZ = True
 
 # DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 if DEBUG:
+    # Local setup
     STATIC_URL = '/static/'
-    STATIC_ROOT = BASE_DIR / 'staticfiles'  # You can change this directory if necessary
+    STATIC_ROOT = BASE_DIR / 'static'
     LOGOUT_REDIRECT_URL = '/home/'
 
-    STATICFILES_DIRS = [
-        BASE_DIR / "static",  # Should include the static folder at the root of your project
-    ]
-    
+
     MEDIA_URL = '/media/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # This defines where files should be uploaded locally
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-    MEDIA_STORAGE = FileSystemStorage(location=MEDIA_ROOT)
-
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 else:
     # Azure setup
     STATIC_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/'

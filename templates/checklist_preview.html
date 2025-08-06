@@ -168,7 +168,7 @@
         }
 
         .save-btn {
-            margin-left: 5%;
+            margin-left: 2%;
             background-color: #28a745;
         }
 
@@ -244,7 +244,7 @@
 
     <!-- Navbar -->
     <div class="navbar">
-        <img src="{% static 'logo.jpg' %}" alt="Logo" class="logo">
+        <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
         <div class="nav-links">
             <a href="{% url 'add_checklist_item' %}">Add Checklist Item</a>
             <a href="{% url 'history_servicereport' %}">History</a>
@@ -341,7 +341,7 @@
             <input type="hidden" name="edit_id" value="{{ preview_data.id }}">
             <input type="hidden" name="email_to" value="{{ email_to }}">
             <button type="submit" name="edit" class="edit-btn">✏️ Edit</button>
-            <button type="submit" name="final_save" class="save-btn">💾 Save</button>
+            <button type="submit" name="final_save" class="save-btn">💾 Save & Submit </button>
         </form>
     </div>
 

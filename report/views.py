@@ -577,7 +577,7 @@ def checklist_preview_view(request, response_id):
             pdf_data = BytesIO()
 
             # Set the file path for the watermark image
-            logo_path = os.path.join(settings.BASE_DIR, 'static', 'Images', 'logo.jpg')
+            logo_path = os.path.join(settings.BASE_DIR, 'static', 'Images', 'logo.png')
 
             # Apply watermark to the PDF (this function should be defined elsewhere in your code)
             pdf_file.seek(0)
@@ -725,7 +725,8 @@ def download_pdf_view(request, response_id):
 
     # Apply watermark (if required)
     watermarked_pdf = BytesIO()
-    watermark_path = finders.find('logo.png')  # Ensure logo.png exists in your static folder
+    watermark_path = os.path.join(settings.BASE_DIR, 'static', 'Images', 'logo.png')
+    print("Watermark path:", watermark_path)
     add_image_watermark_to_pdf(base_pdf, watermarked_pdf, watermark_path)
 
     # Send the watermarked PDF as a response for download
@@ -734,27 +735,40 @@ def download_pdf_view(request, response_id):
     return response_obj
 
 
-from reportlab.pdfgen import canvas
-from PyPDF2 import PdfReader, PdfWriter
+from pypdf import PdfReader, PdfWriter
 from io import BytesIO
+from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
+from reportlab.lib.utils import ImageReader
 
 def add_image_watermark_to_pdf(pdf_data, output_buffer, watermark_image_path):
     pdf_reader = PdfReader(pdf_data)
     pdf_writer = PdfWriter()
 
-    watermark_pdf = BytesIO()
-    c = canvas.Canvas(watermark_pdf, pagesize=letter)
+    # Get the size of the first page of the actual PDF
+    first_page = pdf_reader.pages[0]
+    width = float(first_page.mediabox.width)
+    height = float(first_page.mediabox.height)
+
+    # Create watermark PDF using same size
+    watermark_buffer = BytesIO()
+    c = canvas.Canvas(watermark_buffer, pagesize=(width, height))
 
     c.setFillAlpha(0.1)
-    x_center = 1 * inch
-    y_center = 6 * inch
-    c.drawImage(watermark_image_path, x_center, y_center, width=6*inch, height=2*inch, mask='auto')
+    
+    # Center watermark
+    watermark_width = 400  # adjust size
+    watermark_height = 150
+    x_center = (width - watermark_width) / 2
+    y_center = (height - watermark_height) / 2
+
+    c.drawImage(watermark_image_path, x_center, y_center, width=watermark_width, height=watermark_height, mask='auto')
     c.save()
 
-    watermark_pdf.seek(0)
-    watermark_reader = PdfReader(watermark_pdf)
+    # Load watermark and apply to all pages
+    watermark_buffer.seek(0)
+    watermark_reader = PdfReader(watermark_buffer)
     watermark_page = watermark_reader.pages[0]
 
     for page in pdf_reader.pages:
@@ -763,7 +777,6 @@ def add_image_watermark_to_pdf(pdf_data, output_buffer, watermark_image_path):
 
     pdf_writer.write(output_buffer)
     output_buffer.seek(0)
-
 
 def history_page(request):
     selected_type = request.GET.get('type')
