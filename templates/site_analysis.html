@@ -47,7 +47,7 @@
             padding: 12px 25px;
             text-align: left;
             text-decoration: none;
-            font-size: 16px;
+            font-size: 14px;
             border-radius: 5px;
             transition: background-color 0.3s ease, padding-left 0.3s ease, text-decoration 0.3s ease;
         }
@@ -73,7 +73,7 @@
         h1 {
             text-align: center;
             color: rgba(2, 37, 70, 0.8);
-            font-size: 26px;
+            font-size: 18px;
             margin-bottom: 30px;
         }
 
@@ -98,13 +98,13 @@
         }
 
         .search-form label {
-            font-size: 16px;
+            font-size: 12px;
             color: rgba(2, 37, 70, 0.8);
         }
 
         .search-form select {
             padding: 10px 14px;
-            font-size: 16px;
+            font-size: 12px;
             border: 1px solid #ddd;
             border-radius: 6px;
             width: 200px;
@@ -112,7 +112,7 @@
 
         .search-form button {
             padding: 10px 20px;
-            font-size: 16px;
+            font-size: 12px;
             border: 1px solid #ddd;
             border-radius: 6px;
             background-color: rgba(2, 37, 70, 0.8);
@@ -131,11 +131,12 @@
             border-collapse: collapse;
             margin-top: 20px;
             text-align: left;
+            font-size: 12px;
         }
 
         table th,
         table td {
-            padding: 12px;
+            padding: 8px;
             border: 1px solid #ddd;
             text-align: center;
         }
@@ -152,7 +153,7 @@
         /* Inventory Input Styling */
         table input[type="number"] {
             padding: 8px 12px;
-            font-size: 16px;
+            font-size: 12px;
             width: 100%;
             border: 1px solid #ddd;
             border-radius: 6px;
@@ -161,7 +162,7 @@
         /* Button Styling for Table Actions */
         table button {
             padding: 10px 20px;
-            font-size: 16px;
+            font-size: 12px;
             border: 1px solid #ddd;
             border-radius: 6px;
             background-color: rgba(2, 37, 70, 0.8);
@@ -200,13 +201,8 @@
                 width: 100%; /* Form inputs take full width on mobile */
             }
 
-            table th,
-            table td {
-                font-size: 14px;
-            }
-
             table input[type="number"] {
-                font-size: 14px;
+                font-size: 12px;
             }
         }
 
@@ -262,7 +258,7 @@
         }
 
         .notification-bell {
-            font-size: 30px;
+            font-size: 20px;
             color: #fff;
             background-color: #333;
             border-radius: 50%;
@@ -345,7 +341,7 @@
         {% if user.is_authenticated %}
         <form action="{% url 'logout' %}" method="POST">
             {% csrf_token %}
-            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i> Logout</button>
+            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 14px; margin-right: 8px;"></i> Logout</button>
         </form>
         {% endif %}
     </div>
@@ -373,7 +369,7 @@
             <img src="{% static 'logo.jpg' %}" alt="Logo">
         </div>
 
-        <h1>Inventory Analysis</h1>
+        <h1>Inventory Tracking</h1>
 
         <!-- Success Notification (Hidden Initially) -->
         <div class="notification" id="notification">Stock updated successfully!</div>
@@ -393,7 +389,11 @@
         </form>
 
         {% if selected_site %}
-            <h2>Inventory for {{ selected_site.name }}</h2>
+            <h4>Total Inventory Value: 
+                {% if total_site_value %}
+                    ₹{{ total_site_value|floatformat:2 }}
+                {% endif %}
+            </h4>
 
             <!-- Inventory Table -->
             <form method="POST">
@@ -409,9 +409,13 @@
                             <th>Type</th>
                             <th>Category</th>
                             <th>UOM</th>
-                            <th>Opening Stock</th>
+                            <th>Opening Stock</th> <!-- fixed stock -->
+                            <!-- <th>Available Stock</th> -->
+                            <th>Consumption</th>
+                            <th>Available Stock</th>
                             <th>Unit Value (INR)</th>
                             <th>Total Value (INR)</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -424,23 +428,17 @@
                                     <td>{{ inventory.type }}</td>
                                     <td>{{ inventory.category }}</td>
                                     <td>{{ inventory.uom }}</td>
-                                    <td>{{ inventory.opening_stock }}</td>  <!-- No input, just value -->
-                <!-- <td>{{ inventory.unit_value }}</td> -->
+                                    <td>{{ inventory.fixed_stock }}</td>
+                                    <!-- <td>{{ inventory.opening_stock }}</td> -->
+                                    <td>{{ inventory.final_stock }}</td>
+                                    <td>{{ inventory.opening_stock }}</td>
                                     <td>{{ inventory.unit_value }}</td>
-                                    <!-- <td>
-                                        <input type="number" name="stock_{{ inventory.id }}" value="{{ inventory.opening_stock }}">
-                                    </td> -->
-                                    <!-- <td>{{ inventory.unit_value }}</td> -->
-                                    <!-- <td>
-                                        <input type="number" step="0.01" name="unit_value_{{ inventory.id }}" value="{{ inventory.unit_value }}">
-                                    </td> -->
+
                                     <td>₹{{ inventory.total_value|floatformat:"2" }}</td>
                                     <td>
                                     <a href="{% url 'edit_inventory1' inventory.id %}?site_name={{ selected_site.name }}" class="edit-btn">Edit</a>
                                     </td>
-                                    <!-- <td>
-                                        <a href="{% url 'edit_inventory1' inventory.id %}" class="edit-btn">Edit</a>
-                                    </td> -->
+                                    
                                 </tr>
                             {% endfor %}
                         {% else %}
@@ -451,89 +449,7 @@
                     </tbody>
                 </table>
 
-                <!-- <button type="submit" id="update_button" name="update_stock">Update Stocks</button> -->
             </form>
-
-            <!-- Bar Chart to display the inventory data -->
-            <div class="chart-container-wrapper">
-                <div class="chart-container" style="width: 80%; max-width: 600px; margin: 20px auto;">
-                    <canvas id="inventoryChart"></canvas>
-                </div>
-            </div>
-            
-            <script>
-                // Parse the chart data passed from Django as JSON
-                const chartLabels = JSON.parse('{{ chart_labels|escapejs }}');
-                const chartData = JSON.parse('{{ chart_data|escapejs }}');
-            
-                // Check if the data arrays are not empty before rendering the chart
-                if (chartLabels.length > 0 && chartData.length > 0) {
-                    const ctx = document.getElementById('inventoryChart').getContext('2d');
-                    const inventoryChart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: chartLabels,
-                            datasets: [{
-                                label: 'Opening Stock',
-                                data: chartData,
-                                backgroundColor: 'rgba(2, 37, 70, 0.8)', // Lighter blue color
-                                borderColor: 'rgba(54, 162, 235, 1)', // Blue border
-                                borderWidth: 1,
-                                barPercentage: 0.4, // Thinner bars
-                                categoryPercentage: 0.5, // Reduce space between bars
-                                borderRadius: 8, // Rounded corners for bars
-                                hoverBorderColor: 'rgba(2, 37, 70, 0.8)', // Slightly lighter border on hover
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false, // Allow height to be adjusted independently
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    grid: {
-                                        display: false, // Remove grid lines for Y-axis
-                                    },
-                                    ticks: {
-                                        display: false, // Remove numbers on Y-axis
-                                    },
-                                },
-                                x: {
-                                    grid: {
-                                        display: false, // Remove grid lines for X-axis
-                                    },
-                                    ticks: {
-                                        font: {
-                                            size: 12, // Smaller font size for X-axis
-                                        },
-                                        color: 'rgba(2, 37, 70, 0.8)', // Dark text for readability
-                                    },
-                                },
-                            },
-                            plugins: {
-                                tooltip: {
-                                    backgroundColor: 'rgba(2, 37, 70, 0.8)', // Dark background for tooltip
-                                    titleFont: {
-                                        size: 14, // Larger font for tooltip title
-                                    },
-                                    bodyFont: {
-                                        size: 12, // Smaller font for tooltip body
-                                    },
-                                    callbacks: {
-                                        label: function(tooltipItem) {
-                                            return `${tooltipItem.label}: ${tooltipItem.raw}`; // Display raw value in tooltip
-                                        }
-                                    }
-                                },
-                            },
-                            animation: {
-                                duration: 1000, // Animation duration (ms)
-                                easing: 'easeInOutQuad', // Easing function
-                            }
-                        }
-                    });
-                }
-            </script>
         {% endif %}
     </div>
     

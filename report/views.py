@@ -3,13 +3,20 @@ from django.http import HttpResponse
 
 def my_button_view(request):
     reports = [
-        "Module Mounting Structure (MMS)", "Solar PV (SPV)", "String Cable", "String Monitoring Box (SMB)", "Module Cleaning System (MCS)", "Power/HT Cables AC (ACPC)", "LT Cables AC (LTC)", "Inverter (INV)", "Transformer (TRAFO)", "VCB",
-        "HT Panel (HTP)", "LT Panel (LTP)", "UPS", "Battery Charger", "Battery Bank", "Street Light", "Lightning Arrester (LA)", "Earthpit (EP)",
-        "Fire & Safety System (FSS)", "Metering Yard", "OH Line (OHL)", "Bay Extension (BE)", "House Keeping"
+        "Module Mounting Structure (MMS)", "Solar PV (SPV)", "String Cable", "String Monitoring Box (SMB)",
+        "Module Cleaning System (MCS)", "Power/HT Cables AC (ACPC)", "LT Cables AC (LTC)", "Inverter (INV)",
+        "Transformer (TRAFO)", "VCB", "HT Panel (HTP)", "LT Panel (LTP)", "UPS", "Battery Charger", "Battery Bank",
+        "Street Light", "Lightning Arrester (LA)", "Earthpit (EP)", "Fire & Safety System (FSS)", "Metering Yard",
+        "OH Line (OHL)", "Bay Extension (BE)", "House Keeping"
     ]
+
+    user_type = "admin" if request.user.is_superuser else "user"
+
     return render(request, 'report.html', {
-        'reports': reports
+        'reports': reports,
+        'user_type': user_type
     })
+
 
 short_codes = {
     "Module Mounting Structure (MMS)": "MMS", "Solar PV (SPV)": "SPV", "String Cable": "SC", "String Monitoring Box (SMB)": "SMB", "Module Cleaning System (MCS)": "MCS",

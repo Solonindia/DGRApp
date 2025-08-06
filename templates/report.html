@@ -112,13 +112,18 @@
     </style>
 </head>
 <body>
-
-    <!-- Navbar -->
-    <div class="navbar">
-        <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
-        <div class="nav-links">
-            <a href="{% url 'add_checklist_item' %}">Add Checklist Item</a>
-            <a href="{% url 'history_servicereport' %}">History</a>
+      <!-- Navbar -->
+        <div class="navbar">
+            <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+            <div class="nav-links">
+                {% if user_type == 'admin' %}
+                    <a href="{% url 'admin' %}">Dashboard</a>
+                    <a href="{% url 'history_servicereport' %}">History</a>
+                    <a href="{% url 'add_checklist_item' %}">Add Checklist Item</a>
+                {% else %}
+                    <a href="{% url 'user' %}">Dashboard</a>
+                {% endif %}
+            </div>
         </div>
     </div>
 
@@ -138,7 +143,6 @@
                             class="report-btn {% if report == report_type %}selected{% endif %}">
                         {{ report }}
                     </button>
-
                     {% if forloop.counter|divisibleby:3 or forloop.last %}
                         </div>
                     {% endif %}
