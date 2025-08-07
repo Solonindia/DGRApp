@@ -3,13 +3,14 @@ from django.db import models
 
 class ChecklistItem(models.Model):
     FREQUENCY_CHOICES = [
-        (6, 'Daily'),
-        (1, 'Weekly'),
-        (2, 'Monthly'),
-        (3, 'Quarterly'),
-        (4, 'Half Yearly'),
-        (5, 'Annually'),
+        (1, 'Daily'),
+        (2, 'Weekly'),
+        (3, 'Monthly'),
+        (4, 'Quarterly'),
+        (5, 'Half Yearly'),
+        (6, 'Annually'),
     ]
+
 
     REPORT_CHOICES = [
         ('Module Mounting Structure (MMS)', 'MMS'),

@@ -681,7 +681,7 @@ function normalize(str) {
     return str.toLowerCase().replace(/\s+/g, '-');  // converts "Half Yearly" → "half-yearly"
 }
 
-const frequencyOrder = ['weekly', 'monthly', 'quarterly', 'half yearly', 'annually'];
+const frequencyOrder = ['Daily','weekly', 'monthly', 'quarterly', 'half yearly', 'annually'];
 
 function filterChecklistRows() {
     const selected = document.getElementById('inspection_period').value.toLowerCase();

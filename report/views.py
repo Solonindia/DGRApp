@@ -75,12 +75,12 @@ def checklist_form_view(request):
 
     # Frequency levels map
     FREQUENCY_LEVELS = {
-        'Weekly': 1,
-        'Monthly': 2,
-        'Quarterly': 3,
-        'Half Yearly': 4,
-        'Annually': 5,
-        'Daily': 6,
+        'Daily': 1,
+        'Weekly': 2,
+        'Monthly': 3,
+        'Quarterly': 4,
+        'Half Yearly': 5,
+        'Annually': 6,
     }
 
     # Determine selected frequency level
@@ -300,15 +300,15 @@ def checklist_preview_view(request, response_id):
     response = get_object_or_404(ChecklistResponse, id=response_id)
     report_type = response.report_type
     FREQUENCY_LEVELS = {
-        'Weekly': 1,
-        'Monthly': 2,
-        'Quarterly': 3,
-        'Half Yearly': 4,
-        'Annually': 5,
-        'Daily': 6,
+        'Daily': 1,
+        'Weekly': 2,
+        'Monthly': 3,
+        'Quarterly': 4,
+        'Half Yearly': 5,
+        'Annually': 6,
     }
     selected_freq = response.period_of_inspection or 'Annually'
-    selected_level = FREQUENCY_LEVELS.get(selected_freq, 5)
+    selected_level = FREQUENCY_LEVELS.get(selected_freq, 6)
     component = short_codes.get(response.report_type, response.report_type)
     comments = (
         f"1) This is a Generalised Check Sheet for {component}. Some check points may not be applicable to {component} under consideration. "
@@ -638,17 +638,18 @@ def download_pdf_view(request, response_id):
 
     report_type = response.report_type
     FREQUENCY_LEVELS = {
-        'Weekly': 1,
-        'Monthly': 2,
-        'Quarterly': 3,
-        'Half Yearly': 4,
-        'Annually': 5,
-        'Daily': 6,
+        'Daily': 1,
+        'Weekly': 2,
+        'Monthly': 3,
+        'Quarterly': 4,
+        'Half Yearly': 5,
+        'Annually': 6,
     }
+
 
     # Determine frequency level and default to 'Annually'
     selected_freq = response.period_of_inspection or 'Annually'
-    selected_level = FREQUENCY_LEVELS.get(selected_freq, 5)
+    selected_level = FREQUENCY_LEVELS.get(selected_freq, 6)
 
     # Set up logo URL
     logo_url = request.build_absolute_uri(static('/logo.png'))
