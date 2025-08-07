@@ -40,7 +40,7 @@ class ChecklistItem(models.Model):
 
     report_type = models.CharField(max_length=50, choices=REPORT_CHOICES)
     checkpoint = models.TextField()
-    frequency_level = models.IntegerField(choices=FREQUENCY_CHOICES, default=6)  # Use this only
+    frequency_level = models.IntegerField(choices=FREQUENCY_CHOICES, default=1)  # Use this only
     Date = models.DateField(default=date.today, null=True, blank=True)  # Added Date field
 
     def save(self, *args, **kwargs):

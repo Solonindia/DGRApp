@@ -251,6 +251,7 @@
             </td>
         </tr>
         {% endfor %}
+
         <tr>
           <th colspan="4" style="text-align:center; font-size: 16px; background-color:#e6f0ff;">
             Upload Images (Up to 6)
@@ -681,23 +682,31 @@ function normalize(str) {
     return str.toLowerCase().replace(/\s+/g, '-');  // converts "Half Yearly" → "half-yearly"
 }
 
-const frequencyOrder = ['Daily','weekly', 'monthly', 'quarterly', 'half yearly', 'annually'];
+const frequencyLevelsMap = {
+    'daily': 1,
+    'weekly': 2,
+    'monthly': 3,
+    'quarterly': 4,
+    'half yearly': 5,
+    'annually': 6,
+};
 
 function filterChecklistRows() {
     const selected = document.getElementById('inspection_period').value.toLowerCase();
-    const selectedIndex = frequencyOrder.indexOf(selected);
+    const selectedLevel = frequencyLevelsMap[selected] || 6;  // default to Annually
 
     document.querySelectorAll('.checklist-row').forEach(row => {
-        const rowLevel = parseInt(row.getAttribute('data-frequency'));  // 1 to 5
+        const rowLevel = parseInt(row.getAttribute('data-frequency'));
         if (isNaN(rowLevel)) return;
 
-        if (rowLevel <= selectedIndex + 1) {
+        if (rowLevel <= selectedLevel) {
             row.style.display = '';
         } else {
             row.style.display = 'none';
         }
     });
 }
+
 function zoomImage(src) {
     const modal = document.getElementById("zoomModal");
     const zoomedImage = document.getElementById("zoomedImage");
