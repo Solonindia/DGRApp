@@ -36,6 +36,7 @@ class ChecklistItem(models.Model):
         ('OH Line (OHL)', 'OHL'),
         ('Bay Extension (BE)', 'BE'),
         ('House Keeping', 'House Keeping'),
+        ('Scada Monitoring System', 'SMS')
     ]
 
     report_type = models.CharField(max_length=50, choices=REPORT_CHOICES)

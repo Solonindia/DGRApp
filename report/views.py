@@ -7,7 +7,7 @@ def my_button_view(request):
         "Module Cleaning System (MCS)", "Power/HT Cables AC (ACPC)", "LT Cables AC (LTC)", "Inverter (INV)",
         "Transformer (TRAFO)", "VCB", "HT Panel (HTP)", "LT Panel (LTP)", "UPS", "Battery Charger", "Battery Bank",
         "Street Light", "Lightning Arrester (LA)", "Earthpit (EP)", "Fire & Safety System (FSS)", "Metering Yard",
-        "OH Line (OHL)", "Bay Extension (BE)", "House Keeping"
+        "OH Line (OHL)", "Bay Extension (BE)", "House Keeping","Scada Monitoring System"
     ]
 
     user_type = "admin" if request.user.is_superuser else "user"
@@ -23,7 +23,7 @@ short_codes = {
     "Power/HT Cables AC (ACPC)": "ACPC", "LT Cables AC (LTC)": "LTC", "Inverter (INV)": "INV", "Transformer (TRAFO)": "TRAFO", "VCB": "VCB",
     "HT Panel (HTP)": "HTP", "LT Panel (LTP)": "LTP", "UPS": "UPS", "Battery Charger": "BC",
     "Battery Bank": "BB", "Street Light": "SL", "Lightning Arrester (LA)": "LA", "Earthpit (EP)": "EP",
-    "Fire & Safety System (FSS)": "FSS", "Metering Yard": "MY", "OH Line (OHL)": "OHL", "Bay Extension (BE)": "BE", "House Keeping": "HK"
+    "Fire & Safety System (FSS)": "FSS", "Metering Yard": "MY", "OH Line (OHL)": "OHL", "Bay Extension (BE)": "BE", "House Keeping": "HK", "Scada Monitoring System":"SMS"
 }
 
 from .forms import ChecklistItemForm
