@@ -8,211 +8,150 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column; /* Stack items vertically */
-            height: 100vh;
             margin: 0;
-            background-color: white;
-            font-family: Georgia, 'Times New Roman', Times, serif;
-            position: relative;
-            text-align: center;
-            overflow-y: auto; /* Allow body to scroll */
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-attachment: fixed;
+            font-family: 'Times New Roman', Times, serif;
         }
 
-        .background {
-            position: fixed; /* Fixed position */
-            top: 0; /* Ensure it's at the top */
-            left: 0;
-            width: 100%;
-            height: 100%; /* Full viewport height */
-            background-image: url('{% static "solon.jpg" %}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: 0;
-            filter: blur(4px); /* Blur effect */
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .logo {
-            position: fixed; /* Fixed position */
-            top: 20px; /* Distance from the top */
-            left: 20px; /* Distance from the left */
-            z-index: 2; /* Ensure it's above other content */
+            height: 40px;
         }
 
-        .logo img {
-            width: 120px; /* Slightly bigger logo */
-            height: auto;
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: rgb(0, 2, 82);
+        }
+
+        .navbar img {
+            height: 40px;
         }
 
         .signup-container {
-            width: 90%; /* Adjust width to make it more responsive */
-            max-width: 450px; /* Increased max-width for better form fit */
-            padding: 30px; /* Increased padding for better spacing */
-            border: 1px solid #0c0c0c; 
-            border-radius: 12px; /* Rounded corners for a softer look */
-            background-color: #0492C2; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.1); 
-            z-index: 3; /* Ensure the form content is above the background */
-            position: relative;
+            margin-top: 60px;
+            max-width: 420px;
+            background:#fff;
+            color:black;
+            padding: 35px;
+            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeIn 0.6s ease-in-out;
         }
 
-        .signup-container h2 {
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .signup-container h3 {
             text-align: center;
-            margin-bottom: 20px; /* Increased margin for space */
-            font-size: 24px; /* Slightly larger font size */
-            color: white; /* Changed heading color to white */
+            margin-bottom: 20px;
+            font-size: 24px;
+            letter-spacing: 1px;
         }
 
-        .signup-container form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .signup-container form div {
-            margin-bottom: 20px; /* Increased spacing between fields */
-            text-align: left; /* Align the labels to the left */
-        }
-
-        .signup-container form div label {
+        label {
             font-size: 16px;
             font-weight: bold;
-            display: block; /* Ensure the label appears above the input */
-            margin-bottom: 8px; /* Added margin to separate label from input */
-            color: white; /* Changed label color to white */
         }
 
-        .signup-container form input {
-            padding: 8px 12px; /* Added some padding for the input field */
-            font-size: 16px; /* Larger font size */
-            width: 100%; /* Full width for inputs */
-            border: none; /* Remove the border */
-            border-bottom: 2px solid white; /* Add an underline in white */
-            background-color: transparent; /* Make background transparent */
-            outline: none; /* Remove the outline when focused */
-            color: white; /* Make input text white for visibility */
-        }
-
-        .signup-container form input:focus {
-            border-bottom-color: #04035c; /* Change the underline color when focused */
-        }
-
-        .signup-container form button[type="submit"] {
-            background-color: white; /* Button background to white */
-            color: #04035c; /* Font color to blue */
-            border: 1px solid #04035c; /* Border color to blue */
-            cursor: pointer;
-            width: 50%; /* Smaller button width */
-            border-radius: 10px;
-            text-align: center;
-            margin-top: 20px; /* Added top margin for spacing */
-            padding: 12px;
-            transition: background-color 0.3s; /* Smooth hover effect */
-            font-size: 16px; /* Font size adjustment */
-            margin-left: auto; /* Center the button horizontally */
-            margin-right: auto; /* Center the button horizontally */
-        }
-
-        .signup-container form button[type="submit"]:hover {
-            background-color: #04035c; /* Darker button on hover */
-            color: white; /* Change text color to white on hover */
-        }
-
-        .signup-container a {
-            color: #04035c;
-            text-decoration: none;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
-        /* Top-right positioning for Bottom Links */
-        .top-right-links {
-            position: absolute;
-            top: 20px; /* Distance from the top */
-            right: 20px; /* Distance from the right */
-            display: flex;
-            gap: 15px; /* Space between the links */
-            z-index: 3; /* Ensure links are above the background */
-        }
-
-        .top-right-links a {
-        background-color: #0492C2;      /* Blue background color */
-        color: white;                   /* White text */
-        padding: 10px 20px;             /* Add padding for better button shape */
-        border-radius: 4px;             /* Rounded corners */
-        font-size: 14px;                /* Adjust font size */
-        font-weight: bold;              /* Bold text */
-        text-decoration: none;          /* Remove underline */
-        display: inline-block;          /* Make the link act like a block-level element */
-        transition: background-color 0.3s; /* Smooth transition for hover effect */
-        }
-
-        .top-right-links a:hover {
-            background-color: #0492C2;      /* Darker blue on hover */
-            text-decoration: none;          /* No underline on hover */
-        }
-
-        .logout {
-        position: fixed; /* Ensures the button stays fixed at the top-right corner */
-        top: 18px;
-        right: 170px;
-        z-index: 2;
-        }
-
-        .logout button {
-            background-color: #0492C2;
-            color: white;
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px 5px;
+            margin: 10px 0 20px 0;
             border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            display: block;
-            width: auto;
+            border-bottom: 2px solid rgb(8, 8, 8); /* underline */
+            background: transparent;
+            color: rgb(7, 7, 7); /* text color */
+            font-size: 16px;
+            outline: none;
         }
 
-        .logout button:hover {
-            background-color: #0492C2;
+        input[type="text"]::placeholder,
+        input[type="password"]::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .sub {
+            margin-left:33%;
+            width: 30%;
+            background: linear-gradient(90deg, #04035c, #0073e6);
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color:aliceblue;
+        }
+
+        .sub:hover {
+            transform: translateY(-2px);
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body>
-    <div class="logout">
-        {% if user.is_authenticated %}
-        <form action="{% url 'logout' %}" method="POST">
-            {% csrf_token %}
-            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i> Logout</button>
-        </form>
-        {% endif %}
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <img src="{% static 'logo.png' %}" alt="Logo">
+        <div class="nav-links">
+            <a href="{% url 'admin' %}">Dashboard</a>
+            {% if user.is_authenticated %}
+            <form action="{% url 'logout' %}" method="POST" class="logout">
+                {% csrf_token %}
+                <a href="{% url 'home' %}" style="text-decoration: none;">
+                    <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
+                </a>
+            </form>
+            {% endif %}
+        </div>
     </div>
-    <div class="background"></div>
-    <div class="logo">
-        <img src="{% static 'logo.jpg' %}" alt="Logo">
-    </div>
+
+    <!-- Signup Form -->
     <div class="signup-container">    
         {% if success_message %}
             <p class="success-message">{{ success_message }}</p>
         {% else %}
             <form action="" method="post">
+                <h3>Create User Account</h3>
                 {% csrf_token %}
                 {% for field in form %}
                     <div>
                         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        {{ field }} <!-- This will render the form field input like text box, email field, etc. -->
+                        {{ field }}
                     </div>
                 {% endfor %}
-                <button type="submit">Register</button>
+                <button class="sub" type="submit">Register</button>
             </form>
         {% endif %}
     </div>
 
-    <!-- Top-right Links -->
-    <div class="top-right-links">
-        <a href="{% url 'admin' %}"><b>Dashboard</b></a>
-    </div>
 </body>
 </html>

@@ -11,70 +11,65 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* Existing styles from before... */
-
-        /* General Body Styling */
-        body {
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
+         body {
             margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-            display: flex;
-            background-image: url("{% static 'solon2.jpg' %}");
-            background-size: cover;
-            height: 100vh;
-        }
-
-        /* Sidebar Styling */
-        .button-container {
-            position: fixed;
-            top: 12%;
-            left: 0;
-            background-color: rgba(2, 37, 70, 0.8);
-            height: 90%;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 220px;
-            z-index: 1;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-size: 18px;
             display: flex;
             flex-direction: column;
         }
 
-        .button-container a {
-            color: white;
-            padding: 12px 25px;
-            text-align: left;
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            margin-bottom: 0px; /* ↓ space tagginchadam */
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
             text-decoration: none;
+            color: #002550;
             font-size: 14px;
-            border-radius: 5px;
-            transition: background-color 0.3s ease, padding-left 0.3s ease, text-decoration 0.3s ease;
+            font-weight: 600;
+            margin-top: 20px;
         }
 
-        .button-container a:hover {
-            text-decoration: underline; /* Add underline on hover */
+        .nav-links form {
+            margin-top: 18px;
         }
-
-
-
+        .navbar img {
+            height: 40px;
+        }
         /* Main Content Area */
         .container {
-            margin-left: 240px; /* Add margin to avoid collision with sidebar */
+            padding-top: 5px; 
             padding: 20px;
-            background-color: #ffffff;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: calc(100% - 240px); /* Ensure the content takes the remaining width */
-            height: 100vh; /* Full height of the viewport */
+            width: 90%;
             overflow-y: auto; /* Enable scrolling when content exceeds the viewport height */
+            margin-left: 5%;
         }
 
-        h1 {
+        h2 {
             text-align: center;
             color: rgba(2, 37, 70, 0.8);
-            font-size: 18px;
-            margin-bottom: 30px;
+            margin-top: 0;
         }
 
         .notification {
@@ -98,13 +93,13 @@
         }
 
         .search-form label {
-            font-size: 12px;
+            font-size: 16px;
             color: rgba(2, 37, 70, 0.8);
         }
 
         .search-form select {
             padding: 10px 14px;
-            font-size: 12px;
+            font-size: 14px;
             border: 1px solid #ddd;
             border-radius: 6px;
             width: 200px;
@@ -112,8 +107,7 @@
 
         .search-form button {
             padding: 10px 20px;
-            font-size: 12px;
-            border: 1px solid #ddd;
+            font-size: 16px;
             border-radius: 6px;
             background-color: rgba(2, 37, 70, 0.8);
             color: white;
@@ -129,16 +123,16 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
             text-align: left;
-            font-size: 12px;
+            font-size: 16px;
+            background-color: white;
         }
 
         table th,
         table td {
             padding: 8px;
             border: 1px solid #ddd;
-            text-align: center;
+            text-align: left;
         }
 
         table th {
@@ -162,7 +156,7 @@
         /* Button Styling for Table Actions */
         table button {
             padding: 10px 20px;
-            font-size: 12px;
+            font-size: 10px;
             border: 1px solid #ddd;
             border-radius: 6px;
             background-color: rgba(2, 37, 70, 0.8);
@@ -205,171 +199,61 @@
                 font-size: 12px;
             }
         }
-
-        /* Logo Styling */
-        .logo {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 2;
-        }
-
-        .logo img {
-            width: 100px;
-            height: auto;
-        }
-
-        /* Styling for Update Stocks Button */
-        #update_button {
-            padding: 12px 25px;
-            font-size: 18px;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            background-color: rgba(2, 37, 70, 0.8); /* Dark blue background */
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            margin-top: 20px; /* Add margin to separate from table */
-            width: auto;
-            display: block; /* Make the button a block element */
-            margin-left: auto; /* Align to the right */
-            margin-right: auto; /* Align to the left */
-        }
-
-        /* Hover effect for Update Stocks Button */
-        #update_button:hover {
-            background-color: rgba(2, 37, 70, 0.8); /* Lighter blue on hover */
-            transform: translateY(-2px); /* Slightly move up on hover */
-        }
-
-        /* Active effect for Update Stocks Button */
-        #update_button:active {
-            background-color: rgba(2, 37, 70, 0.8); /* Even darker blue on click */
-            transform: translateY(0); /* Reset movement on click */
-        }
-
-        /* Bell Icon (Positioned Slightly Left and Lower in the Top-Right Corner) */
-        .notification-container {
-            position: fixed;
-            top: 30px; /* Keeps the icon slightly lower */
-            right: 27px; /* Adjusted to move the icon a bit left */
-            z-index: 100;
-        }
-
+       
         .notification-bell {
             font-size: 20px;
             color: #fff;
             background-color: #333;
             border-radius: 50%;
-            padding: 10px;
+            padding: 5px;
             cursor: pointer;
+            position: relative;
+            top: -5px; /* Move the bell up by 5px */
         }
 
         .notification-count {
             position: absolute;
-            top: -5px;
-            right: -5px;
+            top: 10px;
+            right: 10px;
             background-color: red;
-            color: white;
+            color: rgb(252, 249, 249);
             font-size: 14px;
-            padding: 5px 10px;
+            padding: 5px 5px;
             border-radius: 50%;
             font-weight: bold;
         }
 
-        /* Adjust the blinking speed and make it more noticeable */
-        .blink {
-            animation: blink 1.5s ease-in-out infinite, scaleUp 1s infinite alternate;
-        }
-
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 1; }
-        }
-
-        @keyframes scaleUp {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.2); }
-        }
-
-        /* Bar chart container wrapper (scrollable) */
-        .chart-container-wrapper {
-            width: 100%;
-            height: 300px; /* Fixed height for the chart container */
-            overflow: hidden; /* Prevent chart container from scrolling */
-            margin-top: 20px;
-            position: relative;
-        }
-
-        .chart-container {
-            width: 100%;
-            height: 100%; /* Make chart take full height of its parent */
-        }
-
-        .logout {
-            position: fixed; /* Ensures the button stays fixed at the top-right corner */
-            top: 40px;
-            right: 90px;
-            z-index: 2;
-        }
-
-        .logout button {
-            background-color: rgba(2, 37, 70, 0.7);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            display: block;
-            width: auto;
-        }
-
-        .logout button:hover {
-            background-color: rgba(2, 37, 70, 0.7);
-        }
     </style>
 
 </head>
 
 <body>
-    <div class="logout">
-        {% if user.is_authenticated %}
-        <form action="{% url 'logout' %}" method="POST">
-            {% csrf_token %}
-            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 14px; margin-right: 8px;"></i> Logout</button>
-        </form>
-        {% endif %}
-    </div>
-
-    <!-- Sidebar with Navigation Links -->
-    <div class="button-container">
+<div class="navbar">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <div class="nav-links">
         <a href="{% url 'upload_inventory' %}">Upload Inventory</a>
         <a href="{% url 'notification_list' %}">Inventory History</a>
         <a href="{% url 'admin' %}">Dashboard</a>
-        <!-- <a href="{% url 'home' %}">Home</a> -->
+        {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="POST">
+            {% csrf_token %}
+            <a href="{% url 'home' %}" style="text-decoration: none;">
+                <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
+            </a>
+        </form>
+        {% endif %}
+            <a href="{% url 'real_time_notification_list' %}">
+                <i class="fas fa-bell notification-bell"></i>
+                {% if unread_notifications > 0 %}
+                    <span class="notification-count {% if unread_notifications > 0 %}blink{% endif %}">{{ unread_notifications }}</span>
+                {% endif %}
+            </a>
     </div>
-
-    <div class="notification-container">
-        <a href="{% url 'real_time_notification_list' %}">
-            <i class="fas fa-bell notification-bell"></i>
-            {% if unread_notifications > 0 %}
-                <span class="notification-count {% if unread_notifications > 0 %}blink{% endif %}">{{ unread_notifications }}</span>
-            {% endif %}
-        </a>
-    </div>
+</div>
 
     <!-- Main Content Area -->
     <div class="container">
-        <div class="logo">
-            <img src="{% static 'logo.jpg' %}" alt="Logo">
-        </div>
-
-        <h1>Inventory Tracking</h1>
+        <h2>Inventory Tracking</h2>
 
         <!-- Success Notification (Hidden Initially) -->
         <div class="notification" id="notification">Stock updated successfully!</div>
@@ -385,7 +269,8 @@
                     </option>
                 {% endfor %}
             </select>
-            <button type="submit">Show Inventory</button>
+            <button type="submit" class="search-button">
+                        <i class="fas fa-search"></i></button>
         </form>
 
         {% if selected_site %}
@@ -448,7 +333,6 @@
                         {% endif %}
                     </tbody>
                 </table>
-
             </form>
         {% endif %}
     </div>

@@ -8,79 +8,47 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         body {
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-            height: 100vh;
-            display: flex;
-            background-image: url("{% static 'solon2.jpg' %}");
-        }
-
-        /* Fixed Sidebar */
-        .button-container {
-            text-align: left;
-            position: fixed;
-            top: 14%;
-            left: 0;
-            background-color: rgba(2, 37, 70, 0.7);
-            height: 90%;
-            padding: 10px;
-            border-radius: 5px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(1px);
-            width: 180px; /* Adjusted width of sidebar */
-            z-index: 1;
-        }
-
-        .button-container a {
-            color: white;
-            padding: 10px 20px;
-            text-align: left;
-            text-decoration: none;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
             font-size: 16px;
-            border-radius: 5px;
-            display: block;
-            transition: background-color 0.3s, text-decoration 0.3s;
+            overflow-x: hidden; /* Hide horizontal scrollbar */
         }
 
-        .button-container a:hover {
-            text-decoration: underline;
-            background-color: #011225;
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .logo {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 2;
+            height: 40px;
         }
 
-        .logo img {
-            width: 100px;
-            height: auto;
+        .nav-links {
+            display: flex;
+            gap: 10px;
         }
 
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: rgb(0, 2, 82);
+        }
+
+        .navbar img {
+            height: 40px;
+        }
         .container {
-            flex-grow: 1; /* Content takes up remaining space */
-            margin-left: 220px; /* Increased space for the sidebar */
-            padding: 20px;
             display: flex;
             flex-direction: column;
-        }
-
-        .right-content {
             padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            overflow-y: auto;
-            flex-grow: 1; /* Ensure this section takes remaining space */
-            margin-top: 20px;
         }
 
         h1 {
@@ -174,30 +142,9 @@
             margin-top: 30px;
         }
 
-        /* Responsive layout */
-        @media (max-width: 768px) {
-            .container {
-                margin-left: 0;
-            }
-
-            .right-content {
-                margin-left: 0;
-            }
-
-            .search-form {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .search-form select, .search-form input {
-                width: 100%;
-            }
-        }
-
-        /* Center the Update Inventory button */
         .update-button-container {
             display: flex;
-            justify-content: center; /* Horizontally center the button */
+            justify-content: center;
             margin-top: 20px;
         }
 
@@ -216,65 +163,38 @@
         .update-button-container button:hover {
             background-color: rgba(2, 37, 70, 0.8);
         }
-        .logout {
-            position: fixed; /* Ensures the button stays fixed at the top-right corner */
-            top: 60px;
-            right: 50px;
-            z-index: 2;
-        }
-
-        .logout button {
-            background-color: rgba(2, 37, 70, 0.7);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            display: block;
-            width: auto;
-        }
-
-        .logout button:hover {
-            background-color: rgba(2, 37, 70, 0.7);
+        .edit{
+            text-align: center;
         }
     </style>
 </head>
 <body>    
-    <div class="logout">
-        {% if user.is_authenticated %}
-        <form action="{% url 'logout' %}" method="POST">
-            {% csrf_token %}
-            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 6px;"></i> Logout</button>
-        </form>
-        {% endif %}
-    </div>
-    
-    <div class="button-container">
-        <a href="{% url 'inventory_history' site_name=site.name %}">Inventory Result</a>
-        <a href="{% url 'stock_report' site_name=site.name %}">Stock Results</a>
-        <a href="{% url 'user' %}">Dashboard</a>
-        <!-- <a href="{% url 'home' %}">Home</a> -->
-    </div>    
-
-    <div class="container">
-        <div class="logo">
-            <img src="{% static 'logo.jpg' %}" alt="Logo">
+    <div class="navbar">
+        <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+        <div class="nav-links">
+            <a href="{% url 'inventory_history' site_name=site.name %}">Inventory Result</a>
+            <a href="{% url 'stock_report' site_name=site.name %}">Stock Results</a>
+            <a href="{% url 'user' %}">Dashboard</a>
+            {% if user.is_authenticated %}
+            <form action="{% url 'logout' %}" method="POST">
+                {% csrf_token %}
+                <a href="{% url 'home' %}" style="text-decoration: none;">
+                    <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
+                </a>
+            </form>
+            {% endif %}
         </div>
-
-        <h2>Edit Inventory for Site: {{ site.name }}</h2>
-
+    </div>
+    <div class="edit">
+        <h2>Edit Inventory for {{ site.name }}</h2>
         <!-- Search form -->
         <form method="GET">
             <label for="material_code">Search by Material Code:</label>
             <input type="text" id="material_code" name="material_code" value="{{ search_query }}">
             <button type="submit">Search</button>
         </form>
-
-        <br>
-
+        </div>
+    <div class="container">
         <!-- Form for updating consumption -->
         <form method="POST">
             {% csrf_token %}

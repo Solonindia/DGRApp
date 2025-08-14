@@ -6,10 +6,46 @@
     <title>Stock Report - {{ site.name }}</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f4f8;
             margin: 0;
-            padding: 30px;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-size: 16px;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 5px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: 45%;
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #002550;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        .nav-links form {
+            margin-top: 16px;
+        }
+        .navbar img {
+            height: 40px;
         }
 
         h2 {
@@ -36,7 +72,7 @@
             margin-right: 10px;
         }
 
-        button {
+        .sub {
             padding: 10px 20px;
             background-color: #2c3e50;
             color: white;
@@ -46,7 +82,7 @@
             transition: background-color 0.3s ease;
         }
 
-        button:hover {
+        .sub:hover {
             background-color: #1a242f;
         }
 
@@ -63,7 +99,7 @@
         th, td {
             padding: 14px 12px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border: 1px solid #ddd;
         }
 
         th {
@@ -87,27 +123,50 @@
 
 
         .btn-link {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #2c3e50;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 14px;
-    margin-left: 10px;
-    transition: background-color 0.3s ease;
-}
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            margin-left: 10px;
+            transition: background-color 0.3s ease;
+        }
 
-.btn-link:hover {
-    background-color: #1a242f;
-}
+        .btn-link:hover {
+            background-color: #1a242f;
+        }
 
     </style>
 </head>
 <body>
-
-<h2>Stock Report for Site: {{ site.name }}</h2>
+<div class="navbar">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <div class="nav-links">
+       <a href="{% url 'edit_inventory' site_name=site.name %}">Edit Inventory</a>
+        <a href="{% url 'inventory_history' site_name=site.name %}">Inventory Result</a>
+        <a href="{% url 'user' %}">Dashboard</a>
+        {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="POST">
+            {% csrf_token %}
+            <a href="{% url 'home' %}" style="text-decoration: none;">
+                <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
+            </a>
+        </form>
+        {% endif %}
+    </div>
+</div>
+<h2 style="position: relative; text-align: center; margin-top: 10px;">
+    Stock Report for Site: {{ site.name }}
+    <form method="GET" action="{% url 'export_stock_report' site.name %}" 
+          style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); margin: 0;">
+        <input type="hidden" name="start_date" value="{{ start_date }}">
+        <input type="hidden" name="end_date" value="{{ end_date }}">
+        <button type="submit">📥 Download Excel Report</button>
+    </form>
+</h2>
 
 <!-- Filter Form -->
 <form method="GET">
@@ -115,16 +174,8 @@
     <input type="date" name="start_date" value="{{ start_date }}">
     <label for="end_date">End Date:</label>
     <input type="date" name="end_date" value="{{ end_date }}">
-    <button type="submit">🔍 Search</button>
+    <button class="sub" type="submit">🔍 Search</button>
     <!-- <a href="{% url 'user' %}" class="btn-link">🏠 Dashboard</a> -->
-</form>
-
-<!-- Download Excel Button -->
-<form method="GET" action="{% url 'export_stock_report' site.name %}" style="text-align: center; margin-bottom: 30px;">
-    <input type="hidden" name="start_date" value="{{ start_date }}">
-    <input type="hidden" name="end_date" value="{{ end_date }}">
-    <button type="submit">📥 Download Excel Report</button>
-    <a href="{% url 'user' %}" class="btn-link">🏠 Dashboard</a>
 </form>
 
 <!-- Table -->
@@ -162,6 +213,5 @@
         {% endfor %}
     </tbody>
 </table>
-
 </body>
 </html>

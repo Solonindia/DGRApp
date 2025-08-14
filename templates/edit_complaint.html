@@ -7,41 +7,44 @@
     <title>Edit Complaint</title>
     <style>
         body {
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-            height: 100vh; /* Ensure the body takes the full height of the viewport */
-            overflow: auto; /* Allows scrolling */
-            position: relative;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-size: 16px;
+            overflow-x: hidden; /* Hide horizontal scrollbar */
         }
 
-        body::before {
-            content: "";
-            position: fixed;
-            top: 10%; /* 2px space at the top */
-            left: 0;
-            width: 100%;
-            height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
-            background-image: url("{% static 'Solar-Power-MP-Cropped-1.jpg' %}");
-            filter: blur(1px);
-            background-size: cover; /* Ensure the background image covers the entire area */
-            background-repeat: no-repeat; /* Prevents the image from repeating */
-            background-attachment: fixed; /* Keeps the background image fixed while scrolling */
-            background-position: center; /* Centers the background image */
-            z-index: -1; /* Places the blurred background behind the content */
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .logo {
-            position: fixed; /* Fix the logo in place */
-            top: 10px;
-            left: 10px;
-            z-index: 2; /* Ensure it's above other content */
+            height: 40px;
         }
-        .logo img {
-            width: 100px;
-            height: auto;
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
         }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: rgb(0, 2, 82);
+        }
+
+        .navbar img {
+            height: 40px;
+        }
+
         h3 {
             color: #030b58;
             text-align: center;
@@ -183,10 +186,25 @@
     </style>
 </head>
 <body>
-    <h3>Add all the Details</h3>
-    <div class="logo">
-        <img src="{% static 'logo.jpg' %}" alt="Logo">
-    </div>
+
+    <div class="navbar">
+        <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+        <div class="nav-links">
+        <a href="{% url 'complaint_form' %}" class="bottom-left-link"><b>New Complaint</b></a>
+        <a href="{% url 'final_complaints_user' %}"><b>Closed Complaints</b></a>
+        <a href="{% url 'rejected_complaints' %}"><b>Rejected Complaints</b></a>
+        <a href="{% url 'user' %}" class="bottom-left-link"><b>Dashboard</b></a>
+        {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="POST">
+            {% csrf_token %}
+            <a href="{% url 'home' %}" style="text-decoration: none;">
+                <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i><b>Logout</b>
+            </a>
+        </form>
+        {% endif %}
+        </div>
+    </div>  
+        <h3>Add all the Details</h3>
     <form method="post" enctype="multipart/form-data" id="edit_form" onsubmit="validateForm(event); validatePdfFile(event)"> 
         {% csrf_token %}
         <div class="form-fields">

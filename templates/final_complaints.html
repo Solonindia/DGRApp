@@ -8,45 +8,41 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         body {
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-            height: 100vh; /* Ensure the body takes the full height of the viewport */
-            overflow: auto; /* Allows scrolling */
-            position: relative;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-attachment: fixed;
+            color: #fff;
+            min-height: 100vh;
+            font-size: 16px;
         }
-        body::before {
-            content: "";
-            position: fixed;
-            top: 10%; /* 2px space at the top */
-            left: 0;
-            width: 100%;
-            height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
-            background-image: url("{% static 'solon2.jpg' %}");
-            filter: blur(3px);
-            background-size: cover; /* Ensure the background image covers the entire area */
-            background-repeat: no-repeat; /* Prevents the image from repeating */
-            background-attachment: fixed; /* Keeps the background image fixed while scrolling */
-            background-position: center; /* Centers the background image */
-            z-index: -1;
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .logo {
-            position: fixed; /* Fix the logo in place */
-            top: 10px;
-            left: 10px;
-            z-index: 2; /* Ensure it's above other content */
-            margin-bottom: 10%;
+            height: 40px;
         }
-        .logo img {
-            width: 100px;
-            height: auto;
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
         }
-        h3 {
-            color: rgb(3, 3, 65);
-            text-align: center;
-            margin-bottom: 5%;
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: rgb(0, 2, 82);
+        }
+
+        .navbar img {
+            height: 40px;
         }
 
         ul {
@@ -67,7 +63,7 @@
 
         .complaint-info {
             display: flex;
-            gap: 20px;
+            gap: 10px;
         }
         .hidden-details {
             display: none;
@@ -82,22 +78,9 @@
             color:brown;
             text-decoration: double;
         }
-        .nature-of-complaint-label {
-            flex-basis: 30%; /* Adjust this to set the width of the label */
-            font-weight: bold;
-        }
-
-        .nature-of-complaint {
-            flex: 1; /* Takes the remaining space */
-            margin: 0; /* Remove margin */
-            padding: 0; /* Remove padding */
-            white-space: pre-wrap; /* Preserve whitespace and wrap text */
-            word-wrap: break-word; /* Break long words if needed */
-        }
         .view-more {
             cursor: pointer;
-            color: #492a02;
-            text-decoration: underline;
+            color: #0056b3;
         }
 
         .image-container {
@@ -142,40 +125,37 @@
         }
         .hist ul {
             list-style-type: none; /* Removes default bullets */
-            padding: 0;
-            margin: 0;
         }
 
         .hist li {
             border: 1px solid black;
             background-color: aliceblue;
-            border-radius: 5%;
-            margin-bottom: 15px; /* Space between individual items */
-            padding: 10px;
             color: #050505;
-            background-color: aliceblue;
-            border-radius: 5%;
-            margin-left: 18%;
-            margin-right:2%;
+            margin-left: 2%;
+            margin-right: 2%;
+            margin-bottom: 15px; /* complaints madhya space */
+            padding: 10px; /* li lopala space */
+            line-height: 1.6; /* text lines madhya gap */
         }
-        .logout {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 2; /* Ensure it stays on top of other content */
-            color: rgb(16, 2, 95);
+
+        .complaint-info strong {
+            margin-right: 5px; 
+        }
+
+        .delete-btn {
+            border: 2px solid red;
             padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background-color 0.2s ease;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            float: right;           
+            margin-right: 10px;     
+            font-size:medium;
         }
-        .delete-btn{
+
+        .delete-btn:hover {
             background-color: red;
-            height:20%;
-            width:7%;
-            color:white;
-            border-radius: 3%;
+            color: white;
         }
         .no {
             color: red;
@@ -189,99 +169,70 @@
                 opacity: 0;
             }
         }
-        .button-container {
-            text-align: left;
-            position: fixed;
-            top: 11%; /* Adjust to set vertical position */
-            left: 0; /* Adjust to set horizontal position */
-            background-color: rgba(2, 37, 70, 0.7); /* Semi-transparent blue background */
-            height: 90%; /* Adjust height as needed */
-            width:15%;
-            padding: 10px; /* Padding around the container */
-            border-radius: 5px; /* Rounded corners for the container */
+        .complaint-header > div {
+            display: inline-block;      /* Keep them in one line */
+            margin-right: 20px;         /* Gap between each item */
+        }
+        .complaint-info strong,
+        .complaint-info span,
+        .complaint-info div {
+            display: inline-block;
+            margin-right: 5px; /* space between each label-value set */
+        }
+        .complaint-info{
             display: flex;
-            flex-direction: column; /* Stack items vertically */
-            gap: 10px; /* Space between the buttons */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for visual effect */
-            backdrop-filter: blur(1px); /* Optional: Blurs the area behind the container */
+            gap: 60px; /* space between items */
+            align-items: center;
+            flex-wrap: wrap; /* prevents breaking layout on smaller screens */
         }
-        .button-container a {
-            color: white; /* Text color */
-            padding: 10px 20px;
-            text-align: left;
-            text-decoration: none;
-            font-size: 16px;
-            border-radius: 5px; /* Rounded corners for the buttons */
-            display: block; /* Ensures the link takes up full width */
-            transition: background-color 0.3s, text-decoration 0.3s; /* Smooth transition */
-        }
-        .button-container a:hover {
-            text-decoration: underline; /* Underline on hover */
-        }
-        .logout {
-            position: fixed; /* Ensures the button stays fixed at the top-right corner */
-            top: 10px;
-            right: 20px;
-            z-index: 2;
-        }
-
-        .logout button {
-            background-color: rgba(2, 37, 70, 0.7);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            display: block;
-            width: auto;
-        }
-
-        .logout button:hover {
-            background-color: rgba(2, 37, 70, 0.7);
+        .closed-complaints-heading{
+            color:#0056b3;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="logout">
-    {% if user.is_authenticated %}
-    <form action="{% url 'logout' %}" method="POST">
-        {% csrf_token %}
-        <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 6px;"></i> Logout</button>
-    </form>
-    {% endif %}
-    </div>
-    <h3>
-    <div class="circle">
-        Closed Complaints
-    </div>
-</h3>
-    <div class="logo">
-        <img src="{% static 'logo.jpg' %}" alt="Logo">
-    </div>
-    <div class="button-container">
+    <div class="navbar">
+        <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+        <div class="nav-links">
         <a href="{% url 'approval_complaints' %}"><b>Approvals</b></a>
         <a href="{% url 'complaint_analysis' %}"><b>Tracking</b></a>
         <a href="{% url 'admin' %}"><b>Dashboard</b></a>
+                {% if user.is_authenticated %}
+                <form action="{% url 'logout' %}" method="POST">
+                    {% csrf_token %}
+                    <a href="{% url 'home' %}" style="text-decoration: none;">
+                        <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
+                    </a>
+                </form>
+                {% endif %}
+        </div>
     </div>
     <div class="hist">
+    <h2 class="closed-complaints-heading">Closed Complaints</h2>
     <ul>
         {% for complaint in accepted_complaints %}
             <li>
                 <div class="complaint-summary">
                     <div class="complaint-info">
-                    <div class="complaint-serial-number">{{ forloop.counter }}</div>
-                   <strong style="color:#050505">Complaint ID:</strong> {{ complaint.complaint_id }}<br>
-                        <strong style="color:#050505">Location:</strong> 
+                        <div class="complaint-serial-number">{{ forloop.counter }})</div>
+                        <div>
+                            <strong style="color:#050505">Complaint ID:</strong> {{ complaint.complaint_id }}
+                        </div>
+                        <div>
+                            <strong style="color:#050505">Location:</strong> 
                             {% if complaint.location == 'Other' and complaint.custom_location %}
                                 {{ complaint.custom_location }}
                             {% else %}
                                 {{ complaint.location }}
-                            {% endif %}<br>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <strong style="color:#050505">Site Name:</strong> {{ complaint.site_name }}
+                        </div>
                     </div>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<div class="view-more" onclick="toggleDetails(this)">View More</div>
+
+                    <div class="view-more" onclick="toggleDetails(this)"><b>View More</b></div>
                 </div>
                 <div class="hidden-details">
                     <div>
@@ -293,10 +244,6 @@
                         <span class="value">{{ complaint.company_name }}</span>
                     </div>
                     <div>
-                        <strong style="color:#050505">Site Name:</strong>
-                        <span class="value">{{ complaint.site_name }}</span>
-                    </div>
-                    <div>
                         <strong style="color:#050505">Priority:</strong>
                         <span class="value">{{ complaint.priority }}</span>
                     </div>
@@ -306,7 +253,7 @@
                     </div>
                     <div>
                         <strong style="color:#050505">Nature of Complaint:</strong>
-                        <span><p class="nature-of-complaint">{{ complaint.nature_of_complaint }}</p></span> 
+                        <span>{{ complaint.nature_of_complaint }}</span> 
                     </div>
                     <div>
                         <strong style="color:#050505">Complaint open Date:</strong>
@@ -343,7 +290,7 @@
                     {% if complaint.pdf_file %}
                     <a href="{{ complaint.pdf_file.url }}" target="_blank">View PDF</a>
                     {% else %}
-                        <p>No PDF uploaded for this complaint.</p>
+                        <p style="color:brown;">No PDF uploaded for this complaint.</p>
                     {% endif %}
                     <div class="image-container">
                         {% with images=complaint.get_images %}
@@ -356,10 +303,9 @@
                             {% endif %}
                         {% endwith %}
                     </div>
-                    <hr>
                     <form action="{% url 'delete_complaint' complaint.id %}" method="post" style="display:inline;">
                         {% csrf_token %}
-                        <button type="submit" class="delete-btn">Delete</button>
+                        <button type="submit" class="delete-btn"><b>Delete</b></button><br>
                     </form>
                 </div>
             </li>

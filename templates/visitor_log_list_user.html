@@ -7,42 +7,55 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         body {
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-            height: 100vh; /* Ensure the body takes the full height of the viewport */
-            overflow: auto; /* Allows scrolling */
-            position: relative;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-size: 16px;
         }
 
-        body::before {
-            content: "";
-            position: fixed;
-            top: 10%; /* 2px space at the top */
-            left: 0;
-            width: 100%;
-            height: calc(100vh - 4px); /* Adjust height to leave 2px space at the top and bottom */
-            background-image: url('{% static "solon1.jpg" %}');
-            filter: blur(3px);
-            background-size: cover; /* Ensure the background image covers the entire area */
-            background-repeat: no-repeat; /* Prevents the image from repeating */
-            background-attachment: fixed; /* Keeps the background image fixed while scrolling */
-            background-position: center; /* Centers the background image */
-            z-index: -1; /* Places the blurred background behind the content */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
+        .logo {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: rgb(0, 2, 82);
+        }
+
+        .navbar img {
+            height: 40px;
+        }
+
         h2 {
-            color: #030168;
             text-align: center;
+            color: rgba(59, 0, 13, 0.952);
+        
         }
         table {
-            width: 80%;
+            width: 90%;
             border-collapse: collapse;
             margin-top: 20px;
             background-color: #fff;
-            margin-left: auto; /* Align to the right */
-            margin-right: 0;   /* Align to the right */
+            margin-left: 5%;
+            margin-right: 5%;   /* Align to the right */
+            margin-bottom: 2%;
         }
         th, td {
             border: 1px solid #070707;
@@ -61,92 +74,25 @@
             transition: background-color 0.3s;
             margin-right: 5px;
         }
-        .logo {
-            position: fixed; /* Fix the logo in place */
-            top: 10px;
-            left: 10px;
-            z-index: 2; /* Ensure it's above other content */
-        }
-        .logo img {
-            width: 100px;
-            height: auto;
-        }
-        
-        .button-container {
-            text-align: left;
-            position: fixed;
-            top: 11%; /* Adjust to set vertical position */
-            left: 0; /* Adjust to set horizontal position */
-            background-color: rgba(2, 37, 70, 0.7); 
-            height: 90%; /* Adjust height as needed */
-            padding: 10px; 
-            border-radius: 5px; 
-            display: flex;
-            flex-direction: column; 
-            gap: 10px; 
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-            backdrop-filter: blur(1px); 
-        }
-
-        .button-container a {
-            color: white; 
-            padding: 10px 20px;
-            text-align: left;
-            text-decoration: none;
-            font-size: 16px;
-            border-radius: 5px; 
-            display: block; 
-            transition: background-color 0.3s, text-decoration 0.3s; 
-        }
-
-        .button-container a:hover {
-            text-decoration: underline; 
-        }
-
-        .logout {
-            position: fixed; /* Ensures the button stays fixed at the top-right corner */
-            top: 10px;
-            right: 10px;
-            z-index: 2;
-        }
-
-        .logout button {
-            background-color: #0044cc;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            display: block;
-            width: auto;
-        }
-
-        .logout button:hover {
-            background-color: #0033aa;
-        }
     </style>
 </head>
 <body>
-    <div class="logout">
+    <div class="navbar">
+        <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+        <div class="nav-links">
+        <a href="{% url 'visitor_log_user_view' %}"><b>Gatepass Register</b></a>
+        <a href="{% url 'user' %}"><b>Dashboard</b></a>
         {% if user.is_authenticated %}
         <form action="{% url 'logout' %}" method="POST">
             {% csrf_token %}
-            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 6px;"></i> Logout</button>
+            <a href="{% url 'home' %}" style="text-decoration: none;">
+                <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i><b>Logout</b>
+            </a>
         </form>
         {% endif %}
-    </div>
+        </div>
+    </div>  
 
-    <div class="button-container">
-        <a href="{% url 'visitor_log_user_view' %}"><b>Gatepass Register</b></a>
-        <a href="{% url 'user' %}"><b>Dashboard</b></a>
-        <!-- <a href="{% url 'home' %}"><b>Home</b></a> -->
-    </div>
-    <div class="logo">
-        <img src="{% static 'logo.jpg' %}" alt="Logo">
-    </div>
     <h2>Visitor Gate Pass Details</h2>
     {% if visitor_logs %}
         <table>
@@ -176,7 +122,7 @@
             </tbody>
         </table>
     {% else %}
-        <h3 style="margin-top:50px;text-align:center;color:rgb(117, 2, 2);background-color: #f9f9f9;"><b>No Gate Passes found</b></h3>
+        <h3 style="margin-top:50px;text-align:center;color:rgb(226, 8, 8);"><b>No Gate Passes found</b></h3>
     {% endif %}
 </body>
 </html>

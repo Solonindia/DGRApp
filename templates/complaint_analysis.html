@@ -10,70 +10,43 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <style>
         body {
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #080808;
-            height: 100vh;
-            overflow: auto;
-            position: relative;
-        }
-        body::before {
-            content: "";
-            position: fixed;
-            top: 10%;
-            left: 0;
-            width: 100%;
-            height: calc(100vh - 4px);
-            background-image: url("{% static 'solon2.jpg' %}");
-            filter: blur(3px);
-            background-size: cover;
-            background-repeat: no-repeat;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
             background-attachment: fixed;
-            background-position: center;
-            z-index: -1;
-        }
-        .button-container {
-            text-align: left;
-            position: fixed;
-            top: 11%;
-            left: 0;
-            background-color: rgba(2, 37, 70, 0.7);
-            height: 90%;
-            width: 15%;
-            padding: 10px;
-            border-radius: 5px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(1px);
-        }
-        .button-container a {
-            color: white;
-            padding: 10px 20px;
-            text-align: left;
-            text-decoration: none;
+            color: #fff;
+            min-height: 100vh;
             font-size: 16px;
-            border-radius: 5px;
-            display: block;
-            transition: background-color 0.3s, text-decoration 0.3s;
         }
-        .button-container a:hover {
-            text-decoration: underline;
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .logo {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 2;
-            margin-bottom: 10%;
+            height: 40px;
         }
-        .logo img {
-            width: 100px;
-            height: auto;
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
         }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: rgb(0, 2, 82);
+        }
+
+        .navbar img {
+            height: 40px;
+        }
+
         h3 {
             text-align: center;
         }
@@ -116,23 +89,27 @@
         .chart-container1 {
             width: 40%; /* Reduce the width of the pie chart */
             margin-top: 8%;
+            padding-right: 2%;
             margin-right: 3%; /* Optional: Add some margin around the containers */
-            background-color: #f9f9f9b9; /* Background color (optional) */
+            background-color: #f9f9f9e5; /* Background color (optional) */
             position: relative; /* Position the chart title relative to the container */
+            padding-top: 2%;
         }
 
         .chart-container2 {
             width: 50%; /* Wider container for the bar chart */
             margin-top: 8%;
-            margin-left: 20%; /* Optional: Add some margin around the containers */
-            background-color: #f9f9f9b9; /* Background color (optional) */
+            margin-left: 3%; /* Optional: Add some margin around the containers */
+            background-color: #f9f9f9e5; /* Background color (optional) */
             position: relative; /* Position the chart title relative to the container */
+            font-family: 'Times New Roman', Times, serif;
+            padding-top: 2%;
         }
 
         .chart-title {
             position: absolute;
             top: -30px;
-            left: 28%;
+            left: 45%;
             transform: translateX(-50%);
             font-size: 18px;
             font-weight: bold;
@@ -209,25 +186,23 @@
     </style>
 </head>
 <body>
-    <div class="logout">
-        {% if user.is_authenticated %}
-        <form action="{% url 'logout' %}" method="POST">
-            {% csrf_token %}
-            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i> Logout</button>
-        </form>
-        {% endif %}
-    </div>
-    <div class="logo">
-        <img src="{% static 'logo.jpg' %}" alt="Logo">
-    </div>
-    <div class="container">
-        <h3>Complaints Tracking</h3>
-        <div class="button-container">
+     <div class="navbar">
+        <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+        <div class="nav-links">
             <a href="{% url 'approval_complaints' %}"><b>Approvals</b></a>
             <a href="{% url 'final_complaints' %}"><b>Closed Complaints</b></a>
             <a href="{% url 'admin' %}"><b>Dashboard</b></a>
-            <!-- <a href="{% url 'home' %}"><b>Home</b></a> -->
+                {% if user.is_authenticated %}
+                <form action="{% url 'logout' %}" method="POST">
+                    {% csrf_token %}
+                    <a href="{% url 'home' %}" style="text-decoration: none;">
+                        <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
+                    </a>
+                </form>
+                {% endif %}
         </div>
+    </div>
+
         <form method="get" action="{% url 'complaint_analysis' %}" class="top-right-form">
             <label for="site_name">Select Site:</label>
             <select id="site_name" name="site_name" onchange="this.form.submit()">

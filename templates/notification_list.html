@@ -8,147 +8,122 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
             margin: 0;
-            padding: 0;
-            background-image: url("{% static 'solon2.jpg' %}");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            color: #333;
-            height: 100vh;
-            display: flex;
-            flex-direction: row;
-            overflow: hidden;
-        }
-
-        /* Fixed Sidebar */
-        .button-container {
-            text-align: left;
-            position: fixed;
-            top: 14%;
-            left: 0;
-            background-color: rgba(2, 37, 70, 0.7);
-            height: 90%;
-            padding: 10px;
-            border-radius: 5px;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-size: 16px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(1px);
-            width: 218px;
-            z-index: 1;
         }
 
-        .button-container a {
-            color: white;
-            padding: 10px 20px;
-            text-align: left;
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 5px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: 45%;
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
             text-decoration: none;
-            font-size: 16px;
-            border-radius: 5px;
-            display: block;
-            transition: background-color 0.3s, text-decoration 0.3s;
+            color: #002550;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 20px;
         }
 
-        .button-container a:hover {
-            text-decoration: underline;
+        .nav-links form {
+            margin-top: 16px;
+        }
+        .navbar img {
+            height: 40px;
         }
 
-        /* Container for the content */
         .container {
-            flex-grow: 1;
-            margin-left: 240px;
-            margin-top: 5px;
-            padding: 0px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Fixed header */
-        .fixed-header {
-            position: fixed;
-            top: 10px;
-            left: 240px;
-            right: 10px;
-            z-index: 2;
-            width: calc(100% - 240px);
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
         }
 
         h1 {
+            color: rgba(2, 37, 70, 0.8);
             text-align: center;
-            font-size: 24px;
-            color: rgba(2, 37, 70, 0.7);
-            margin: 0;
-            transform: translateX(-60px);
         }
 
         .search-form {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             justify-content: space-between;
-            padding: 10px;
+            padding: 5px;
+            border-radius: 8px;
+            margin-left: 2%;
         }
 
         .search-form label {
             font-size: 12px;
-            margin-right: 2px;
+            margin-right: 5px;
         }
 
         .search-form select,
         .search-form input {
-            padding: 8px 12px;
+            padding: 10px;
             font-size: 14px;
             width: 180px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            background-color: transparent;
         }
 
         .search-form button {
-            padding: 8px 26px;
+            padding: 10px 20px;
             font-size: 14px;
-            cursor: pointer;
-            background-color: rgba(2, 37, 70, 0.7);
+            background-color: #002550;
             color: white;
             border: none;
             border-radius: 4px;
-            margin-right: 20px;
+            cursor: pointer;
+        }
+
+        .search-form button:hover {
+            background-color: #001a35;
         }
 
         .table-container {
-            margin-top: 160px;
+            margin-top: 2%;
             width: 100%;
             overflow-y: auto;
-            height: calc(100vh - 160px);
+            height: calc(100vh - 180px);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: #FFFFFF;
+            background-color: #fff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
         }
 
         th, td {
             border: 1px solid #ddd;
-            padding: 12px 16px;
+            padding: 14px;
             text-align: left;
             font-size: 14px;
         }
 
         th {
-            background-color: rgba(2, 37, 70, 0.7);
+            background-color: #002550;
             color: white;
             font-weight: bold;
         }
@@ -158,185 +133,120 @@
         }
 
         tr:hover {
-            background-color: #E3F2FD;
+            background-color: #e3f2fd;
         }
 
-        footer {
-            text-align: center;
-            margin-top: 30px;
-        }
-
-        .logo {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 2;
-        }
-
-        .logo img {
-            width: 100px;
-            height: auto;
-        }
-
-        /* Top-right Buttons */
-        .top-right-buttons {
-            position: fixed;
-            top: 15px;
-            right: 10px;
-            z-index: 100;
-            display: flex;
-            gap: 40px;
-        }
-
-        /* Logout Button */
-        .logout button {
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: rgba(2, 37, 70, 0.7);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .logout button:hover {
-            background-color: rgba(2, 37, 70, 1);
-        }
-
-        /* Notification Bell */
         .notification-bell {
-            font-size: 30px;
+            font-size: 20px;
             color: #fff;
             background-color: #333;
             border-radius: 50%;
-            padding: 10px;
+            padding: 5px;
             cursor: pointer;
+            margin-bottom: 7px;
+            position: relative;
+            top: -7px; /* ↑ paiki move */
         }
 
         .notification-count {
             position: absolute;
-            top: -5px;
-            right: -5px;
+            top: 10px;
+            right: 10px;
             background-color: red;
             color: white;
-            font-size: 14px;
-            padding: 5px 10px;
+            font-size: 12px;
+            padding: 5px 5px;
             border-radius: 50%;
             font-weight: bold;
-        }
-
-        .blink {
-            animation: blink 1.5s ease-in-out infinite, scaleUp 1s infinite alternate;
-        }
-
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 1; }
-        }
-
-        @keyframes scaleUp {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.2); }
         }
 
     </style>
 </head>
 <body>
-    <div class="top-right-buttons">
-        <div class="logout">
-            {% if user.is_authenticated %}
-            <form action="{% url 'logout' %}" method="POST">
-                {% csrf_token %}
-                <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 6px;"></i> Logout</button>
-            </form>
-            {% endif %}
-        </div>
-
-        <div class="notification-container">
+<div class="navbar">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <div class="nav-links">
+        <a href="{% url 'upload_inventory' %}">Upload Inventory</a>
+        <a href="{% url 'site_analysis' %}">Tracking</a>
+        <a href="{% url 'admin' %}">Dashboard</a>
+        {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="POST">
+            {% csrf_token %}
+            <a href="{% url 'home' %}" style="text-decoration: none;">
+                <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
+            </a>
+        </form>
+        {% endif %}
             <a href="{% url 'real_time_notification_list' %}">
                 <i class="fas fa-bell notification-bell"></i>
                 {% if unread_notifications > 0 %}
                     <span class="notification-count {% if unread_notifications > 0 %}blink{% endif %}">{{ unread_notifications }}</span>
                 {% endif %}
             </a>
-        </div>
     </div>
-
-    <div class="button-container">
-        <a href="{% url 'upload_inventory' %}">Upload Inventory</a>
-        <a href="{% url 'site_analysis' %}">Tracking</a>
-        <a href="{% url 'admin' %}">Dashboard</a>
-    </div>
-
-    <div class="container">
-        <div class="logo">
-            <img src="{% static 'logo.jpg' %}" alt="Logo">
-        </div>
-        <div class="fixed-header">
-            <h1>Inventory History List</h1>
-            <form method="GET" class="search-form">
-                <div>
-                    <label for="site_name">Select Site:</label>
-                    <select id="site_name" name="site_name">
-                        <option value="">All Sites</option>
-                        {% for site in sites %}
-                            <option value="{{ site.name }}" {% if site.name == selected_site %}selected{% endif %}>{{ site.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div>
-                    <label for="start_date">Start Date:</label>
-                    <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
-                </div>
-
-                <div>
-                    <label for="end_date">End Date:</label>
-                    <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
-                </div>
-
-                <button type="submit">Search</button>
-            </form>
-        </div>
-
-        <!-- Table Area -->
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Site Name</th>
-                        <th>Material Code</th>
-                        <th>Material Desc</th>
-                        <th>UOM</th>
-                        <th>Opening Stock</th>
-                        <th>Consumption</th>
-                        <th>Closing Stock</th>
-                        <th>Timestamp</th>
-                        <th>unit value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for notification in notifications %}
-                        <tr>
-                            <td>{{ notification.site.name }}</td>
-                            <td>{{ notification.material_code }}</td>
-                            <td>{{ notification.material_desc }}</td>
-                            <td>{{ notification.uom }}</td>
-                            <td>{{ notification.opening_stock }}</td>
-                            <td>{{ notification.consumption }}</td>
-                            <td>{{ notification.closing_stock }}</td>
-                            <td>{{ notification.timestamp }}</td>
-                            <td>{{ notification.unit_value }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="6">No notifications found.</td>
-                        </tr>
+</div>
+<div class="container">
+        <h1>Inventory History</h1>
+        <form method="GET" class="search-form">
+            <div>
+                <label for="site_name">Select Site:</label>
+                <select id="site_name" name="site_name">
+                    <option value="">All Sites</option>
+                    {% for site in sites %}
+                        <option value="{{ site.name }}" {% if site.name == selected_site %}selected{% endif %}>{{ site.name }}</option>
                     {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+                </select>
+            </div>
+
+            <div>
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+            </div>
+
+            <div>
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+            </div>
+
+            <button type="submit">Search</button>
+        </form>
+    <!-- Table Area -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Site Name</th>
+                    <th>Material Code</th>
+                    <th>Material Desc</th>
+                    <th>UOM</th>
+                    <th>Opening Stock</th>
+                    <th>Consumption</th>
+                    <th>Closing Stock</th>
+                    <th>Timestamp</th>
+                    <th>Unit Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for notification in notifications %}
+                    <tr>
+                        <td>{{ notification.site.name }}</td>
+                        <td>{{ notification.material_code }}</td>
+                        <td>{{ notification.material_desc }}</td>
+                        <td>{{ notification.uom }}</td>
+                        <td>{{ notification.opening_stock }}</td>
+                        <td>{{ notification.consumption }}</td>
+                        <td>{{ notification.closing_stock }}</td>
+                        <td>{{ notification.timestamp }}</td>
+                        <td>{{ notification.unit_value }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9">No notifications found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+</div>
+</div>
 </body>
 </html>

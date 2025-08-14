@@ -10,12 +10,51 @@
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 
     <style>
+        body {
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-size: 16px;
+            overflow-x: hidden; /* Hide horizontal scrollbar */
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: rgb(0, 2, 82);
+        }
+
+        .navbar img {
+            height: 40px;
+        }
+
         /* General Wrapper */
         .wrapper {
             display: flex;
             flex-direction: column;
             height: 100vh;
-            font-family: Arial, sans-serif;
+            overflow-y: auto; /* Allow content scroll */
         }
 
         /* Top Border (10% height) */
@@ -24,8 +63,7 @@
             justify-content: space-between;
             align-items: center;
             height: 14%;
-            padding: 15px;
-            background-color: whitesmoke;
+            padding: 5px;
             border-bottom: 2px solid white;
         }
 
@@ -38,21 +76,6 @@
 
         .top-left .logo img {
             height: 50px;
-        }
-
-        .back-to-analysis-btn {
-            padding: 8px 15px;
-            /* background-color: #007bff; */
-            color: #007bff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        .back-to-analysis-btn:hover {
-            color: #031324; /* Darker blue on hover */
         }
 
         /* Center Section */
@@ -93,7 +116,6 @@
         .search-container button {
             padding: 6px 15px;
             background-color: #007bff;
-            color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -107,27 +129,13 @@
             border: none;
             padding: 8px 15px;
             border-radius: 4px;
-            font-size: 16px;
+            font-size: 12px;
             cursor: pointer;
             text-align: center;
         }
 
         .blue-button:hover {
             background-color: #0056b3; /* Darker blue on hover */
-        }
-
-        .logout-btn {
-            background-color: #ff6347;
-            padding: 8px 15px;
-            border-radius: 4px;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .logout-btn:hover {
-            background-color: #e04f2e; /* Darker red on hover */
         }
 
         .export-btn {
@@ -144,16 +152,6 @@
             background-color: #0056b3; /* Darker blue on hover */
         }
 
-        .top-right form button {
-            margin-bottom: 10px;
-            padding: 8px 12px;
-            background-color: #ff6347;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
         .top-right a {
             color: #007bff;
             text-decoration: none;
@@ -163,28 +161,25 @@
         /* Bottom Border (Table Section) */
         .bottom-border {
             flex: 1;
-            padding: 20px;
-            overflow-y: auto;
+            overflow-y: scroll; /* Allow this section to scroll */
+            background-color: white;
+            width: 100%;
         }
-
         /* Table Styles */
         .table-container {
-            width: 100%;
-            max-height: 700px; /* Set the maximum height for the table */
-            margin-top: 20px;
-            margin-bottom: 10px; /* Adds 10px margin from the bottom to the scroll */
+            width: 80%;
         }
 
         #complaintsTable {
-            width: 100%;
+            width: 100%; /* Ensures the table doesn't exceed container width */
             border-collapse: collapse;
             margin-top: 20px;
         }
 
         #complaintsTable th, #complaintsTable td {
-            border: 1px solid #000;
-            padding: 12px;
+            border: 1px solid #747474;
             text-align: center;
+            padding: 0;
         }
 
         #complaintsTable th {
@@ -201,18 +196,6 @@
             cursor: pointer;
         }
 
-        td:nth-child(9), td:nth-child(16) { /* 9th is Complaint Open Date, 10th is Complaint Closed Date */
-            white-space: nowrap;   /* Prevent text from wrapping */
-            overflow: hidden;      /* Ensures content doesn't overflow */
-            text-overflow: ellipsis; /* Adds "..." if the content overflows */
-            width: 120px; /* Adjust this width as necessary */
-        }
-
-        th:nth-child(9), th:nth-child(16) {
-            white-space: nowrap;   /* Prevent header text from wrapping */
-            width: 120px; /* Adjust this width as necessary */
-        }
-
         /* Responsive Design */
         @media (max-width: 768px) {
             .top-border {
@@ -221,7 +204,7 @@
             }
 
             .top-left, .top-center, .top-right {
-                width: 100%;
+                width: 80%;
                 text-align: center;
             }
 
@@ -229,54 +212,55 @@
                 margin-left: 0;
                 margin-top: 10px;
             }
-        }
+            }
+            .no{
+            color:brown;
+            }
     </style>
 </head>
 <body>
-
-<div class="wrapper">
-    <!-- Top Border (10% height) -->
-    <div class="top-border">
-        <!-- Top Left: Logo and Back to Analysis Button -->
-        <div class="top-left">
-            <div class="logo">
-                <img src="{% static 'logo.jpg' %}" alt="Logo">
-            </div>
-            <a href="{% url 'complaint_analysis' %}">
-                <button class="back-to-analysis-btn">
-                    <i class="fas fa-arrow-left"></i> Back 
-                </button>
-                <!-- <button class="back-to-analysis-btn">Back to Analysis</button> -->
-            </a>
-
-        </div>
-
-        <!-- Top Center: Heading, Back to Analysis, and Search -->
-        <div class="top-center">
-            <div class="heading-container">
-                <h2>{{ complaint_type|title }} Complaints</h2>
-            </div>
-            
-            <div class="search-container">
-                <label for="searchInput"> </label>
-                <input type="text" id="searchInput" class="search-input" placeholder="Search by Complaint ID..." onkeyup="filterComplaints()">
-                <button class="search-button" onclick="filterComplaints()">Search</button>
-            </div>
-        </div>
-
-        <!-- Top Right: Logout and Export -->
-        <div class="top-right">
-            {% if user.is_authenticated %}
+    <div class="navbar">
+        <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+        <div class="nav-links">
+            <a href="{% url 'approval_complaints' %}"><b>Approvals</b></a>
+            <a href="{% url 'final_complaints' %}"><b>Closed Complaints</b></a>
+            <a href="{% url 'complaint_analysis' %}"><b>Tracking</b></a>
+            <a href="{% url 'admin' %}"><b>Dashboard</b></a>&nbsp;
+                {% if user.is_authenticated %}
                 <form action="{% url 'logout' %}" method="POST">
                     {% csrf_token %}
-                    <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    <a href="{% url 'home' %}" style="text-decoration: none;">
+                        <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
+                    </a>
                 </form>
-            {% endif %}
-            <a href="{% url 'export_complaints_to_csv' complaint_type site_name|default:'All' %}">
-                <button class="export-btn">Export to CSV</button>
-            </a>
+                {% endif %}
         </div>
     </div>
+    <div class="wrapper">
+        <!-- Top Border (10% height) -->
+        <div class="top-border">
+            <!-- Top Center: Heading, Back to Analysis, and Search -->
+            <div class="top-center">
+                <div class="heading-container">
+                    <h2>{{ complaint_type|title }} Complaints</h2>
+                </div>
+                
+                <div class="search-container">
+                    <label for="searchInput"> </label>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search by Complaint ID..." onkeyup="filterComplaints()">
+                    <button class="search-button" onclick="filterComplaints()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Top Right: Logout and Export -->
+            <div class="top-right">
+                <a href="{% url 'export_complaints_to_csv' complaint_type site_name|default:'All' %}">
+                    <button class="export-btn">Export to CSV</button>
+                </a>
+            </div>
+        </div>
 
     <!-- Bottom Border (Table Section) -->
     <div class="bottom-border">
@@ -340,7 +324,7 @@
                                                     <img src="{{ image }}" alt="Complaint Image" onclick="openModal('{{ image }}')">
                                                 {% endfor %}
                                             {% else %}
-                                                <p>No images uploaded.</p>
+                                                <p class="no">No images uploaded.</p>
                                             {% endif %}
                                         {% endwith %}
                                     </td>
@@ -348,7 +332,7 @@
                                         {% if complaint.pdf_file %}
                                             <a href="{{ complaint.pdf_file.url }}" target="_blank">View PDF</a>
                                         {% else %}
-                                            <p>No PDF's uploaded</p>
+                                            <p class="no">No PDF's uploaded</p>
                                         {% endif %}
                                     </td>
                                 </tr>

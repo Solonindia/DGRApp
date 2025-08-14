@@ -7,33 +7,56 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         body {
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
             margin: 0;
-            padding: 0;
-            background-image: url('{% static "solon1.jpg" %}');
-            color: #333;
-            display: flex;
-            justify-content: flex-end; /* Align items to the right */
-            align-items: flex-start; /* Align items to the top */
-            height: 100vh; /* Full viewport height */
-            overflow: hidden; /* Prevent body scroll */
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-size: 16px;
         }
 
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: rgb(0, 2, 82);
+        }
+
+        .navbar img {
+            height: 40px;
+        }
         .form-container {
             width: 90%; /* Width of the form container */
-            max-width: 950px; /* Max width of the form */
             padding: 10px;
             background: rgba(255, 255, 255,0.7); /* Slightly transparent white background */
             box-shadow: 0 4px 8px rgba(0, 0, 0);
-            min-height: 300px; /* Adjust height here */
-            margin-right: 0px; /* Space from the right edge */
-            height: 100%; /* Set a height for the form container */
+            margin-right: 5%; /* Space from the right edge */
+            margin-left: 5%;
             overflow-y: auto; /* Enable vertical scrolling */
+            margin-top: 2%;
+            margin-bottom: 2%;
         }
 
         h2 {
             text-align: center;
-            color: #011742;
+            color: rgba(59, 0, 13, 0.952);
         }
 
         label {
@@ -64,12 +87,12 @@
             outline: none;
         }
 
-        button {
+        .sub {
             margin-left: 40%;
             display: block;
-            width: 25%;
+            width: 15%;
             padding: 10px;
-            background-color: #0044cc;
+            background: linear-gradient(90deg, #04035c, #0073e6);
             color: #fff;
             border: none;
             border-radius: 4px;
@@ -77,10 +100,6 @@
             font-size: 16px;
             transition: background-color 0.3s;
             margin-bottom: 30px;
-        }
-
-        button:hover {
-            background-color: #0033aa;
         }
 
         .error-message {
@@ -132,95 +151,25 @@
             background-color: #0d0d0e;
             color: white;
         }
-
-        .logo {
-            position: fixed; /* Change to fixed to keep it in place during scrolling */
-            top: 10px;
-            left: 10px;
-            z-index: 2;
-        }
-
-        .logo img {
-            width: 100px;
-            height: auto;
-        }
-
-        .button-container {
-            text-align: left;
-            position: fixed;
-            top: 11%; /* Adjust to set vertical position */
-            left: 0; /* Adjust to set horizontal position */
-            background-color: rgba(2, 37, 70, 0.7); 
-            height: 90%; /* Adjust height as needed */
-            padding: 10px; 
-            border-radius: 5px; 
-            display: flex;
-            flex-direction: column; 
-            gap: 10px; 
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-            backdrop-filter: blur(1px); 
-        }
-
-        .button-container a {
-            color: white; 
-            padding: 10px 20px;
-            text-align: left;
-            text-decoration: none;
-            font-size: 16px;
-            border-radius: 5px; 
-            display: block; 
-            transition: background-color 0.3s, text-decoration 0.3s; 
-        }
-
-        .button-container a:hover {
-            text-decoration: underline; 
-        }
-
-        .logout {
-            position: fixed; /* Ensures the button stays fixed at the top-right corner */
-            top: 10px;
-            right: 60px;
-            z-index: 2;
-        }
-
-        .logout button {
-        background-color: #0044cc;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 14px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.3s;
-        display: inline-flex; /* Ensure the icon and text are on the same line */
-        align-items: center;  /* Vertically center the icon with the text */
-        width: auto;
-        }
-
-        .logout button i {
-            margin-right: 8px;  /* Space between the icon and text */
-        }
     </style>
 </head>
 <body>
-    <div class="logout">
+    <div class="navbar">
+        <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+        <div class="nav-links">
+        <a href="{% url 'visitor_log_list' %}"><b>History</b></a>
+        <a href="{% url 'admin' %}"><b>Dashboard</b></a>
         {% if user.is_authenticated %}
         <form action="{% url 'logout' %}" method="POST">
             {% csrf_token %}
-            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i> Logout</button>
+            <a href="{% url 'home' %}" style="text-decoration: none;">
+                <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
+            </a>
         </form>
         {% endif %}
-    </div>
+        </div>
+    </div>  
 
-    <div class="button-container">
-        <a href="{% url 'visitor_log_list' %}"><b>History</b></a>
-        <a href="{% url 'admin' %}"><b>Dashboard</b></a>
-        <!-- <a href="{% url 'home' %}"><b>Home</b></a> -->
-    </div> 
-    <div class="logo">
-        <img src="{% static 'logo.jpg' %}" alt="Logo">
-    </div>
     <div class="form-container"> <!-- Container for the form -->
         <h2>Visitor Gate Pass</h2>
         {% if messages %}
@@ -277,7 +226,7 @@
             <div id="imagePreviewContainer" class="image-preview"></div>
             <div id="error-message" class="error-message"></div>
 
-            <button type="submit"><b>Submit</b></button>
+            <button type="submit" class="sub"><b>Submit</b></button>
         </form>
     </div>
     <script>

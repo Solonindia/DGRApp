@@ -39,6 +39,7 @@
             margin-left: 20px;
             text-decoration: none;
             color: rgb(0, 2, 82);
+            margin-top: 3px;
         }
 
         .navbar img {
@@ -117,11 +118,19 @@
             <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
             <div class="nav-links">
                 {% if user_type == 'admin' %}
-                    <a href="{% url 'admin' %}">Dashboard</a>
                     <a href="{% url 'history_servicereport' %}">History</a>
                     <a href="{% url 'add_checklist_item' %}">Add Checklist Item</a>
+                    <a href="{% url 'admin' %}">Dashboard</a>
                 {% else %}
                     <a href="{% url 'user' %}">Dashboard</a>
+                {% endif %}
+                {% if user.is_authenticated %}
+                <form action="{% url 'logout' %}" method="POST">
+                    {% csrf_token %}
+                <a href="{% url 'home' %}" style="text-decoration: none;">
+                    <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
+                </a>
+                </form>
                 {% endif %}
             </div>
         </div>

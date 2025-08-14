@@ -1,22 +1,63 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Edit Inventory</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-size: 16px;
+            display: flex;
+            flex-direction: column;
         }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #002550;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .navbar img {
+            height: 40px;
+        }
+
         .form-container {
-            max-width: 500px;
-            margin: auto;
-            padding: 25px;
-            border: 1px solid #ccc;
+            width:50%;
+            padding: 35px;
+            padding-top: 0;
+            border: 1px solid #0c0c0c;
             border-radius: 10px;
+            margin-left: 20%;
+            margin-right: 20%;
+            margin-bottom: 2%;
+            margin-top: 1%;
         }
         .form-container h2 {
             text-align: center;
-            margin-bottom: 20px;
         }
         label {
             display: block;
@@ -50,6 +91,17 @@
     </style>
 </head>
 <body>
+    <div class="navbar">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <div class="nav-links">
+        {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit"><i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout</button>
+        </form>
+        {% endif %}
+    </div>
+    </div>
     <div class="form-container">
         <h2>Edit Inventory Item</h2>
         <form method="POST">
