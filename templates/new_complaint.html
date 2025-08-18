@@ -161,30 +161,25 @@
             padding: 4px 0;
         }
 
-        .button-group {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .button-group button {
-            padding: 12px 24px;
-            font-size: 14px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-
         .submit-button {
+            margin-left: 80%;
+            width: 30%;
             background: linear-gradient(90deg, #04035c, #0073e6);
-            color: #ffffff;
-            margin-left: 100%; /* Removed large margin */
-            padding: 12px 24px;
             font-size: 14px;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            color: aliceblue;
+            padding: 10px 12px;
+        }
+
+        .submit-button:active {
+            transform: scale(0.95); /* Shrink the button slightly on click */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Add subtle shadow for pressed effect */
         }
 
         .error-message {
@@ -208,9 +203,8 @@
 
 </style>
 </head>
-
-<body onload="setTodayDate()">  
-    <div class="navbar">
+<body>  
+      <div class="navbar">
         <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
         <div class="nav-links">
         <a href="{% url 'existing_complaints' %}"><b>Open Complaints</b></a>
@@ -239,7 +233,7 @@
 
                 <div class="form-group">
                     <label for="site_name"><b>Site Name *</b></label>
-                    <input type="text" id="site_name" name="site_name" required oninput="updateComplaintId()">
+                    <input type="text" id="site_name" name="site_name" required>
                 </div>              
 
                 <div class="form-row">
@@ -260,7 +254,7 @@
 
                         <div class="form-group">
                             <label for="priority"><b>Priority *</b></label>
-                            <select id="priority" name="priority" required onchange="updateComplaintId()">
+                            <select id="priority" name="priority" required>
                                 <option value="High">High</option>
                                 <option value="Medium" selected>Medium</option>
                                 <option value="Low">Low</option>
@@ -343,11 +337,9 @@
     </div>
 
     <script>
-        // This is for the POST request handling (AJAX submission)
         document.getElementById('complaintForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
-        
-            // Submit the form data via AJAX
+            event.preventDefault(); // This prevents the form from submitting normally
+
             fetch(this.action, {
                 method: 'POST',
                 body: new FormData(this),
@@ -359,11 +351,8 @@
             .then(data => {
                 if (data.success) {
                     alert('Your complaint has been registered successfully!');
-                    // Set the Complaint ID returned from the backend
                     document.getElementById('complaint_id').value = data.data.complaint_id;
-        
-                    // Optionally, reset the form or do other UI changes
-                    this.reset(); // Reset form fields if needed
+                    this.reset();
                 } else {
                     alert('There was an issue with your submission. Please try again.');
                 }
