@@ -14,7 +14,7 @@
             background-attachment: fixed;
             background-repeat: no-repeat;
             background-size: cover;
-            font-family: 'Times New Roman', Times, serif;
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         /* Navbar */
@@ -201,31 +201,33 @@
         {% endif %}
 
         {% if histories %}
-            <h3 class="download-heading">Downloads for: {{ selected_type }}</h3>
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>S.No</th>
-                        <th>Date & Time</th>
-                        <th>Project</th>
-                        <th>Location</th>
-                        <th>Service Report</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for h in histories %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ h.submitted_on|date:"d M Y, H:i" }}</td>
-                        <td>{{ h.checklist.project_name }}</td>
-                        <td>{{ h.checklist.project_location }}</td>
-                        <td><a href="{% url 'download_pdf' h.checklist.id %}" target="_blank">📄 Download PDF</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-        {% endif %}
+        <h3 class="download-heading">Downloads for: {{ selected_type }}</h3>
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Date & Time</th>
+                    <th>Project</th>
+                    <th>Location</th>
+                    <th>Service Report</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for h in histories %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ h.submitted_on|date:"d M Y, H:i" }}</td>
+                    <td>{{ h.checklist.project_name }}</td>
+                    <td>{{ h.checklist.project_location }}</td>
+                    <td><a href="{% url 'download_pdf' h.checklist.id %}" target="_blank">📄 Download PDF</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="no-history-message">No History Found</p>
+    {% endif %}
+
     </div>
 </body>
 </html>
