@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -308,5 +308,288 @@
             modal.style.display = "none";
         }
     </script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Closed Complaints</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    :root {
+      --brand:#002550;
+      --bg1:#a1c4fd; --bg2:#c2e9fb;
+      --navbar-h:60px;
+      --mheader-h:56px;
+      --mfooter-h:56px;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+    }
+    body {
+      margin: 0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg, var(--bg1) 0%, var(--bg2) 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      font-size: 16px;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* ===== Desktop Navbar ===== */
+    .navbar {
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff; padding:10px 20px; box-shadow:var(--shadow);
+      height:var(--navbar-h); z-index:1000;
+    }
+    @media(min-width:769px){
+      .navbar {position:fixed; top:0; left:0; right:0;}
+      body {padding-top:var(--navbar-h);}
+    }
+    .logo {height:40px;}
+    .nav-links {display:flex; gap:24px; align-items:center;}
+    .nav-links a,
+    .nav-links form button {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:4px; text-decoration:none; color:var(--brand); font-size:12px; font-weight:600;
+      background:none; border:none; cursor:pointer; padding:4px 6px;
+    }
+    .nav-links i {font-size:18px;}
+
+    /* ===== Mobile Header ===== */
+    .mobile-header {
+      display:none; position:fixed; top:0; left:0; right:0; height:var(--mheader-h);
+      background:#fff; box-shadow:var(--shadow); padding:8px 12px; z-index:1000;
+      align-items:center; justify-content:space-between;
+    }
+    .m-left img {height:32px;}
+    .m-right {display:flex; gap:8px; align-items:center;}
+    .icon-btn {
+      background:#f3f4f6; border:none; border-radius:8px; padding:8px 10px; cursor:pointer;
+      color:var(--brand); display:inline-flex; align-items:center; justify-content:center;
+    }
+    .mobile-header i {font-size:18px;}
+
+    /* ===== Mobile Footer ===== */
+    .mobile-footer {
+      display:none; position:fixed; bottom:0; left:0; right:0; height:var(--mfooter-h);
+      background:#fff; box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      align-items:center; justify-content:space-around; z-index:1000;
+    }
+    .mobile-footer a {
+      text-decoration:none;
+      color:var(--brand);
+      font-weight:600;
+      font-size:12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      line-height:1.2;
+    }
+    .mobile-footer i {
+      font-size:18px;
+      margin-bottom:4px;
+    }
+    .footer-label {
+      display:block;
+      word-break: break-word;
+      white-space: normal;
+    }
+
+    /* === Scrollable Content === */
+    .content {flex:1; overflow:auto; padding:20px;}
+    @media(max-width:768px){
+      .navbar {display:none;}
+      .mobile-header {display:flex;}
+      .mobile-footer {display:flex;}
+      body {padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h);}
+      .content {padding:12px 10px 70px;}
+    }
+
+    /* ===== Main Content ===== */
+    h3 {color: rgba(59, 0, 13, 0.952); text-align: center; margin-bottom: 2%;}
+    ul {list-style-type: none; padding: 0;}
+    li {
+      background-color:aliceblue;
+      border: 1px solid #030303;
+      padding: 10px;
+      border-radius: 15px;
+      color:rgb(4, 98, 160);
+      margin-left:5%;
+      margin-right: 5%;
+      margin-bottom: 15px;
+    }
+    li span {display:block;}
+    .view-more-container {display:flex; justify-content:flex-end;}
+    .image-container {margin-top:10px; display:flex; flex-wrap:wrap; gap:10px;}
+    .image-container img {
+      width:18%; height:auto; border:1px solid #ddd; border-radius:4px;
+      cursor:pointer; transition:transform 0.2s ease;
+    }
+    .image-container img:hover {transform:scale(1.05);}
+    .modal {
+      display:none; position:fixed; z-index:1000; left:0; top:0;
+      width:100%; height:100%; overflow:auto;
+      background-color:rgba(0,0,0,0.8);
+      justify-content:center; align-items:center;
+    }
+    .modal-content {
+      max-width:80%; max-height:80%;
+      margin:auto; display:block;
+      border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.2);
+    }
+    .modal-content img {width:100%; height:auto; border-radius:8px;}
+    .close {
+      position:absolute; top:20px; right:30px;
+      color:#fff; font-size:40px; font-weight:bold; cursor:pointer;
+    }
+    .complaint-details {display:none; margin-left:2%; margin-top:15px; line-height:1.6;}
+    .complaint-details strong {display:inline-block; margin-bottom:5px;}
+    .complaint-details span, .complaint-details p {display:block; margin-bottom:12px;}
+    .image-container img {max-width:100px; margin-right:10px; margin-bottom:10px;}
+    .no {color:red; font-size:larger; text-align:center;}
+  </style>
+</head>
+<body>
+
+  <!-- ===== Desktop Navbar ===== -->
+  <div class="navbar">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <div class="nav-links">
+      <a href="{% url 'complaint_form' %}"><i class="fas fa-plus-circle"></i><span>New Complaint</span></a>
+      <a href="{% url 'existing_complaints' %}"><i class="fas fa-exclamation-circle"></i><span>Open Complaints</span></a>
+      <a href="{% url 'final_complaints_user' %}"><i class="fas fa-check-circle"></i><span>Closed Complaints</span></a>
+      <a href="{% url 'rejected_complaints' %}"><i class="fas fa-times-circle"></i><span>Rejected Complaints</span></a>
+      <a href="{% url 'user' %}"><i class="fas fa-home"></i><span>Home</span></a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}?next=/user/login/" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===== Mobile Header ===== -->
+  <div class="mobile-header">
+    <div class="m-left">
+      <img src="{% static 'logo.png' %}" alt="Logo">
+    </div>
+    <div class="m-right">
+      <a class="icon-btn" href="{% url 'user' %}"><i class="fas fa-home"></i></a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}?next=/user/login/" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="icon-btn"><i class="fas fa-sign-out-alt"></i></button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===== Main Content ===== -->
+  <div class="content">
+    <h3>Closed Complaints</h3>
+    <div class="hist">
+      <ul>
+        {% for complaint in accepted_usercomplaints %}
+          <li>
+            <span>
+              <strong style="color:brown;">{{ forloop.counter }}) &nbsp;&nbsp;</strong>
+              <strong style="color:#0a0a0a">Complaint ID:</strong> {{ complaint.complaint_id }}
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong style="color:#0a0a0a">Location:</strong>
+              {% if complaint.location == 'Other' and complaint.custom_location %}
+                {{ complaint.custom_location }}
+              {% else %}
+                {{ complaint.location }}
+              {% endif %}
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong style="color:#0a0a0a">Product/Equipment:</strong> {{ complaint.equipment}}
+              <div class="view-more-container">
+                <a href="javascript:void(0);" onclick="toggleDetails(this);">View More</a>
+              </div>
+            </span>
+            <div class="complaint-details">
+              <strong style="color:#0a0a0a">Project Owner:</strong> {{ complaint.company_name }}<br>
+              <strong style="color:#0a0a0a">Site Name:</strong> {{ complaint.site_name }}<br>
+              <strong style="color:#0a0a0a">Priority:</strong> {{ complaint.priority }}<br>
+              <strong style="color:#0a0a0a">Complaint Raised by:</strong> {{ complaint.complaint_raised_by }} <br>
+              <strong style="color:#0a0a0a">Nature of Complaint:</strong> {{ complaint.nature_of_complaint|default:"N/A" }}<br>
+              <strong style="color:#0a0a0a">Complaint open Date:</strong> {{ complaint.start_date|date:"Y-m-d" }}<br>
+              <strong style="color:#0a0a0a">Summary of Action Taken:</strong> {{ complaint.summary_of_action_taken|default:"No summary provided." }}<br>
+              <strong style="color:#0a0a0a">Root Cause:</strong> {{ complaint.root_cause }}<br>
+              <strong style="color:#0a0a0a">Preventive Action:</strong> {{ complaint.preventive_action }}<br>
+              <strong style="color:#0a0a0a">Claim Type:</strong> {{ complaint.claim_type }}<br>
+              <strong style="color:#0a0a0a">Parts Replaced for Rectification:</strong> {{ complaint.parts_replaced_for_rectification }}<br>
+              <strong style="color:#0a0a0a">Attended By:</strong> {{ complaint.attended_by }}<br>
+              <strong style="color:#0a0a0a">Complaint closed Date:</strong> {{ complaint.end_date|date:"Y-m-d" }}<br>
+              {% if complaint.pdf_file %}
+                <a href="{{ complaint.pdf_file.url }}" target="_blank">View PDF</a>
+              {% else %}
+                <p>No PDF uploaded for this complaint.</p>
+              {% endif %}
+              <div class="image-container">
+                {% with images=complaint.get_images %}
+                  {% if images %}
+                    {% for image in images %}
+                      <img src="{{ image }}" alt="Complaint Image" onclick="openModal('{{ image }}')">
+                    {% endfor %}
+                  {% else %}
+                    <p>No images uploaded.</p>
+                  {% endif %}
+                {% endwith %}
+              </div>
+            </div>
+          </li>
+        {% empty %}
+          <li class="no">No closed complaints found.</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div id="myModal" class="modal">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <div class="modal-content">
+        <img id="modalImage" src="" alt="Enlarged Image">
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Mobile Footer ===== -->
+  <div class="mobile-footer">
+    <a href="{% url 'complaint_form' %}"><i class="fas fa-plus-circle"></i><span class="footer-label">New<br>Complaint</span></a>
+    <a href="{% url 'existing_complaints' %}"><i class="fas fa-exclamation-circle"></i><span class="footer-label">Open<br>Complaints</span></a>
+    <a href="{% url 'final_complaints_user' %}"><i class="fas fa-check-circle"></i><span class="footer-label">Closed<br>Complaints</span></a>
+    <a href="{% url 'rejected_complaints' %}"><i class="fas fa-times-circle"></i><span class="footer-label">Rejected<br>Complaints</span></a>
+  </div>
+
+  <script>
+    function openModal(imageSrc) {
+      document.getElementById('modalImage').src = imageSrc;
+      document.getElementById('myModal').style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('myModal').style.display = 'none';
+    }
+    function toggleDetails(linkElement) {
+      const complaintDetails = linkElement.closest('li').querySelector('.complaint-details');
+      const isVisible = complaintDetails.style.display === 'block';
+      complaintDetails.style.display = isVisible ? 'none' : 'block';
+      linkElement.textContent = isVisible ? 'View More' : 'View Less';
+    }
+  </script>
+
+  <script>window.LOGIN_PATH = '/user/login/';</script>
+  <script src="{% static 'demoapp/js/auth-guard.js' %}"></script>
+
 </body>
 </html>

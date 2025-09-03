@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.timezone import now
+from django.utils import timezone
 
 # Model to store Site data
 class Site(models.Model):
@@ -9,6 +10,8 @@ class Site(models.Model):
     def __str__(self):
         return self.name
 
+def current_year():
+    return timezone.now().year
 
 # Model to store Inventory data for each site
 class Inventory(models.Model):
@@ -22,6 +25,11 @@ class Inventory(models.Model):
     opening_stock = models.IntegerField()
     fixed_stock = models.IntegerField(blank=True, null=True)
     unit_value = models.FloatField(default=0)
+
+    invar = models.IntegerField(default=0, blank=True)
+
+    # ✅ NEW: which year fixed_stock was last rolled
+    # fixed_stock_year = models.IntegerField(default=current_year)
     
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Add this field

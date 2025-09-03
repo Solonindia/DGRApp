@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -210,7 +210,7 @@
 
             <button type="submit">Search</button>
         </form>
-    <!-- Table Area -->
+    
     <div class="table-container">
         <table>
             <thead>
@@ -248,5 +248,650 @@
         </table>
 </div>
 </div>
+</body>
+</html> -->
+
+
+
+
+
+
+
+<!-- {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Notification List</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+
+  <style>
+    :root{
+      --brand:#002550;
+      --bg1:#a1c4fd; --bg2:#c2e9fb;
+      --text:#1b1f24;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+      --navbar-h:60px;
+      --mheader-h:56px;
+      --mfooter-h:56px;
+      --content-max: 1200px;
+      --table-min-mobile: 900px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg,var(--bg1) 0%,var(--bg2) 100%);
+      background-attachment: fixed;
+      min-height:100vh;
+      font-size:16px;
+      color:var(--text);
+      display:flex; flex-direction:column;
+    }
+
+    /* ===== Desktop navbar (fixed) ===== */
+    .navbar{
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff; padding:10px 20px; box-shadow:var(--shadow); z-index:100;
+    }
+    @media (min-width:769px){
+      .navbar{ position:fixed; top:0; left:0; right:0; height:var(--navbar-h); }
+      body{ padding-top:var(--navbar-h); }
+    }
+    .logo{height:40px}
+    .nav-links{display:flex; gap:25px; align-items:center}
+    .nav-links a,
+    .nav-links form button{
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      text-decoration:none; color:var(--brand); font-size:13px; font-weight:600;
+      background:none; border:none; cursor:pointer; padding:4px 6px;
+    }
+    .nav-links i{font-size:20px; margin-bottom:5px}
+
+    /* ===== Mobile header/footer ===== */
+    .mobile-header{
+      display:none; position:fixed; top:0; left:0; right:0; height:var(--mheader-h);
+      background:#fff; box-shadow:var(--shadow); padding:8px 12px; z-index:1000;
+      align-items:center; justify-content:space-between;
+    }
+    .mobile-icons{display:flex; align-items:center; gap:16px}
+    .mobile-icons a{ font-size:18px; color:var(--brand); text-decoration:none; position:relative; }
+
+    .mobile-footer{
+      display:none; position:fixed; bottom:0; left:0; right:0; height:var(--mfooter-h);
+      background:#fff; box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      align-items:center; justify-content:space-around; z-index:1000;
+    }
+    .mobile-footer a{
+      display:flex; flex-direction:column; align-items:center; font-size:12px; color:var(--brand); text-decoration:none;
+    }
+    .mobile-footer i{ font-size:20px; margin-bottom:3px; }
+
+    /* ===== Page content ===== */
+    .container{
+      flex:1; padding:16px; width:96%; max-width:var(--content-max); margin:0 auto;
+      display:flex; flex-direction:column;
+    }
+    h1{
+      color:rgba(2,37,70,.92);
+      margin:8px 0 14px;
+      font-size:26px; font-weight:800; letter-spacing:.2px; text-align:center;
+    }
+
+    /* Filters */
+    .search-form{
+      background:#ffffffd9;
+      padding:12px;
+      border-radius:10px;
+      box-shadow:var(--shadow);
+      margin:0 0 12px 0;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap:12px;
+    }
+    .field{ display:flex; flex-direction:column; gap:6px; }
+    .search-form label{ font-size:12px; font-weight:700; color:var(--brand); letter-spacing:.3px; }
+    .search-form select, .search-form input{
+      padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; background:#fff; font-size:14px; height:40px; outline:none;
+    }
+    .search-form select:focus, .search-form input:focus{
+      border-color:#94a3b8; box-shadow:0 0 0 3px #dbeafe;
+    }
+    .search-form button{
+      padding:10px 16px; border:none; background:var(--brand); color:#fff; cursor:pointer; border-radius:8px;
+      height:40px; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:700; letter-spacing:.2px;
+      box-shadow:var(--shadow); align-self:end;
+    }
+
+    /* ===== TABLE (EXACT same style as inventory_history) ===== */
+    .table-wrap{
+      width:100%;
+    }
+    .table-scroll{
+      overflow:auto;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background-color:#FFFFFF;
+      box-shadow:0 4px 8px rgba(0,0,0,0.1);
+      border-radius:8px;
+      overflow:hidden; /* keep rounded corners */
+    }
+    th, td{
+      border:1px solid #ddd;
+      padding:12px 16px;
+      text-align:left;
+      font-size:14px;
+    }
+    th{
+      background-color:#002550; /* same header color */
+      color:white;
+      font-weight:bold;
+      position:static; /* no sticky to match inventory_history */
+    }
+    tr:nth-child(even){ background-color:#f9f9f9; }
+    tr:hover{ background-color:#E3F2FD; }
+
+    /* ===== Mobile ===== */
+    @media (max-width:768px){
+      .navbar{display:none}
+      .mobile-header{display:flex}
+      .mobile-footer{display:flex}
+      body{ padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h); }
+      .container{ width:96%; padding:16px; }
+      .search-form{
+        display:flex; flex-direction:column; align-items:stretch; gap:14px; margin-top:10px;
+      }
+      .search-form .field{ min-width:unset; }
+      .search-form select, .search-form input, .search-form button{ width:100%; }
+      .table-scroll{ overflow-x:auto; }
+      table{ min-width:var(--table-min-mobile); }
+    }
+
+    /* bell badge (optional) */
+    .notification-count{
+      position:absolute; top:-6px; right:-8px;
+      min-width:18px; height:18px; padding:0 5px; border-radius:999px; background:#ff3b30; color:#fff;
+      font-size:11px; font-weight:700; display:inline-flex; align-items:center; justify-content:center;
+      box-shadow:0 2px 6px rgba(0,0,0,.2);
+    }
+  </style>
+</head>
+<body>
+
+  
+  <div class="navbar" role="navigation" aria-label="Primary">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo"/>
+
+    <div class="nav-links">
+      <a href="{% url 'upload_inventory' %}" title="Upload">
+        <i class="fas fa-upload" aria-hidden="true"></i>
+        <span>Upload</span>
+      </a>
+
+      <a href="{% url 'site_analysis' %}" title="Tracking">
+        <i class="fas fa-chart-line"></i>
+        <span>Tracking</span>
+      </a>
+
+      <a href="{% url 'admin' %}" title="Dashboard">
+        <i class="fas fa-home" aria-hidden="true"></i>
+        <span>Home</span>
+      </a>
+
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" aria-label="Logout">
+        {% csrf_token %}
+        <button type="submit" title="Logout">
+          <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+          <span>Logout</span>
+        </button>
+      </form>
+      {% endif %}
+
+      <a href="{% url 'real_time_notification_list' %}" title="Alerts" aria-label="Alerts" style="position:relative">
+        <i class="fas fa-bell" aria-hidden="true"></i>
+        {% if unread_notifications > 0 %}
+          <span class="notification-count" {% if unread_notifications > 99 %}data-cap="true"{% endif %}>
+            {% if unread_notifications > 99 %}99+{% else %}{{ unread_notifications }}{% endif %}
+          </span>
+        {% endif %}
+      </a>
+    </div>
+  </div>
+
+  
+  <div class="mobile-header" role="navigation" aria-label="Mobile">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo"/>
+    <div class="mobile-icons">
+      <a href="{% url 'admin' %}" title="Home" aria-label="Dashboard"><i class="fas fa-home"></i></a>
+      {% if user.is_authenticated %}
+      <a href="{% url 'logout' %}" title="Logout" aria-label="Logout"><i class="fas fa-sign-out-alt"></i></a>
+      {% endif %}
+      <a href="{% url 'real_time_notification_list' %}" title="Alerts" aria-label="Alerts" style="position:relative">
+        <i class="fas fa-bell"></i>
+        {% if unread_notifications > 0 %}
+          <span class="notification-count" {% if unread_notifications > 99 %}data-cap="true"{% endif %}>
+            {% if unread_notifications > 99 %}99+{% else %}{{ unread_notifications }}{% endif %}
+          </span>
+        {% endif %}
+      </a>
+    </div>
+  </div>
+
+  
+  <div class="container">
+    <h1>Inventory History</h1>
+
+    
+    <form method="GET" class="search-form" aria-label="Filters">
+      <div class="field">
+        <label for="site_name">Select Site</label>
+        <select id="site_name" name="site_name">
+          <option value="">All Sites</option>
+          {% for site in sites %}
+            <option value="{{ site.name }}" {% if site.name == selected_site %}selected{% endif %}>{{ site.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="start_date">Start Date</label>
+        <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+      </div>
+
+      <div class="field">
+        <label for="end_date">End Date</label>
+        <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+      </div>
+
+      <button type="submit" title="Search">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        Search
+      </button>
+    </form>
+
+  
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Site Name</th>
+              <th>Material Code</th>
+              <th>Material Desc</th>
+              <th>UOM</th>
+              <th>Opening Stock</th>
+              <th>Consumption</th>
+              <th>Closing Stock</th>
+              <th>Timestamp</th>
+              <th>Unit Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for notification in notifications %}
+              <tr>
+                <td>{{ notification.site.name }}</td>
+                <td>{{ notification.material_code }}</td>
+                <td>{{ notification.material_desc }}</td>
+                <td>{{ notification.uom }}</td>
+                <td>{{ notification.opening_stock }}</td>
+                <td>{{ notification.consumption }}</td>
+                <td>{{ notification.closing_stock }}</td>
+                <td>{{ notification.timestamp }}</td>
+                <td>{{ notification.unit_value }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="9">No notifications found.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="mobile-footer" role="navigation" aria-label="Mobile Footer">
+    <a href="{% url 'upload_inventory' %}">
+      <i class="fas fa-upload"></i>
+      <span>Upload</span>
+    </a>
+    <a href="{% url 'site_analysis' %}">
+      <i class="fas fa-chart-line"></i>
+      <span>Tracking</span>
+    </a>
+  </div>
+</body>
+</html> -->
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Notification List</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+
+  <style>
+    :root{
+      --brand:#002550;
+      --bg1:#a1c4fd; --bg2:#c2e9fb;
+      --text:#1b1f24;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+      --navbar-h:60px;
+      --mheader-h:56px;
+      --mfooter-h:56px;
+      --content-max: 1200px;
+      --table-min-mobile: 900px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg,var(--bg1) 0%,var(--bg2) 100%);
+      background-attachment: fixed;
+      min-height:100vh;
+      font-size:16px;
+      color:var(--text);
+      display:flex; flex-direction:column;
+    }
+
+    /* ===== Desktop navbar (fixed) ===== */
+    .navbar{
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff; padding:10px 20px; box-shadow:var(--shadow); z-index:100;
+    }
+    @media (min-width:769px){
+      .navbar{ position:fixed; top:0; left:0; right:0; height:var(--navbar-h); }
+      body{ padding-top:var(--navbar-h); }
+    }
+    .logo{height:40px}
+    .nav-links{display:flex; gap:25px; align-items:center}
+    .nav-links a,
+    .nav-links form button{
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      text-decoration:none; color:var(--brand); font-size:13px; font-weight:600;
+      background:none; border:none; cursor:pointer; padding:4px 6px;
+    }
+    .nav-links i{font-size:20px; margin-bottom:5px}
+
+    /* ===== Mobile header/footer ===== */
+    .mobile-header{
+      display:none; position:fixed; top:0; left:0; right:0; height:var(--mheader-h);
+      background:#fff; box-shadow:var(--shadow); padding:8px 12px; z-index:1000;
+      align-items:center; justify-content:space-between;
+    }
+    .mobile-icons{display:flex; align-items:center; gap:16px}
+    .mobile-icons a{ font-size:18px; color:var(--brand); text-decoration:none; position:relative; }
+
+    .mobile-footer{
+      display:none; position:fixed; bottom:0; left:0; right:0; height:var(--mfooter-h);
+      background:#fff; box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      align-items:center; justify-content:space-around; z-index:1000;
+    }
+    .mobile-footer a{
+      display:flex; flex-direction:column; align-items:center; font-size:12px; color:var(--brand); text-decoration:none;
+    }
+    .mobile-footer i{ font-size:20px; margin-bottom:3px; }
+
+    /* ===== Page content ===== */
+    .container{
+      flex:1; padding:16px; width:96%; max-width:var(--content-max); margin:0 auto;
+      display:flex; flex-direction:column;
+    }
+    h1{
+      color:rgba(2,37,70,.92);
+      margin:8px 0 14px;
+      font-size:26px; font-weight:800; letter-spacing:.2px; text-align:center;
+    }
+
+    /* Filters */
+    .search-form{
+      background:#ffffffd9;
+      padding:12px;
+      border-radius:10px;
+      box-shadow:var(--shadow);
+      margin:0 0 12px 0;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr auto auto; /* room for 2 buttons */
+      gap:12px;
+    }
+    .field{ display:flex; flex-direction:column; gap:6px; }
+    .search-form label{ font-size:12px; font-weight:700; color:var(--brand); letter-spacing:.3px; }
+    .search-form select, .search-form input{
+      padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; background:#fff; font-size:14px; height:40px; outline:none;
+    }
+    .search-form select:focus, .search-form input:focus{
+      border-color:#94a3b8; box-shadow:0 0 0 3px #dbeafe;
+    }
+    .search-form button{
+      padding:10px 16px; border:none; background:var(--brand); color:#fff; cursor:pointer; border-radius:8px;
+      height:40px; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:700; letter-spacing:.2px;
+      box-shadow:var(--shadow); align-self:end;
+    }
+
+    .filters-summary{
+      margin:8px 0 10px; color:#475569; font-size:14px;
+    }
+
+    /* ===== TABLE (EXACT same style as inventory_history) ===== */
+    .table-wrap{
+      width:100%;
+    }
+    .table-scroll{
+      overflow:auto;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background-color:#FFFFFF;
+      box-shadow:0 4px 8px rgba(0,0,0,0.1);
+      border-radius:8px;
+      overflow:hidden; /* keep rounded corners */
+    }
+    th, td{
+      border:1px solid #ddd;
+      padding:12px 16px;
+      text-align:left;
+      font-size:14px;
+    }
+    th{
+      background-color:#002550; /* same header color */
+      color:white;
+      font-weight:bold;
+      position:static; /* no sticky to match inventory_history */
+    }
+    tr:nth-child(even){ background-color:#f9f9f9; }
+    tr:hover{ background-color:#E3F2FD; }
+
+    /* ===== Mobile ===== */
+    @media (max-width:768px){
+      .navbar{display:none}
+      .mobile-header{display:flex}
+      .mobile-footer{display:flex}
+      body{ padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h); }
+      .container{ width:96%; padding:16px; }
+      .search-form{
+        display:flex; flex-direction:column; align-items:stretch; gap:14px; margin-top:10px;
+      }
+      .search-form .field{ min-width:unset; }
+      .search-form select, .search-form input, .search-form button{ width:100%; }
+      .table-scroll{ overflow-x:auto; }
+      table{ min-width:var(--table-min-mobile); }
+    }
+
+    /* bell badge (optional) */
+    .notification-count{
+      position:absolute; top:-6px; right:-8px;
+      min-width:18px; height:18px; padding:0 5px; border-radius:999px; background:#ff3b30; color:#fff;
+      font-size:11px; font-weight:700; display:inline-flex; align-items:center; justify-content:center;
+      box-shadow:0 2px 6px rgba(0,0,0,.2);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Desktop Navbar -->
+  <div class="navbar" role="navigation" aria-label="Primary">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo"/>
+
+    <div class="nav-links">
+      <a href="{% url 'upload_inventory' %}" title="Upload">
+        <i class="fas fa-upload" aria-hidden="true"></i>
+        <span>Upload</span>
+      </a>
+
+      <a href="{% url 'site_analysis' %}" title="Tracking">
+        <i class="fas fa-chart-line"></i>
+        <span>Tracking</span>
+      </a>
+
+      <a href="{% url 'admin' %}" title="Dashboard">
+        <i class="fas fa-home" aria-hidden="true"></i>
+        <span>Home</span>
+      </a>
+
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" aria-label="Logout">
+        {% csrf_token %}
+        <button type="submit" title="Logout">
+          <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+          <span>Logout</span>
+        </button>
+      </form>
+      {% endif %}
+
+      <a href="{% url 'real_time_notification_list' %}" title="Alerts" aria-label="Alerts" style="position:relative">
+        <i class="fas fa-bell" aria-hidden="true"></i>
+        {% if unread_notifications > 0 %}
+          <span class="notification-count" {% if unread_notifications > 99 %}data-cap="true"{% endif %}>
+            {% if unread_notifications > 99 %}99+{% else %}{{ unread_notifications }}{% endif %}
+          </span>
+        {% endif %}
+      </a>
+    </div>
+  </div>
+
+  <!-- Mobile Header -->
+  <div class="mobile-header" role="navigation" aria-label="Mobile">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo"/>
+    <div class="mobile-icons">
+      <a href="{% url 'admin' %}" title="Home" aria-label="Dashboard"><i class="fas fa-home"></i></a>
+      {% if user.is_authenticated %}
+      <a href="{% url 'logout' %}" title="Logout" aria-label="Logout"><i class="fas fa-sign-out-alt"></i></a>
+      {% endif %}
+      <a href="{% url 'real_time_notification_list' %}" title="Alerts" aria-label="Alerts" style="position:relative">
+        <i class="fas fa-bell"></i>
+        {% if unread_notifications > 0 %}
+          <span class="notification-count" {% if unread_notifications > 99 %}data-cap="true"{% endif %}>
+            {% if unread_notifications > 99 %}99+{% else %}{{ unread_notifications }}{% endif %}
+          </span>
+        {% endif %}
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Inventory History</h1>
+
+    <!-- Filters (GET) -->
+    <form method="GET" class="search-form" aria-label="Filters">
+      <div class="field">
+        <label for="site_name">Select Site</label>
+        <select id="site_name" name="site_name">
+          <option value="">All Sites</option>
+          {% for site in sites %}
+            <option value="{{ site.name }}" {% if site.name == selected_site %}selected{% endif %}>{{ site.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="start_date">Start Date</label>
+        <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+      </div>
+
+      <div class="field">
+        <label for="end_date">End Date</label>
+        <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+      </div>
+
+      <button type="submit" title="Search">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        Search
+      </button>
+
+      <!-- Download Excel (CSV) -->
+      <button type="submit" name="export" value="1" title="Download Excel">
+        <i class="fas fa-file-excel" aria-hidden="true"></i>
+        Download Excel
+      </button>
+    </form>
+
+    <!-- Table (same layout as inventory_history.html) -->
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Site Name</th>
+              <th>Material Code</th>
+              <th>Material Desc</th>
+              <th>UOM</th>
+              <th>Opening Stock</th>
+              <th>Consumption</th>
+              <th>Closing Stock</th>
+              <th>Timestamp</th>
+              <th>Unit Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for notification in notifications %}
+              <tr>
+                <td>{{ notification.site.name }}</td>
+                <td>{{ notification.material_code }}</td>
+                <td>{{ notification.material_desc }}</td>
+                <td>{{ notification.uom }}</td>
+                <td>{{ notification.opening_stock }}</td>
+                <td>{{ notification.consumption }}</td>
+                <td>{{ notification.closing_stock }}</td>
+                <td>{{ notification.timestamp }}</td>
+                <td>{{ notification.unit_value }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="9">No notifications found.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Footer -->
+  <div class="mobile-footer" role="navigation" aria-label="Mobile Footer">
+    <a href="{% url 'upload_inventory' %}">
+      <i class="fas fa-upload"></i>
+      <span>Upload</span>
+    </a>
+    <a href="{% url 'site_analysis' %}">
+      <i class="fas fa-chart-line"></i>
+      <span>Tracking</span>
+    </a>
+  </div>
 </body>
 </html>

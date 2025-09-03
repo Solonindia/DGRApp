@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Notification List</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <!-- Include Chart.js -->
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -251,11 +251,11 @@
     </div>
 </div>
 
-    <!-- Main Content Area -->
+    
     <div class="container">
         <h2>Inventory Tracking</h2>
 
-        <!-- Success Notification (Hidden Initially) -->
+        
         <div class="notification" id="notification">Stock updated successfully!</div>
 
         <form method="POST" class="search-form">
@@ -280,7 +280,7 @@
                 {% endif %}
             </h4>
 
-            <!-- Inventory Table -->
+            
             <form method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="site_name" value="{{ selected_site.name }}">
@@ -294,8 +294,7 @@
                             <th>Type</th>
                             <th>Category</th>
                             <th>UOM</th>
-                            <th>Opening Stock</th> <!-- fixed stock -->
-                            <!-- <th>Available Stock</th> -->
+                            <th>Opening Stock</th> 
                             <th>Consumption</th>
                             <th>Available Stock</th>
                             <th>Unit Value (INR)</th>
@@ -314,7 +313,6 @@
                                     <td>{{ inventory.category }}</td>
                                     <td>{{ inventory.uom }}</td>
                                     <td>{{ inventory.fixed_stock }}</td>
-                                    <!-- <td>{{ inventory.opening_stock }}</td> -->
                                     <td>{{ inventory.final_stock }}</td>
                                     <td>{{ inventory.opening_stock }}</td>
                                     <td>{{ inventory.unit_value }}</td>
@@ -339,4 +337,458 @@
     
 </body>
 
+</html> -->
+
+
+
+
+
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Notification List</title>
+
+  <!-- Icons & Charts -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/> -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --brand:#002550;
+      --bg-grad-1:#a1c4fd;
+      --bg-grad-2:#c2e9fb;
+      --badge:#ff3b30;
+      --text:#1b1f24;
+      --card:#ffffff;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+
+      /* heights */
+      --navbar-h: 60px;   /* desktop navbar height */
+      --mheader-h: 60px;  /* mobile header height */
+      --mfooter-h: 60px;  /* mobile footer height */
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg,var(--bg-grad-1) 0%,var(--bg-grad-2) 100%);
+      background-attachment: fixed;
+      min-height:100vh;
+      font-size:18px;
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* Desktop Navbar (now fixed) */
+    .navbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:#fff;
+      padding:10px 20px;
+      box-shadow:var(--shadow);
+      z-index:100;
+      height:var(--navbar-h);
+    }
+    @media (min-width:769px){
+      .navbar{
+        position:fixed;
+        top:0; left:0; right:0;
+      }
+      /* push content below fixed navbar */
+      body{ padding-top:var(--navbar-h); }
+    }
+
+    .logo{height:40px}
+
+    .nav-links{
+      display:flex;
+      gap:25px;
+      align-items:center;
+    }
+    .nav-links a,
+    .nav-links button{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      color:var(--brand);
+      font-size:13px;
+      font-weight:600;
+      background:none;
+      border:none;
+      cursor:pointer;
+      padding:4px 6px;
+    }
+    .nav-links i{font-size:20px;margin-bottom:5px}
+
+    /* Notification Badge */
+    .notification-link{
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      color:var(--brand);
+      text-decoration:none;
+    }
+    .notification-link i{
+      position:relative;
+      font-size:20px;
+      margin-bottom:5px;
+    }
+    .notification-count{
+      position:absolute;
+      top:-8px;
+      right:-10px;
+      min-width:18px;
+      height:18px;
+      padding:0 5px;
+      border-radius:999px;
+      background:var(--badge);
+      color:#fff;
+      font-size:11px;
+      font-weight:700;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 2px 6px rgba(0,0,0,.2);
+    }
+    .notification-count[data-cap="true"]{
+      min-width:20px;
+      padding:0 6px;
+    }
+
+    /* Mobile Header (fixed) */
+    .mobile-header{
+      display:none;
+      position:fixed;
+      top:0; left:0; width:100%;
+      height:var(--mheader-h);
+      background:#fff;
+      padding:10px 15px;
+      box-shadow:var(--shadow);
+      justify-content:space-between;
+      align-items:center;
+      z-index:1000;
+    }
+    .mobile-icons{
+      display:flex;
+      align-items:center;
+      gap:16px;
+    }
+    .mobile-icons a{
+      font-size:18px;
+      color:var(--brand);
+      position:relative;
+      text-decoration:none;
+    }
+
+    /* Mobile Footer (fixed) */
+    .mobile-footer{
+      display:none;
+      position:fixed;
+      bottom:0; left:0; width:100%;
+      height:var(--mfooter-h);
+      background:#fff;
+      padding:10px 0;
+      box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      justify-content:space-around;
+      align-items:center;
+      z-index:1000;
+    }
+    .mobile-footer a{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      font-size:12px;
+      color:var(--brand);
+      text-decoration:none;
+    }
+    .mobile-footer i{
+      font-size:20px;
+      margin-bottom:3px;
+    }
+
+    /* Page Content */
+    .container{
+      flex:1;
+      padding:20px;
+      border-radius:10px;
+      width:90%;
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+    }
+    h2{
+      text-align:center;
+      color:rgba(2,37,70,.85);
+      margin-top:10px;
+      margin-bottom:20px;
+    }
+
+    .search-form{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:20px;
+      margin-bottom:30px;
+      flex-wrap:wrap;
+    }
+    .search-form label{
+      font-size:14px;
+      font-weight:600;
+      color:var(--brand);
+    }
+    .search-form select{
+      padding:8px 12px;
+      border:1px solid #000;
+      border-radius:0;
+      background:#fff;
+      font-size:14px;
+    }
+    .search-form button{
+      padding:8px 15px;
+      border:none;
+      background:var(--brand);
+      color:#fff;
+      cursor:pointer;
+      border-radius:6px;
+    }
+
+    /* Table wrapper */
+    .table-wrap{
+      background:#fff;
+      border-radius:8px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+    }
+    .table-scroll{
+      overflow:auto;
+      min-height:0;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:#fff;
+    }
+    th,td{
+      padding:10px 8px;
+      border:1px solid #eee;
+      font-size:14px;
+      text-align:left;
+    }
+    th{
+      background:var(--brand);
+      color:#fff;
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    .edit-btn{
+      display:inline-block;
+      padding:6px 10px;
+      background:var(--brand);
+      color:#fff;
+      border-radius:6px;
+      text-decoration:none;
+      font-size:12px;
+    }
+
+    /* Mobile: show fixed header/footer and pad body so content isn’t hidden */
+    @media (max-width:768px){
+      .navbar{display:none}
+      .mobile-header,.mobile-footer{display:flex}
+      body{padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h)}
+      .container{width:100%;padding:15px}
+      .search-form{flex-direction:column;gap:15px}
+      .search-form select,.search-form button{width:100%}
+      .notification-count{top:-5px; right:-5px}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Desktop Navbar (fixed on desktop) -->
+  <div class="navbar" role="navigation" aria-label="Primary">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo"/>
+
+    <div class="nav-links">
+      <a href="{% url 'upload_inventory' %}" title="Upload">
+        <i class="fas fa-upload" aria-hidden="true"></i>
+        <span>Upload</span>
+      </a>
+
+      <a href="{% url 'notification_list' %}" title="History">
+        <i class="fas fa-history" aria-hidden="true"></i>
+        <span>History</span>
+      </a>
+
+      <a href="{% url 'admin' %}" title="Home">
+        <i class="fas fa-home" aria-hidden="true"></i>
+        <span>Home</span>
+      </a>
+
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" aria-label="Logout">
+        {% csrf_token %}
+        <button type="submit" title="Logout">
+          <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+          <span>Logout</span>
+        </button>
+      </form>
+      {% endif %}
+
+      <!-- Desktop Alerts with badge -->
+      <a href="{% url 'real_time_notification_list' %}" class="notification-link" title="Alerts" aria-label="Alerts">
+        <i class="fas fa-bell" aria-hidden="true">
+          {% if unread_notifications > 0 %}
+            <span class="notification-count" {% if unread_notifications > 99 %}data-cap="true"{% endif %}>
+              {% if unread_notifications > 99 %}99+{% else %}{{ unread_notifications }}{% endif %}
+            </span>
+          {% endif %}
+        </i>
+        <span>Alerts</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Mobile Header (fixed) -->
+  <div class="mobile-header" role="navigation" aria-label="Mobile">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo"/>
+
+    <div class="mobile-icons">
+      <a href="{% url 'home' %}" title="Home" aria-label="Home">
+        <i class="fas fa-home" aria-hidden="true"></i>
+      </a>
+
+      <a href="{% url 'logout' %}" title="Logout" aria-label="Logout">
+        <i class="fas fa-sign-out-alt"></i>
+      </a>
+
+      <a href="{% url 'real_time_notification_list' %}" class="notification-link" title="Alerts" aria-label="Alerts">
+        <i class="fas fa-bell" aria-hidden="true"></i>
+        {% if unread_notifications > 0 %}
+          <span class="notification-count" {% if unread_notifications > 99 %}data-cap="true"{% endif %}>
+            {% if unread_notifications > 99 %}99+{% else %}{{ unread_notifications }}{% endif %}
+          </span>
+        {% endif %}
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h2>Inventory Tracking</h2>
+
+    <form method="POST" class="search-form">
+      {% csrf_token %}
+      <label for="site_name">Select Site:</label>
+      <select name="site_name" id="site_name">
+        <option value="">-- Select a Site --</option>
+        {% for site in sites %}
+          <option value="{{ site.name }}" {% if selected_site and selected_site.name == site.name %}selected{% endif %}>
+            {{ site.name }}
+          </option>
+        {% endfor %}
+      </select>
+      <button type="submit" title="Search"><i class="fas fa-search" aria-hidden="true"></i></button>
+    </form>
+
+    {% if selected_site %}
+      <h4>
+        Total Inventory Value:
+        {% if total_site_value %}
+          ₹{{ total_site_value|floatformat:2 }}
+        {% endif %}
+      </h4>
+
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="site_name" value="{{ selected_site.name }}"/>
+
+        <div class="table-wrap" aria-label="Inventory Table Wrapper">
+          <div class="table-scroll">
+            <table aria-label="Inventory Table">
+              <thead>
+                <tr>
+                  <th>Material Code</th>
+                  <th>Material Description</th>
+                  <th>Owner</th>
+                  <th>Type</th>
+                  <th>Category</th>
+                  <th>UOM</th>
+                  <th>Opening Stock</th>
+                  <th>Consumption</th>
+                  <th>Invar</th>     <!-- NEW -->
+                  <th>Available Stock</th>
+                  <th>Unit Value (INR)</th>
+                  <th>Total Value (INR)</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if inventories %}
+                  {% for inventory in inventories %}
+                    <tr>
+                      <td>{{ inventory.material_code }}</td>
+                      <td>{{ inventory.material_desc }}</td>
+                      <td>{{ inventory.owner }}</td>
+                      <td>{{ inventory.type }}</td>
+                      <td>{{ inventory.category }}</td>
+                      <td>{{ inventory.uom }}</td>
+                      <td>{{ inventory.fixed_stock }}</td>
+                      <td>{{ inventory.final_stock }}</td>
+                      <td>{{ inventory.invar }}</td> <!-- NEW -->
+                      <td>{{ inventory.opening_stock }}</td>
+                      <td>{{ inventory.unit_value }}</td>
+                      <td>₹{{ inventory.total_value|floatformat:"2" }}</td>
+                      <td>
+                        <a href="{% url 'edit_inventory1' inventory.id %}?site_name={{ selected_site.name }}" class="edit-btn">Edit</a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="12">No inventory data available for this site.</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+
+  <!-- Mobile Footer (fixed) -->
+  <div class="mobile-footer" role="navigation" aria-label="Mobile Footer">
+    <a href="{% url 'upload_inventory' %}">
+      <i class="fas fa-upload" aria-hidden="true"></i>
+      <span>Upload</span>
+    </a>
+    <a href="{% url 'notification_list' %}">
+      <i class="fas fa-history" aria-hidden="true"></i>
+      <span>History</span>
+    </a>
+  </div>
+
+</body>
 </html>
+
+

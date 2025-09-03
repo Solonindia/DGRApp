@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -215,7 +215,7 @@
     </div>
     <div class="container">
         <h2>Updated Inventory for {{ site.name }}</h2>
-    <!-- Table to display updated closing stock -->
+    
     <table border="1">
         <thead>
             <tr>
@@ -245,5 +245,230 @@
         </tbody>
     </table> 
     
+</body>
+</html> -->
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Updated Inventory – {{ site.name }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+
+  <style>
+    :root{
+      --brand:#002550;
+      --bg1:#a1c4fd; --bg2:#c2e9fb;
+      --text:#1b1f24;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+      --navbar-h:60px;
+      --mheader-h:56px;
+      --mfooter-h:56px;
+      --content-max: 1200px;
+      --table-min-mobile: 900px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background:linear-gradient(120deg, var(--bg1) 0%, var(--bg2) 100%);
+      background-attachment:fixed;
+      min-height:100vh;
+      font-size:16px;
+      color:var(--text);
+      display:flex; flex-direction:column;
+    }
+
+    /* ===== DESKTOP NAVBAR (fixed) ===== */
+    .navbar{
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff; padding:10px 20px; box-shadow:var(--shadow);
+      height:var(--navbar-h); z-index:100;
+    }
+    @media (min-width:769px){
+      .navbar{ position:fixed; top:0; left:0; right:0; }
+      body{ padding-top:var(--navbar-h); }
+    }
+    .logo{height:40px}
+
+    /* desktop nav: icon on top, label below */
+    .nav-links{display:flex; gap:22px; align-items:center}
+    .nav-links a,
+    .nav-links form a{
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      text-decoration:none; color:var(--brand); font-weight:700; line-height:1.1; text-align:center;
+    }
+    .nav-links i{ font-size:20px; margin:0 0 4px 0; }
+
+    /* ===== MOBILE HEADER/FOOTER ===== */
+    .mobile-header{
+      display:none; position:fixed; top:0; left:0; right:0; height:var(--mheader-h);
+      background:#fff; box-shadow:var(--shadow); padding:8px 12px; z-index:1000;
+      align-items:center; justify-content:space-between;
+    }
+    .icon-btn{
+      background:#f3f4f6; border:none; border-radius:8px; padding:8px 10px; cursor:pointer;
+      color:var(--brand); display:inline-flex; align-items:center; justify-content:center;
+      text-decoration:none; line-height:1; transition:background-color .2s ease, transform .05s ease;
+    }
+    .icon-btn i{ font-size:18px; }
+    .icon-btn:link, .icon-btn:visited, .icon-btn:hover, .icon-btn:active{ color:var(--brand); text-decoration:none; }
+    .icon-btn:hover{ background:#e9eef5; }
+    .icon-btn:active{ background:#e2e8f0; transform:translateY(1px); }
+    .icon-btn:focus-visible{ outline:2px solid #94a3b8; outline-offset:2px; }
+
+    .mobile-footer{
+      display:none; position:fixed; bottom:0; left:0; right:0; height:var(--mfooter-h);
+      background:#fff; box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      align-items:center; justify-content:space-around; z-index:1000;
+    }
+    .mobile-footer a{
+      text-decoration:none; color:var(--brand); font-weight:700; font-size:12px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+    .mobile-footer i{font-size:18px; margin-bottom:2px}
+
+    /* ===== PAGE CONTENT ===== */
+    .container{
+      flex:1; padding:20px; width:96%; max-width:var(--content-max); margin:0 auto;
+      display:flex; flex-direction:column;
+    }
+    h2{
+      text-align:center; font-size:24px; color:#002550; margin:8px 0 16px;
+    }
+
+    /* ===== TABLE (DESKTOP EXACTLY LIKE OLD) ===== */
+    .table-wrap{ width:100%; }
+    .table-scroll{ overflow:auto; }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background-color:#FFFFFF;
+      box-shadow:0 4px 8px rgba(0,0,0,0.1);
+      border-radius:8px;
+      overflow:hidden; /* keeps rounded corners */
+    }
+    th, td{
+      border:1px solid #ddd;
+      padding:12px 16px;
+      text-align:left;
+      font-size:14px;
+    }
+    th{
+      background-color:#002550; /* old header color */
+      color:white;
+      font-weight:bold;
+      position:static;            /* no sticky in desktop to match old */
+    }
+    tr:nth-child(even){ background-color:#f9f9f9; }
+    tr:hover{ background-color:#E3F2FD; }
+
+    /* ===== MOBILE ===== */
+    @media (max-width:768px){
+      .navbar{display:none}
+      .mobile-header{display:flex}
+      .mobile-footer{display:flex}
+      body{ padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h); }
+      .container{ width:96%; padding:16px; }
+
+      /* keep same columns; enable horizontal scroll */
+      .table-scroll{ overflow-x:auto; }
+      table{ min-width:var(--table-min-mobile); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Desktop Navbar -->
+  <div class="navbar" role="navigation" aria-label="Primary">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <div class="nav-links">
+      <a href="{% url 'edit_inventory' site_name=site.name %}"><i class="fas fa-edit"></i>Edit Inventory</a>
+      <a href="{% url 'stock_report' site_name=site.name %}"><i class="fas fa-clipboard-list"></i>Stock Results</a>
+      <a href="{% url 'user' %}"><i class="fas fa-home"></i>Home</a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" style="margin:0">
+        {% csrf_token %}
+        <a href="{% url 'home' %}" style="text-decoration:none;">
+          <i class="fas fa-sign-out-alt"></i>Logout
+        </a>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Mobile Header -->
+  <div class="mobile-header" role="navigation" aria-label="Mobile">
+    <img src="{% static 'logo.png' %}" alt="Logo" style="height:32px">
+    <div>
+      <a class="icon-btn" href="{% url 'user' %}" title="Home" aria-label="Dashboard">
+        <i class="fas fa-home" aria-hidden="true"></i>
+      </a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" style="display:inline-block; margin-left:8px">
+        {% csrf_token %}
+        <button type="submit" class="icon-btn" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h2>Updated Inventory for {{ site.name }}</h2>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <!-- table structure unchanged -->
+        <table border="1">
+          <thead>
+            <tr>
+              <th>Material Code</th>
+              <th>Material Description</th>
+              <th>Owner</th>
+              <th>Type</th>
+              <th>Category</th>
+              <th>UOM</th>
+              <th>Opening Stock</th>
+              <th>Unit Value (INR)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in inventory_items %}
+            <tr>
+              <td>{{ item.material_code }}</td>
+              <td>{{ item.material_desc }}</td>
+              <td>{{ item.owner }}</td>
+              <td>{{ item.type }}</td>
+              <td>{{ item.category }}</td>
+              <td>{{ item.uom }}</td>
+              <td>{{ item.opening_stock }}</td>
+              <td>{{ item.unit_value }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Footer -->
+  <div class="mobile-footer" role="navigation" aria-label="Mobile Footer">
+    <a href="{% url 'edit_inventory' site_name=site.name %}">
+      <i class="fas fa-edit"></i>
+      Edit
+    </a>
+    <a href="{% url 'stock_report' site_name=site.name %}">
+      <i class="fas fa-clipboard-list"></i>
+      Stock
+    </a>
+  </div>
 </body>
 </html>

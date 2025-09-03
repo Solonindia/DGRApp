@@ -11,6 +11,8 @@ from django.contrib.auth.models import User
 from demoapp.views import admin_login_view,user_login_view
 from django.contrib.auth.decorators import login_required
 import math
+from django.views.decorators.cache import never_cache
+
 
 @login_required(login_url='/superuser/login/')
 def upload_inventory(request):
@@ -263,9 +265,8 @@ def stock_report_view(request, site_name):
                 end = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)
                 notif_filter['timestamp__gte'] = start
                 notif_filter['timestamp__lt'] = end
-                # notif_filter['timestamp__range'] = (start, end)
             except ValueError:
-                pass  # invalid date format, ignore filtering
+                pass  
 
         closing_stock_agg = Notification.objects.filter(**notif_filter).aggregate(total=Sum('consumption'))
         closing_stock = closing_stock_agg['total'] or 0
@@ -279,6 +280,7 @@ def stock_report_view(request, site_name):
             'category':item.category,
             'fixed_stock' : item.fixed_stock,
             'opening_stock': item.opening_stock,
+            'invar': item.invar,                 # ✅ NEW: Inward (invar)
             'closing_stock': closing_stock
         })
 
@@ -341,6 +343,7 @@ def export_stock_report_excel(request, site_name):
             item.uom,
             item.fixed_stock,
             closing_stock,
+            item.invar,            # ✅ NEW: Inward (invar)
             item.opening_stock
         ])
 
@@ -352,7 +355,7 @@ def export_stock_report_excel(request, site_name):
     # Write header
     headers = [
         "Material Code", "Material Description", "Owner", "Type", "Category",
-        "UOM", "Opening Stock", "Consumption", "Available Stock"
+        "UOM", "Opening Stock", "Consumption","Inward (invar)", "Available Stock"
     ]
     ws.append(headers)
 
@@ -427,34 +430,47 @@ from django.shortcuts import render
 from .models import Notification
 from datetime import datetime
 
+
+
+
+from datetime import datetime, timedelta
+from django.http import HttpResponse
+import csv
+
 @login_required(login_url='/superuser/login/')
 def notification_list(request):
-    # Get the start_date and end_date from GET request
+    # Read raw GET strings so inputs stay sticky
     selected_site = request.GET.get('site_name', '')
-    start_date = request.GET.get('start_date', '')
-    end_date = request.GET.get('end_date', '')
+    start_date_str = request.GET.get('start_date', '')
+    end_date_str = request.GET.get('end_date', '')
 
-    # Fetch all available sites for the dropdown
     sites = Site.objects.all()
 
-    # Initialize the notifications query set
-    notifications = Notification.objects.all().order_by('-timestamp')
+    notifications = Notification.objects.select_related('site').all().order_by('-timestamp')
 
-    # Filter by site name if selected
     if selected_site:
         notifications = notifications.filter(site__name=selected_site)
 
-    # Apply filters based on start_date and end_date if provided
-    if start_date and end_date:
-        try:
-            # Parse the dates to compare them
-            start_date = datetime.strptime(start_date, '%Y-%m-%d')
-            end_date = datetime.strptime(end_date, '%Y-%m-%d')
-            notifications = notifications.filter(timestamp__range=[start_date, end_date])
-        except ValueError:
-            # Handle invalid date format
-            notifications = []
+    # Date filters (inclusive)
+    try:
+        if start_date_str and end_date_str:
+            start_dt = datetime.strptime(start_date_str, '%Y-%m-%d')
+            end_dt = datetime.strptime(end_date_str, '%Y-%m-%d') + timedelta(days=1)  # include end-date full day
+            notifications = notifications.filter(timestamp__gte=start_dt, timestamp__lt=end_dt)
+        elif start_date_str:
+            start_dt = datetime.strptime(start_date_str, '%Y-%m-%d')
+            notifications = notifications.filter(timestamp__date__gte=start_date_str)
+        elif end_date_str:
+            end_dt = datetime.strptime(end_date_str, '%Y-%m-%d')
+            notifications = notifications.filter(timestamp__date__lte=end_date_str)
+    except ValueError:
+        notifications = Notification.objects.none()  # invalid date -> empty
 
+    # Export (Excel CSV) if requested
+    if request.GET.get('export') == '1':
+        return _export_notifications_csv(
+            notifications, start_date_str, end_date_str, selected_site
+        )
 
     unread_notifications = RealTimeNotification.objects.filter(is_read=False).count()
 
@@ -462,20 +478,112 @@ def notification_list(request):
         'notifications': notifications,
         'sites': sites,
         'selected_site': selected_site,
-        'start_date': start_date,
-        'end_date': end_date,
-        'unread_notifications': unread_notifications
+        # pass strings so <input type="date"> keeps values
+        'start_date': start_date_str,
+        'end_date': end_date_str,
+        'unread_notifications': unread_notifications,
     })
 
 
+def _export_notifications_csv(qs, start_date_str, end_date_str, selected_site):
+    """Download the filtered table as Excel-compatible CSV."""
+    # filename like: notifications_[Site]_2025-08-01_2025-08-26.csv
+    parts = ["notifications"]
+    if selected_site:
+        parts.append(selected_site.replace(" ", "_"))
+    if start_date_str or end_date_str:
+        parts.append((start_date_str or "start"))
+        parts.append((end_date_str or "end"))
+    filename = "_".join(parts) + ".csv"
+
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    writer = csv.writer(response)
+
+    # headers match table columns
+    writer.writerow([
+        "Site Name", "Material Code", "Material Desc", "UOM",
+        "Opening Stock", "Consumption", "Closing Stock",
+        "Timestamp", "Unit Value"
+    ])
+
+    for n in qs.select_related('site'):
+        writer.writerow([
+            getattr(n.site, "name", ""),
+            n.material_code,
+            n.material_desc,
+            n.uom,
+            n.opening_stock,
+            n.consumption,
+            n.closing_stock,
+            n.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            n.unit_value,
+        ])
+
+    return response
+
+
+
+
+# OLD CODE
+# @login_required(login_url='/superuser/login/')
+# def notification_list(request):
+#     # Get the start_date and end_date from GET request
+#     selected_site = request.GET.get('site_name', '')
+#     start_date = request.GET.get('start_date', '')
+#     end_date = request.GET.get('end_date', '')
+
+#     # Fetch all available sites for the dropdown
+#     sites = Site.objects.all()
+
+#     # Initialize the notifications query set
+#     notifications = Notification.objects.all().order_by('-timestamp')
+
+#     # Filter by site name if selected
+#     if selected_site:
+#         notifications = notifications.filter(site__name=selected_site)
+
+#     # Apply filters based on start_date and end_date if provided
+#     if start_date and end_date:
+#         try:
+#             # Parse the dates to compare them
+#             start_date = datetime.strptime(start_date, '%Y-%m-%d')
+#             end_date = datetime.strptime(end_date, '%Y-%m-%d')
+#             notifications = notifications.filter(timestamp__range=[start_date, end_date])
+#         except ValueError:
+#             # Handle invalid date format
+#             notifications = []
+
+
+#     unread_notifications = RealTimeNotification.objects.filter(is_read=False).count()
+
+#     return render(request, 'notification_list.html', {
+#         'notifications': notifications,
+#         'sites': sites,
+#         'selected_site': selected_site,
+#         'start_date': start_date,
+#         'end_date': end_date,
+#         'unread_notifications': unread_notifications
+#     })
+
+#updated code
 import json
 @login_required(login_url='/superuser/login/')
 def site_analysis(request):
+
+    # ✅ Carry-forward once per new year:
+    # current_yr = timezone.now().year
+    # Inventory.objects.filter(fixed_stock_year__lt=current_yr).update(
+    #     fixed_stock=F('opening_stock'),
+    #     fixed_stock_year=current_yr
+    # )
+
+
     sites = Site.objects.all()
     selected_site = None
     inventories = None
     unread_notifications = RealTimeNotification.objects.filter(is_read=False).count()
-    total_site_value = 0  # <- Add this line
+    total_site_value = 0
 
     if request.method == 'POST' or 'site_name' in request.GET:
         site_name = request.POST.get('site_name') or request.GET.get('site_name')
@@ -486,13 +594,21 @@ def site_analysis(request):
 
                 for inv in inventories:
                     unit_val = inv.unit_value or 0
-                    opening = inv.opening_stock or 0
-                    fixed = inv.fixed_stock or 0
-                    inv.total_value = unit_val * opening
-                    inv.final_stock = max(fixed - opening,0)
+                    available = inv.opening_stock or 0      # A
+                    initial  = inv.fixed_stock or 0         # S0
+                    inward   = getattr(inv, 'invar', 0) or 0  # I (defaults to 0 if field exists)
 
-                # ✅ Sum all total values
-                total_site_value = sum((inv.unit_value or 0) * (inv.opening_stock or 0) for inv in inventories)
+                    # table values
+                    inv.total_value = unit_val * available
+
+                    # ✅ Correct consumption:
+                    # Consumption = (initial + inward) - available
+                    inv.final_stock = max((initial + inward) - available, 0)
+
+                total_site_value = sum(
+                    (inv.unit_value or 0) * (inv.opening_stock or 0)
+                    for inv in inventories
+                )
 
             except Site.DoesNotExist:
                 selected_site = None
@@ -502,8 +618,47 @@ def site_analysis(request):
         'selected_site': selected_site,
         'inventories': inventories,
         'unread_notifications': unread_notifications,
-        'total_site_value': total_site_value  # <- Pass to template
+        'total_site_value': total_site_value
     })
+
+
+
+
+# 1ST
+# def site_analysis(request):
+#     sites = Site.objects.all()
+#     selected_site = None
+#     inventories = None
+#     unread_notifications = RealTimeNotification.objects.filter(is_read=False).count()
+#     total_site_value = 0  # <- Add this line
+
+#     if request.method == 'POST' or 'site_name' in request.GET:
+#         site_name = request.POST.get('site_name') or request.GET.get('site_name')
+#         if site_name:
+#             try:
+#                 selected_site = Site.objects.get(name=site_name)
+#                 inventories = Inventory.objects.filter(site=selected_site)
+
+#                 for inv in inventories:
+#                     unit_val = inv.unit_value or 0
+#                     opening = inv.opening_stock or 0
+#                     fixed = inv.fixed_stock or 0
+#                     inv.total_value = unit_val * opening
+#                     inv.final_stock = max(fixed - opening,0)
+
+#                 # ✅ Sum all total values
+#                 total_site_value = sum((inv.unit_value or 0) * (inv.opening_stock or 0) for inv in inventories)
+
+#             except Site.DoesNotExist:
+#                 selected_site = None
+
+#     return render(request, 'site_analysis.html', {
+#         'sites': sites,
+#         'selected_site': selected_site,
+#         'inventories': inventories,
+#         'unread_notifications': unread_notifications,
+#         'total_site_value': total_site_value  # <- Pass to template
+#     })
 
 
 from django.shortcuts import get_object_or_404, redirect, render
@@ -512,39 +667,114 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 
 
+# def edit_inventory1(request, inventory_id):
+#     inventory = get_object_or_404(Inventory, id=inventory_id)
+#     site_name = request.GET.get('site_name')
+
+#     # ✅ Always fetch site safely
+#     selected_site = None
+#     if site_name:
+#         try:
+#             selected_site = Site.objects.get(name=site_name)
+#         except Site.DoesNotExist:
+#             selected_site = None  # Or handle error if you want
+
+#     if request.method == 'POST':
+#         inventory.material_code = request.POST.get('material_code')
+#         inventory.material_desc = request.POST.get('material_desc')
+#         inventory.uom = request.POST.get('uom')
+#         inventory.owner = request.POST.get('owner')
+#         inventory.type = request.POST.get('type')
+#         inventory.category = request.POST.get('category')
+#         inventory.opening_stock = request.POST.get('opening_stock')
+#         inventory.unit_value = request.POST.get('unit_value')
+#         inventory.save()
+
+#         redirect_url = reverse('site_analysis') + f'?site_name={site_name}'
+#         return HttpResponseRedirect(redirect_url)
+
+#     total_value = (inventory.opening_stock or 0) * (inventory.unit_value or 0)
+
+#     # ✅ Only calculate sum if site is found
+#     total_site_value = 0
+#     if selected_site:
+#         inventory_items = Inventory.objects.filter(site=selected_site)
+#         total_site_value = sum((item.opening_stock or 0) * (item.unit_value or 0) for item in inventory_items)
+
+#     return render(request, 'edit_inventory1.html', {
+#         'inventory': inventory,
+#         'site_name': site_name,
+#         'selected_site': selected_site,
+#         'total_value': total_value,
+#         'total_site_value': total_site_value
+#     })
+
+
+# updTED CODE
+from django.db.models import F
 def edit_inventory1(request, inventory_id):
     inventory = get_object_or_404(Inventory, id=inventory_id)
     site_name = request.GET.get('site_name')
 
-    # ✅ Always fetch site safely
     selected_site = None
     if site_name:
         try:
             selected_site = Site.objects.get(name=site_name)
         except Site.DoesNotExist:
-            selected_site = None  # Or handle error if you want
+            selected_site = None
 
     if request.method == 'POST':
+        # basic text fields
         inventory.material_code = request.POST.get('material_code')
         inventory.material_desc = request.POST.get('material_desc')
         inventory.uom = request.POST.get('uom')
         inventory.owner = request.POST.get('owner')
         inventory.type = request.POST.get('type')
         inventory.category = request.POST.get('category')
-        inventory.opening_stock = request.POST.get('opening_stock')
-        inventory.unit_value = request.POST.get('unit_value')
+
+        # numeric fields (safe parse)
+        raw_opening = (request.POST.get('opening_stock') or '').strip()
+        raw_unitval = (request.POST.get('unit_value') or '').strip()
+        try:
+            inventory.opening_stock = int(raw_opening) if raw_opening != '' else 0
+        except ValueError:
+            inventory.opening_stock = 0
+        try:
+            inventory.unit_value = float(raw_unitval) if raw_unitval != '' else 0.0
+        except ValueError:
+            inventory.unit_value = 0.0
+
+        # ✅ NEW: Add Stock (inward)
+        raw_add = (request.POST.get('adding_stock') or '').strip()
+        try:
+            adding_stock = int(raw_add) if raw_add != '' else 0
+        except ValueError:
+            adding_stock = 0
+        if adding_stock < 0:
+            adding_stock = 0  # no negatives
+
+        # Save edited values first
         inventory.save()
 
-        redirect_url = reverse('site_analysis') + f'?site_name={site_name}'
+        # Atomically add to invar and opening_stock
+        if adding_stock > 0:
+            Inventory.objects.filter(id=inventory.id).update(
+                invar=F('invar') + adding_stock,
+                opening_stock=F('opening_stock') + adding_stock
+            )
+
+        redirect_url = reverse('site_analysis') + (f'?site_name={site_name}' if site_name else '')
         return HttpResponseRedirect(redirect_url)
 
     total_value = (inventory.opening_stock or 0) * (inventory.unit_value or 0)
 
-    # ✅ Only calculate sum if site is found
     total_site_value = 0
     if selected_site:
         inventory_items = Inventory.objects.filter(site=selected_site)
-        total_site_value = sum((item.opening_stock or 0) * (item.unit_value or 0) for item in inventory_items)
+        total_site_value = sum(
+            (item.opening_stock or 0) * (item.unit_value or 0)
+            for item in inventory_items
+        )
 
     return render(request, 'edit_inventory1.html', {
         'inventory': inventory,
@@ -553,3 +783,6 @@ def edit_inventory1(request, inventory_id):
         'total_value': total_value,
         'total_site_value': total_site_value
     })
+
+
+

@@ -49,6 +49,10 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+
+    # Add this line:
+    'demodjango.middleware.no_cache.NoCacheForHtmlMiddleware',
+
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -107,7 +111,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LOGIN_URL = '/home/'
+# LOGIN_URL = '/home/'
+# settings.py
+LOGIN_URL = '/user/login/'              # default for auth redirects
+LOGOUT_REDIRECT_URL = '/user/login/'    # default after logout
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 3600  # 1 hour for session expiration
@@ -121,26 +128,15 @@ USE_L10N = True
 TIME_ZONE = 'Asia/Kolkata'
 USE_TZ = True
 
-# STATIC_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/'
-# STATICFILES_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 
-# # Static files
-# STATIC_URL = '/static/'
-# STATIC_ROOT = BASE_DIR / 'static'
-
-# LOGOUT_REDIRECT_URL = '/home/'
-
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 if DEBUG:
     # Local setup
     STATIC_URL = '/static/'
-    STATIC_ROOT = BASE_DIR / 'static'
-    LOGOUT_REDIRECT_URL = '/home/'
+    # STATIC_ROOT = BASE_DIR / 'static'
+    # LOGOUT_REDIRECT_URL = '/home/'
+    STATICFILES_DIRS = [BASE_DIR / 'static']   # ← for local dev
 
 
     MEDIA_URL = '/media/'
@@ -152,7 +148,7 @@ else:
     STATIC_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/'
     STATICFILES_STORAGE = 'storages.backends.azure_storage.AzureStorage'
     DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
-    LOGOUT_REDIRECT_URL = '/home/'
+    # LOGOUT_REDIRECT_URL = '/home/'
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

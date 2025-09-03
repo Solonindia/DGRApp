@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -200,6 +200,16 @@
                     </a>
                 </form>
                 {% endif %}
+
+                {% if user.is_authenticated %}
+                <form action="{% url 'logout' %}?next=/superuser/login/" method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="background:none; border:none; color:rgb(0, 2, 82); cursor:pointer; font:inherit; padding:0;">
+                    <i class="fas fa-sign-out-alt" style="font-size:18px; margin-right:8px;"></i>Logout
+                    </button>
+                </form>
+                {% endif %}
+
         </div>
     </div>
 
@@ -213,13 +223,13 @@
             </select>
         </form>
         <div class="chart-wrapper">
-            <!-- Bar Chart for Open and Closed Complaints -->
+            
             <div class="chart-container2">
                 <div class="chart-title">Complaints Tracker</div>
                 <canvas id="complaintsComboChart"></canvas>
             </div>
             
-            <!-- Pie Chart for Total Open and Closed Complaints -->
+            
             <div class="chart-container1">
                 <div class="chart-title">Overall Complaints</div>
                 <canvas id="totalComplaintsPieChart"></canvas>
@@ -427,5 +437,514 @@
             });
         </script>
     </div>
+
+    <script>window.LOGIN_PATH = '/superuser/login/';</script>
+    <script src="{% static 'demoapp/js/auth-guard.js' %}"></script>
+</body>
+</html> -->
+
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Complaint Analysis</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+  <script>Chart.register(ChartDataLabels);</script>
+<style>
+  :root{
+    --brand:#001e6a; --brand-2:#0b5fe0;
+    --text:#0f172a; --muted:#475569;
+    --ring:#3b82f6; --card:#ffffff;
+    --shadow:0 10px 26px rgba(2,6,23,.12);
+    --radius:14px;
+    --header-h:72px;              /* desktop header height */
+    --m-header-h:64px;            /* mobile header height */
+    --footerH:58px;               /* mobile footer height */
+    --safeBottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Base */
+  *{ box-sizing:border-box }
+  html, body{ height:100%; margin:0; padding:0; overflow-x:hidden }
+  body{
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%) fixed;
+    color: var(--text);
+    min-height: 100svh;
+  }
+
+  /* Header (desktop default: sticky) */
+  .navbar{
+    position: sticky; top: 0; z-index: 10;
+    display:flex; align-items:center; justify-content:space-between;
+    height: var(--header-h);
+    background:#fff;
+    border-bottom:1px solid rgba(2,6,23,.06);
+    padding:0 12px;
+    box-shadow:0 2px 4px rgba(0,0,0,.05);
+    gap:10px; flex-wrap:wrap;
+  }
+  .navbar .logo{ height:40px; width:auto }
+
+  .nav-links{ display:flex; align-items:center; gap:8px; flex-wrap:wrap }
+  .nav-link{
+    text-decoration:none; color:var(--brand); font-weight:700;
+    padding:8px 10px; border-radius:10px;
+    display:inline-flex; align-items:center; gap:8px; position:relative;
+  }
+  .nav-link:hover{ background:rgba(2,6,23,.06) }
+  .nav-home{ padding:8px }
+  .nav-home i{ font-size:20px }
+
+  .logout-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    border:none; background:transparent; color:var(--brand);
+    font-weight:700; cursor:pointer; padding:8px 10px; border-radius:10px;
+    position:relative;
+  }
+  .logout-btn:hover{ background:rgba(2,6,23,.06) }
+
+  /* Desktop: icon labels under icons */
+  @media (min-width:801px){
+    .navbar{ height:86px }
+    .nav-links{ gap:6px }
+    .nav-links .nav-link, .logout-btn{
+      flex-direction:column; align-items:center; justify-content:center;
+      gap:2px; min-width:84px; padding-block:2px;
+    }
+    .nav-links .nav-link b{
+      display:block; font-size:.74rem; line-height:1.05; font-weight:800; text-align:center;
+    }
+    .nav-home::after{
+      content:"Home"; display:block; font-size:.74rem; line-height:1.05; font-weight:800; color:var(--brand);
+    }
+    .logout-btn::after{
+      content:"Logout"; display:block; font-size:.74rem; line-height:1.05; font-weight:800; color:var(--brand);
+    }
+  }
+  .tooltip::after{ content:none !important } /* no tooltips */
+
+  /* Page containers */
+  .wrap, .heading-row{
+    max-width: clamp(1100px, 96vw, 1400px);
+    margin: 12px auto 40px;
+    padding: 0 16px;
+  }
+
+  /* Heading row: centered title, filter at right */
+  .heading-row{
+    display:grid; grid-template-columns: 1fr auto 1fr; align-items:center; gap:12px;
+  }
+  .heading-row .spacer{ height:1px }
+  .heading-row h2{
+    margin:0; text-align:center; color:var(--brand);
+    font-size: clamp(1.2rem, 2.4vw, 1.8rem);
+    display:flex; align-items:center; justify-content:center; gap:10px;
+  }
+  .filter-form{
+    justify-self:end; display:flex; align-items:center; gap:8px;
+    background:#f8fafc; border:1px solid rgba(2,6,23,.08);
+    padding:6px 10px; border-radius:10px;
+  }
+  .filter-form label{ font-weight:700; color:#0f0149; font-size:.95rem }
+  .filter-form select{
+    border:1px solid rgba(2,6,23,.18); border-radius:8px; padding:8px 10px; font-size:1rem;
+    background:#fff; color:#0f172a;
+  }
+
+  /* Charts grid (desktop) */
+  .chart-grid{
+    display:grid; grid-template-columns: 1.25fr 1fr; gap:24px;
+  }
+
+  .card{
+    background:#fff; box-shadow:var(--shadow);
+    border:1px solid rgba(2,6,23,.08); border-radius:14px;
+    padding:10px; display:flex; flex-direction:column;
+  }
+  .card h4{
+    text-align:center; margin:6px 0 10px; font-weight:800; color:var(--brand);
+  }
+
+  .canvas-wrap{
+    position: relative;
+    height: clamp(200px, 46vw, 300px);   /* ↓ a bit shorter */
+    width: 100%;
+    margin-inline:auto;
+  }
+  .card canvas{ width:100%; height:auto !important; display:block }
+
+  /* Legends */
+  .legend-inline{
+    margin-top:8px; display:flex; justify-content:center; gap:16px;
+    font-size:.95rem; color:#0f172a; user-select:none; flex-wrap:wrap;
+  }
+  .legend-btn{
+    border:none; background:transparent; cursor:pointer; touch-action:manipulation;
+    display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border-radius:10px;
+    font-weight:800; color:#0f172a; min-height:44px;
+  }
+  .legend-btn:hover{ background:rgba(2,6,23,.06) }
+  .legend-btn.is-off{ opacity:.55; text-decoration:line-through }
+  .dot{ width:12px; height:12px; border-radius:50% }
+
+  .message{ display:none !important }
+
+  /* ---------- MOBILE (≤640px) ---------- */
+  .mobile-footer{ display:none }     /* hidden by default */
+
+  @media (max-width:640px){
+    :root{ --header-h: var(--m-header-h) }
+
+    /* Fix header */
+    .navbar{
+      position: fixed !important; top:0; left:0; right:0; z-index:1000;
+      height: var(--m-header-h);
+      padding: 0 10px;
+    }
+    .navbar .logo{ height:32px }
+
+    /* Hide Approvals & Closed in navbar on phones */
+    .hide-on-mobile{ display:none !important }
+
+    .wrap, .heading-row{ max-width:95vw }
+    .wrap{ padding-bottom: calc(var(--footerH) + 12px + var(--safeBottom)) }
+
+    /* Heading stack */
+    .heading-row{ grid-template-columns: 1fr; row-gap:10px }
+    .filter-form{ justify-self:stretch; width:100%; justify-content:space-between }
+    .filter-form select{ flex:1; min-width:0 }
+
+    /* Charts: single column, narrower & taller */
+    .chart-grid{ grid-template-columns: 1fr !important; gap:16px }
+    .card{ width:94%; margin-inline:auto }
+    .card .canvas-wrap{
+      width: 100%;
+      height: clamp(260px, 54vw, 260px);               /* taller on mobile */
+    }
+
+    /* Fixed mobile footer */
+    .mobile-footer{
+      display:flex !important;
+      position: fixed !important;
+      left:0; right:0; bottom:0; z-index:1000;
+      height: calc(var(--footerH) + var(--safeBottom));
+      padding-bottom: var(--safeBottom);
+      align-items:center; justify-content:space-evenly;
+      background:#ffffffee;
+      border-top:1px solid rgba(2,6,23,.08);
+      backdrop-filter:saturate(180%) blur(8px);
+      -webkit-backdrop-filter:saturate(180%) blur(8px);
+    }
+    .mobile-footer a{
+      text-decoration:none; color:var(--brand);
+      display:inline-flex; flex-direction:column; align-items:center; gap:4px;
+      padding:6px 8px; border-radius:10px;
+    }
+    .mobile-footer a i{ font-size:20px; line-height:1 }
+    .mobile-footer a .label{ font-size:.75rem; font-weight:700 }
+  }
+
+  /* ---------- TABLET (641–900px) tweaks ---------- */
+  @media (min-width:641px) and (max-width:900px){
+    .wrap, .heading-row{ max-width:95vw }
+    .chart-grid{ grid-template-columns: 1fr; gap:18px }
+    .canvas-wrap{ height: clamp(300px, 48vw, 360px) }
+  }
+  @media (max-width:640px){
+  /* Fixed navbar already on mobile; push the heading below it
+     and keep it stuck under the navbar while scrolling */
+  .heading-row{
+    position: sticky;          /* stays just under the fixed header */
+    margin: calc(var(--m-header-h) + 6px) auto 10px; /* visible on first paint */
+    padding: 8px 16px 10px;
+    background: linear-gradient(120deg,#a1c4fd 0%,#c2e9fb 100%);
+    border-bottom: 1px solid rgba(2,6,23,.08);
+    z-index: 950;                          /* above cards/charts */
+  }
+  .heading-row h2{ margin:0; }
+
+  /* We no longer need extra top padding on the main content */
+  main{ padding-top: 0; }
+}
+</style>
+
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo" />
+
+    <nav class="nav-links">
+      <a href="{% url 'approval_complaints' %}" class="nav-link hide-on-mobile">
+        <i class="fas fa-tasks"></i><b>Approvals</b>
+      </a>
+      <a href="{% url 'final_complaints' %}" class="nav-link hide-on-mobile">
+        <i class="fas fa-check-circle"></i><b>Closed Complaints</b>
+      </a>
+      <a href="{% url 'admin' %}" class="nav-link nav-home" aria-label="Home">
+        <i class="fas fa-home"></i>
+      </a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}?next=/superuser/login/" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="logout-btn" aria-label="Logout">
+          <i class="fas fa-sign-out-alt fa-lg" aria-hidden="true"></i>
+          <span class="hide-on-mobile"></span>
+        </button>
+      </form>
+      {% endif %}
+
+    </nav>
+  </header>
+
+  <!-- Heading row -->
+  <div class="heading-row">
+    <div class="spacer" aria-hidden="true"></div>
+    <h2><i class="fas fa-chart-bar"></i> Complaint Analysis</h2>
+    <form method="get" action="{% url 'complaint_analysis' %}" class="filter-form" id="siteFilterForm">
+      <label for="site_name">Site Names</label>
+      <select id="site_name" name="site_name" onchange="this.form.submit()">
+        <option value="All" {% if selected_site == 'All' %}selected{% endif %}>All</option>
+        {% for site in sites %}
+          <option value="{{ site }}" {% if selected_site == site %}selected{% endif %}>{{ site }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  <!-- Content -->
+  <main class="wrap">
+    <section class="chart-grid">
+      <!-- Bar chart -->
+      <article class="card">
+        <h4>Complaints Tracker</h4>
+        <div class="canvas-wrap">
+          <canvas id="complaintsComboChart"></canvas>
+        </div>
+        <div class="legend-inline">
+          <button type="button" class="legend-btn" id="legend-bar-open" aria-pressed="true">
+            <span class="dot" style="background:rgba(0,0,128)"></span> Open Complaints
+          </button>
+          <button type="button" class="legend-btn" id="legend-bar-closed" aria-pressed="true">
+            <span class="dot" style="background:rgba(0,128,0)"></span> Closed Complaints
+          </button>
+        </div>
+      </article>
+
+      <!-- Pie chart -->
+      <article class="card">
+        <h4>Overall Complaints</h4>
+        <div class="canvas-wrap">
+          <canvas id="totalComplaintsPieChart"></canvas>
+        </div>
+        <div class="legend-inline">
+          <button type="button" class="legend-btn" id="legend-pie-open" aria-pressed="true">
+            <span class="dot" style="background:rgba(0,0,128)"></span> Open Complaints
+          </button>
+          <button type="button" class="legend-btn" id="legend-pie-closed" aria-pressed="true">
+            <span class="dot" style="background:rgba(0,128,0)"></span> Closed Complaints
+          </button>
+        </div>
+      </article>
+    </section>
+
+    <div class="message" id="messageDisplay"></div>
+  </main>
+<nav class="mobile-footer" aria-label="Secondary">
+  <a href="{% url 'approval_complaints' %}">
+    <i class="fas fa-clipboard-check"></i>
+    <span class="label">Approvals</span>
+  </a>
+  <a href="{% url 'final_complaints' %}">
+      <i class="fas fa-check-circle"></i>
+      <span class="label">Closed Complaints</span>
+  </a>
+</nav>
+
+  <script>
+    // Data
+    const years        = JSON.parse('{{ years_json|escapejs }}');
+    const openCounts   = JSON.parse('{{ open_counts_json|escapejs }}');
+    const closedCounts = JSON.parse('{{ closed_counts_json|escapejs }}');
+    const totalOpen    = parseInt('{{ total_open|default:"0" }}');
+    const totalClosed  = parseInt('{{ total_closed|default:"0" }}');
+
+    const step = 10;
+    const allVals = [...openCounts, ...closedCounts];
+    const maxVal  = Math.max(0, ...allVals);
+    const suggestedMax = Math.max(step, Math.ceil(maxVal / step) * step);
+
+    // Bar chart
+    const ctxComplaints = document.getElementById('complaintsComboChart').getContext('2d');
+    const complaintsComboChart = new Chart(ctxComplaints, {
+      type: 'bar',
+      data: {
+        labels: years,
+        datasets: [
+          {
+            label: 'Open Complaints',
+            data: openCounts,
+            backgroundColor: 'rgba(0, 0, 128)',
+            borderColor: 'rgba(0, 0, 128)',
+            borderWidth: 1,
+            barThickness: 18,
+            categoryPercentage: 0.5,
+            barPercentage: 0.8
+          },
+          {
+            label: 'Closed Complaints',
+            data: closedCounts,
+            backgroundColor: 'rgba(0, 128, 0)',
+            borderColor: 'rgba(0, 128, 0)',
+            borderWidth: 1,
+            barThickness: 18,
+            categoryPercentage: 0.5,
+            barPercentage: 0.8
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display:false },
+          tooltip: {
+            callbacks: { label: (ctx) => ctx.dataset.label + ': ' + ctx.raw },
+            backgroundColor: 'rgba(0,0,0)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: '#000',
+            borderWidth: 1
+          },
+          datalabels: { display:false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            min: 0,
+            suggestedMax,
+            ticks: {
+              stepSize: step,
+              autoSkip: false,
+              precision: 0,
+              color: '#000',
+              font: { size: 12, weight: 'bold' }
+            },
+            grid: { drawOnChartArea:false, drawBorder:true, color:'#000', borderWidth:2 }
+          },
+          x: {
+            title: { display: true, text: 'Year', color: '#000', font: { size: 12, weight: 'bold' } },
+            ticks: { color: '#000', font: { size: 11, weight: 'bold' } },
+            grid: { drawOnChartArea: false, drawBorder: true, color: '#000', borderWidth: 2 }
+          }
+        }
+      }
+    });
+
+    // Pie chart (labels = percentage only; responsive font)
+    const ctxPie = document.getElementById('totalComplaintsPieChart').getContext('2d');
+    const totalComplaintsPieChart = new Chart(ctxPie, {
+      type: 'pie',
+      data: {
+        labels: ['Open Complaints', 'Closed Complaints'],
+        datasets: [{
+          data: [totalOpen, totalClosed],
+          backgroundColor: ['rgba(0, 0, 128)','rgba(0, 128, 0)']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: (ctx) => ctx.label + ': ' + ctx.raw },
+            backgroundColor: 'rgba(0,0,0)', titleColor: '#fff', bodyColor: '#fff'
+          },
+          datalabels: {
+            display: true,
+            formatter: (value, ctx) => {
+              const data = ctx.chart.data.datasets[0].data;
+              const total = data.reduce((a, b) => a + (typeof b === 'number' ? b : 0), 0);
+              const pct = total ? (value / total) * 100 : 0;
+              return `${Math.round(pct)}%`;
+            },
+            color: '#fff',
+            font: (ctx) => ({ weight: 'bold', size: window.innerWidth < 640 ? 12 : 16 }),
+            textStrokeWidth: 2,
+            textStrokeColor: 'rgba(0,0,0,.35)'
+          }
+        }
+      }
+    });
+
+    // Legends under each chart
+    const barBtnOpen   = document.getElementById('legend-bar-open');
+    const barBtnClosed = document.getElementById('legend-bar-closed');
+    const pieBtnOpen   = document.getElementById('legend-pie-open');
+    const pieBtnClosed = document.getElementById('legend-pie-closed');
+
+    function toggleBar(idx, btn){
+      const visible = complaintsComboChart.isDatasetVisible(idx);
+      complaintsComboChart.setDatasetVisibility(idx, !visible);
+      complaintsComboChart.update();
+      btn.classList.toggle('is-off', visible);
+      btn.setAttribute('aria-pressed', (!visible).toString());
+    }
+    barBtnOpen.addEventListener('click',  () => toggleBar(0, barBtnOpen));
+    barBtnClosed.addEventListener('click', () => toggleBar(1, barBtnClosed));
+
+    function togglePie(idx, btn){
+      const wasVisible = totalComplaintsPieChart.getDataVisibility(idx);
+      totalComplaintsPieChart.toggleDataVisibility(idx);
+      totalComplaintsPieChart.update();
+      btn.classList.toggle('is-off', wasVisible);
+      btn.setAttribute('aria-pressed', (!wasVisible).toString());
+    }
+    pieBtnOpen.addEventListener('click',  () => togglePie(0, pieBtnOpen));
+    pieBtnClosed.addEventListener('click', () => togglePie(1, pieBtnClosed));
+
+    // Click navigation (unchanged)
+    const messageDisplay = document.getElementById('messageDisplay');
+
+    document.getElementById('complaintsComboChart').addEventListener('click', function(evt) {
+      const points = complaintsComboChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, false);
+      if (!points.length) return;
+      const p = points[0];
+      if (p.datasetIndex === 0) {
+        const openSum = openCounts.reduce((a,b)=>a+b,0);
+        messageDisplay.innerText = `Open Complaints: ${openSum}`;
+        window.location.href = "{% url 'complaints_detail' 'open' selected_site|default:'All' %}";
+      } else if (p.datasetIndex === 1) {
+        const closedSum = closedCounts.reduce((a,b)=>a+b,0);
+        messageDisplay.innerText = `Closed Complaints: ${closedSum}`;
+        window.location.href = "{% url 'complaints_detail' 'closed' selected_site|default:'All' %}";
+      }
+    });
+
+    document.getElementById('totalComplaintsPieChart').addEventListener('click', function(evt) {
+      const points = totalComplaintsPieChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, false);
+      if (!points.length) return;
+      const p = points[0];
+      if (p.index === 0) {
+        window.location.href = "{% url 'complaints_detail' 'open' selected_site|default:'All' %}";
+      } else if (p.index === 1) {
+        window.location.href = "{% url 'complaints_detail' 'closed' selected_site|default:'All' %}";
+      }
+    });
+  </script>
+
+  <script>window.LOGIN_PATH = '/superuser/login/';</script>
+  <script src="{% static 'demoapp/js/auth-guard.js' %}"></script>
 </body>
 </html>

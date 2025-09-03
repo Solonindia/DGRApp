@@ -6,6 +6,7 @@ from .forms import CustomUserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from Inventory.models import Site
+from django.views.decorators.cache import never_cache
 
 def home_page(request):
     return render(request, 'home_page.html')
@@ -40,6 +41,7 @@ def admin_login_view(request):
 
     return render(request, 'admin_login.html')
 
+@never_cache
 @login_required(login_url='/superuser/login/')  # Ensure only logged-in users can access this view
 def signup_view(request):
     if request.method == 'POST':
@@ -51,6 +53,7 @@ def signup_view(request):
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
 
+@never_cache
 @login_required(login_url='/superuser/login/') 
 def admin_page(request):
     if not request.user.is_superuser:
@@ -58,6 +61,7 @@ def admin_page(request):
     
     return render(request, 'admin.html')
 
+@never_cache
 @login_required(login_url='/user/login/')  # Redirect to login if not logged in
 def user_page(request):
     # Restrict access to superusers
@@ -149,6 +153,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+@never_cache
 @login_required(login_url='/user/login/')
 def complaint_form(request):
     if not request.user.is_authenticated:
@@ -227,7 +232,8 @@ def complaint_form(request):
 
         # Render the form for logged-in users only
         return render(request, 'new_complaint.html', {'complaint_id': complaint_id})
-    
+
+@never_cache    
 @login_required(login_url='/superuser/login/') 
 def approval_complaints(request):
     if not request.user.is_superuser:
@@ -259,7 +265,7 @@ def approval_complaints(request):
 
 
 
-
+@never_cache
 @login_required(login_url='/superuser/login/')
 def accept_complaint(request, complaint_id):
     if not request.user.is_superuser:
@@ -290,7 +296,7 @@ def accept_complaint(request, complaint_id):
 
 
 
-
+@never_cache
 @login_required(login_url='/user/login/')
 def rejected_complaints(request):
     username = request.user.username
@@ -301,6 +307,7 @@ def rejected_complaints(request):
 
 
 from django.core.files.storage import default_storage
+@never_cache
 @login_required(login_url='/user/login/')
 def delete_user_complaint(request, complaint_id):
     complaint = get_object_or_404(Complaint, id=complaint_id)
@@ -333,7 +340,7 @@ def delete_user_complaint(request, complaint_id):
 
 
 
-
+@never_cache
 @login_required(login_url='/user/login/')
 def existing_complaints(request):
     username = request.user.username
@@ -341,6 +348,7 @@ def existing_complaints(request):
     complaints = complaints_list
     return render(request, 'existing_complaints.html', {'complaints': complaints})
 
+@never_cache
 @login_required(login_url='/user/login/')
 def edit_complaint(request, complaint_id):
     # Fetch the complaint, ensuring it belongs to the logged-in user
@@ -401,6 +409,7 @@ def edit_complaint(request, complaint_id):
 
     return render(request, 'edit_complaint.html', {'complaint': complaint})
 
+@never_cache
 @login_required(login_url='/superuser/login/')  # Ensure only logged-in users can access this view
 def final_complaints(request):
     # Ensure only superusers can access this page
@@ -411,6 +420,7 @@ def final_complaints(request):
     accepted_complaints = Complaint.objects.filter(status='Update').order_by('-created_at')
     return render(request, 'final_complaints.html', {'accepted_complaints': accepted_complaints})
 
+@never_cache
 @login_required(login_url='/user/login')
 def final_complaints_user(request):
     username = request.user.username
@@ -426,6 +436,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.core.files.storage import default_storage
 import json
 import os
+@never_cache
 @login_required(login_url='/superuser/login/')  # Ensure only logged-in users can access this view
 def delete_complaint(request, complaint_id):
     # Ensure only superusers can perform this action
@@ -466,6 +477,7 @@ def delete_complaint(request, complaint_id):
 from django.db.models import Count
 from django.db.models.functions import ExtractYear
 
+@never_cache
 @login_required(login_url='/superuser/login/') 
 def complaint_analysis(request):
     site_name = request.GET.get('site_name', 'All')  # Get the selected site name from query parameters
@@ -528,6 +540,7 @@ def complaint_analysis(request):
 import csv
 from django.http import HttpResponse
 
+@never_cache
 @login_required(login_url='/superuser/login/') 
 def ComplaintDetailView(request, type, site_name):
     # Determine complaint status based on the type
@@ -545,6 +558,7 @@ def ComplaintDetailView(request, type, site_name):
         'complaint_type': type,  # Pass the complaint type (open or closed)
     })
 
+@never_cache
 @login_required(login_url='/superuser/login/') 
 def export_complaints_to_csv(request, type, site_name):
     # Fetch complaints based on type
@@ -603,3 +617,14 @@ class CustomLogoutView(auth_views.LogoutView):
     def dispatch(self, request, *args, **kwargs):
         messages.success(request, "Logout successful")
         return super().dispatch(request, *args, **kwargs)
+
+
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+from django.views.decorators.cache import never_cache
+
+@require_GET
+@never_cache
+def auth_ping(request):
+    return JsonResponse({'authenticated': request.user.is_authenticated})

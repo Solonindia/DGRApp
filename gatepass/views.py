@@ -12,8 +12,10 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from demoapp.views import admin_login_view,user_login_view
+from django.views.decorators.cache import never_cache
 import pytz
 
+@never_cache
 @login_required(login_url='/superuser/login/')
 def visitor_log_view(request):
     gatepass_id = None  # Initialize gatepass_id as None
@@ -84,6 +86,7 @@ def visitor_log_view(request):
         gatepass_id = gatepass.generate_gatepass_id()  # Generate the temporary complaint ID
         return render(request, 'visitor_log.html', {'gatepass_id': gatepass_id})
 
+@never_cache
 @login_required(login_url='/superuser/login/')
 def visitor_log_list(request):
     # Get the 'gatepass_id' parameter from the GET request
@@ -290,6 +293,8 @@ def delete_visitor_log(request, log_id):
         messages.success(request, 'Visitor log deleted successfully.')
     return redirect('visitor_log_list')
 
+
+@never_cache
 @login_required(login_url='/user/login/')
 def visitor_log_user_view(request):
     username = request.user.username  # Get the username from the request
@@ -356,6 +361,7 @@ def visitor_log_user_view(request):
         gatepass_id = gatepass.generate_gatepass_id()  # Generate a temporary gatepass ID
         return render(request, 'visitor_log_user.html', {'gatepass_id': gatepass_id})  
 
+@never_cache
 @login_required(login_url='/user/login/')
 def visitor_log_list_user(request):
     # Check if the user is authenticated

@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -168,17 +168,17 @@
     </form>
 </h2>
 
-<!-- Filter Form -->
+
 <form method="GET">
     <label for="start_date">Start Date:</label>
     <input type="date" name="start_date" value="{{ start_date }}">
     <label for="end_date">End Date:</label>
     <input type="date" name="end_date" value="{{ end_date }}">
     <button class="sub" type="submit">🔍 Search</button>
-    <!-- <a href="{% url 'user' %}" class="btn-link">🏠 Dashboard</a> -->
+    
 </form>
 
-<!-- Table -->
+
 <table>
     <thead>
         <tr>
@@ -214,4 +214,262 @@
     </tbody>
 </table>
 </body>
+</html> -->
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stock Report – {{ site.name }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+
+  <style>
+    :root{
+      --brand:#002550;
+      --bg1:#a1c4fd; --bg2:#c2e9fb;
+      --text:#1b1f24;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+      --navbar-h:60px;
+      --mheader-h:56px;
+      --mfooter-h:56px;
+
+      /* 👇 tune these to make the table wider */
+      --content-max: 1400px;           /* was 1200px */
+      --table-min-mobile: 1100px;      /* horizontal scroll breakpoint */
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background:linear-gradient(120deg, var(--bg1) 0%, var(--bg2) 100%);
+      background-attachment:fixed;
+      min-height:100vh;
+      font-size:16px;
+      color:var(--text);
+      display:flex; flex-direction:column;
+    }
+
+    .navbar{
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff; padding:10px 20px; box-shadow:var(--shadow);
+      height:var(--navbar-h); z-index:100;
+    }
+    @media (min-width:769px){
+      .navbar{ position:fixed; top:0; left:0; right:0; }
+      body{ padding-top:var(--navbar-h); }
+    }
+    .logo{height:40px}
+
+    .nav-links{display:flex; gap:22px; align-items:center}
+    .nav-links a,
+    .nav-links form a{
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      text-decoration:none; color:var(--brand); font-weight:700; line-height:1.1; text-align:center;
+    }
+    .nav-links i{ font-size:20px; margin:0 0 4px 0; }
+
+    .mobile-header{
+      display:none; position:fixed; top:0; left:0; right:0; height:var(--mheader-h);
+      background:#fff; box-shadow:var(--shadow); padding:8px 12px; z-index:1000;
+      align-items:center; justify-content:space-between;
+    }
+    .icon-btn{
+      background:#f3f4f6; border:none; border-radius:8px; padding:8px 10px; cursor:pointer;
+      color:var(--brand); display:inline-flex; align-items:center; justify-content:center;
+      text-decoration:none; line-height:1; transition:background-color .2s ease, transform .05s ease;
+    }
+    .icon-btn i{ font-size:18px; }
+    .icon-btn:link, .icon-btn:visited, .icon-btn:hover, .icon-btn:active{ color:var(--brand); text-decoration:none; }
+    .icon-btn:hover{ background:#e9eef5; }
+    .icon-btn:active{ background:#e2e8f0; transform:translateY(1px); }
+    .icon-btn:focus-visible{ outline:2px solid #94a3b8; outline-offset:2px; }
+
+    .mobile-footer{
+      display:none; position:fixed; bottom:0; left:0; right:0; height:var(--mfooter-h);
+      background:#fff; box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      align-items:center; justify-content:space-around; z-index:1000;
+    }
+    .mobile-footer a{
+      text-decoration:none; color:var(--brand); font-weight:700; font-size:12px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+    .mobile-footer i{font-size:18px; margin-bottom:2px}
+
+    /* ==== WIDER CONTENT & TABLE ==== */
+    .container{
+      flex:1; padding:20px; width:96%; max-width:var(--content-max); margin:0 auto;
+      display:flex; flex-direction:column;
+    }
+
+    .title{ position:relative; text-align:center; color:#002550; margin:10px 0 16px; }
+    .h2-download{ position:absolute; right:0; top:50%; transform:translateY(-50%); margin:0; }
+    .h2-download button{ padding:10px 14px; border:none; border-radius:6px; background:#002550; color:#fff; cursor:pointer; }
+    .h2-download button:hover{ background:#002550; }
+
+    .filter-form{ text-align:center; margin-bottom:18px; }
+    .filter-form label{ font-weight:600; margin:0 8px; color:#002550; }
+    .filter-form input[type="date"]{
+      padding:10px; width:180px; border-radius:6px; border:1px solid #bbb; margin-right:10px; background:#fff;
+    }
+    .filter-form .sub{
+      padding:10px 20px; background-color:#002550; color:#fff; border:none; border-radius:6px; cursor:pointer;
+      transition:background-color .3s ease;
+    }
+    .filter-form .sub:hover{ background-color:#1a242f; }
+
+    .table-wrap{
+      width:100%;                 /* was 90% — now full width of container */
+      margin:20px auto; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.1);
+      border-radius:8px; overflow:hidden;
+    }
+    /* OPTIONAL full-bleed (edge-to-edge) — add class "table-bleed" on .table-wrap
+    .table-bleed{
+      width:100vw; margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);
+    } */
+
+    .table-scroll{ overflow:auto; }
+    table{ width:100%; border-collapse:collapse; background:#fff; }
+    th, td{ padding:14px 12px; text-align:left; border:1px solid #ddd; font-size:14px; }
+    th{ background:#002550; color:#fff; }
+    tr:nth-child(even){ background:#f9fbfd; }
+    tr:hover{ background:#e3f2fd; }
+    .no-data{ text-align:center; padding:20px; color:#666; }
+
+    /* ===== MOBILE ===== */
+    @media (max-width:768px){
+      .navbar{display:none}
+      .mobile-header{display:flex}
+      .mobile-footer{display:flex}
+      body{ padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h); }
+
+      .container{ width:96%; padding:16px; }
+
+      .title{ text-align:center; }
+      .h2-download{ position:static; transform:none; margin-top:8px; text-align:center; }
+
+      .table-scroll{ overflow-x:auto; }
+      table{ min-width:var(--table-min-mobile); } /* wider min for smooth horizontal scroll */
+    }
+  </style>
+</head>
+<body>
+  <!-- Desktop Navbar -->
+  <div class="navbar" role="navigation" aria-label="Primary">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <div class="nav-links">
+      <a href="{% url 'edit_inventory' site_name=site.name %}"><i class="fas fa-edit"></i>Edit Inventory</a>
+      <a href="{% url 'inventory_history' site_name=site.name %}"><i class="fas fa-history"></i>Inventory Result</a>
+      <a href="{% url 'user' %}"><i class="fas fa-home"></i>Home</a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" style="margin:0">
+        {% csrf_token %}
+        <a href="{% url 'home' %}" style="text-decoration:none;">
+          <i class="fas fa-sign-out-alt"></i>Logout
+        </a>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Mobile Header -->
+  <div class="mobile-header" role="navigation" aria-label="Mobile">
+    <img src="{% static 'logo.png' %}" alt="Logo" style="height:32px">
+    <div>
+      <a class="icon-btn" href="{% url 'user' %}" title="Home" aria-label="Dashboard">
+        <i class="fas fa-home" aria-hidden="true"></i>
+      </a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" style="display:inline-block; margin-left:8px">
+        {% csrf_token %}
+        <button type="submit" class="icon-btn" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h2 class="title">
+      Stock Report for Site: {{ site.name }}
+      <form method="GET" action="{% url 'export_stock_report' site.name %}" class="h2-download">
+        <input type="hidden" name="start_date" value="{{ start_date }}">
+        <input type="hidden" name="end_date" value="{{ end_date }}">
+        <button type="submit">📥 Download Excel Report</button>
+      </form>
+    </h2>
+
+    <form method="GET" class="filter-form">
+      <label for="start_date">Start Date:</label>
+      <input type="date" name="start_date" id="start_date" value="{{ start_date }}">
+      <label for="end_date">End Date:</label>
+      <input type="date" name="end_date" id="end_date" value="{{ end_date }}">
+      <button class="sub" type="submit">🔍 Search</button>
+    </form>
+
+    <!-- Table -->
+    <!-- For edge-to-edge, add class table-bleed below -->
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Material Code</th>
+              <th>Material Description</th>
+              <th>Owner</th>
+              <th>Type</th>
+              <th>Category</th>
+              <th>UOM</th>
+              <th>Opening Stock</th>
+              <th>Consumption</th>
+              <th>Invar</th>  <!-- ✅ NEW -->
+              <th>Available Stock</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in inventory_items %}
+            <tr>
+              <td>{{ item.material_code }}</td>
+              <td>{{ item.material_desc }}</td>
+              <td>{{ item.owner }}</td>
+              <td>{{ item.type }}</td>
+              <td>{{ item.category }}</td>
+              <td>{{ item.uom }}</td>
+              <td>{{ item.fixed_stock }}</td>
+              <td>{{ item.closing_stock }}</td>
+              <td>{{ item.invar }}</td>           <!-- ✅ NEW -->
+              <td>{{ item.opening_stock }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="9" class="no-data">No inventory found for the selected date range.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Footer -->
+  <div class="mobile-footer" role="navigation" aria-label="Mobile Footer">
+    <a href="{% url 'edit_inventory' site_name=site.name %}">
+      <i class="fas fa-edit"></i>
+      Edit
+    </a>
+    <a href="{% url 'inventory_history' site_name=site.name %}">
+      <i class="fas fa-history"></i>
+      History
+    </a>
+  </div>
+</body>
 </html>
+
+

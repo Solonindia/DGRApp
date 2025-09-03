@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -170,7 +170,7 @@
         </div>
     </div>  
 
-    <div class="form-container"> <!-- Container for the form -->
+    <div class="form-container"> 
         <h2>Visitor Gate Pass</h2>
         {% if messages %}
         <div class="message-container">
@@ -220,7 +220,7 @@
             <label for="gate_pass_issue_datetime">Gate Pass Issue Date and Time:</label>
             <input type="datetime-local" id="gate_pass_issue_datetime" name="gate_pass_issue_datetime" required>
 
-            <!-- Image Upload Field -->
+            
             <label for="visitor_image">Upload Visitor Image (JPEG only, Max 1MB):</label>
             <input type="file" id="visitor_image" name="visitor_image" accept=".jpeg,.jpg" required>
             <div id="imagePreviewContainer" class="image-preview"></div>
@@ -281,5 +281,395 @@
             };
         });
     </script>
+</body>
+</html> -->
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Visitor's Gate Pass</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+  <style>
+    :root{
+      --brand:#002550;
+      --bg1:#a1c4fd; --bg2:#c2e9fb;
+      --badge:#ff3b30;
+      --card:#ffffff;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+      --navbar-h:60px;
+      --mheader-h:56px;
+      --mfooter-h:56px;
+      --border:#e5e7eb;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background:linear-gradient(120deg,var(--bg1) 0%, var(--bg2) 100%);
+      background-attachment:fixed;
+      min-height:100vh;
+      color:#1b1f24;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* ===== DESKTOP NAVBAR (fixed) ===== */
+    .navbar{
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff; padding:10px 20px; box-shadow:var(--shadow);
+      height:var(--navbar-h); z-index:100;
+    }
+    @media (min-width:769px){
+      .navbar{position:fixed; top:0; left:0; right:0;}
+      body{padding-top:var(--navbar-h);}
+    }
+    .logo{height:40px}
+    .nav-links{display:flex; gap:24px; align-items:center}
+    .nav-links a,
+    .nav-links form button{
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:4px; text-decoration:none; color:var(--brand); font-size:12px; font-weight:600;
+      background:none; border:none; cursor:pointer; padding:4px 6px;
+    }
+    .nav-links i{font-size:18px}
+
+    /* ===== MOBILE HEADER (fixed) ===== */
+    .mobile-header{
+      display:none; position:fixed; top:0; left:0; right:0; height:var(--mheader-h);
+      background:#fff; box-shadow:var(--shadow); padding:8px 12px; z-index:1000;
+      align-items:center; justify-content:space-between;
+    }
+    .m-left{display:flex; align-items:center; gap:10px}
+    .m-right{display:flex; align-items:center; gap:8px}
+    .icon-btn{
+      background:#f3f4f6; border:none; border-radius:8px; padding:8px 10px; cursor:pointer;
+      color:var(--brand); display:inline-flex; align-items:center; justify-content:center;
+    }
+    .mobile-header i{font-size:18px}
+
+    /* ===== MOBILE FOOTER (fixed) ===== */
+    .mobile-footer{
+      display:none;                /* hidden by default */
+      position:fixed; bottom:0; left:0; right:0; height:var(--mfooter-h);
+      background:#fff; box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      align-items:center; justify-content:space-around; z-index:1000;
+    }
+    .mobile-footer a{
+      text-decoration:none; color:var(--brand); font-weight:600; font-size:12px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+    .mobile-footer i{font-size:18px; margin-bottom:2px}
+
+    /* ===== CONTENT (container only; main content replaced below) ===== */
+    .content{
+      flex:1; overflow:auto; padding:20px 16px 24px; display:flex; justify-content:center;
+    }
+
+    /* ======= OLD MAIN CONTENT STYLES (restored) ======= */
+    .form-container{
+      width:90%;
+      padding:10px;
+      background:rgba(255,255,255,.9);
+      box-shadow:0 4px 8px rgba(0,0,0,.1);
+      margin:2% 5%;
+      overflow-y:auto;
+      border-radius:10px;
+    }
+    h2{
+      text-align:center;
+      color:rgba(59,0,13,.95);
+      margin:0 0 10px;
+    }
+    /* inline labels + inputs */
+    label{
+      display:inline-block;
+      width:48%;
+      font-weight:700;
+      vertical-align:top;
+      margin-bottom:10px;
+    }
+    input[type="text"],
+    input[type="datetime-local"],
+    input[type="file"]{
+      width:48%;
+      padding:8px;
+      border:none;
+      border-bottom:2px solid #050505;
+      margin-bottom:20px;
+      background:transparent;
+      display:inline-block;
+      vertical-align:top;
+      font-size:14px;
+      outline:none;
+    }
+    input[type="text"]:focus,
+    input[type="datetime-local"]:focus,
+    input[type="file"]:focus{
+      border-bottom:2px solid #0044cc;
+      outline:none;
+    }
+    .sub{
+      margin-left:40%;
+      display:block;
+      width:15%;
+      min-width:140px;
+      padding:10px;
+      background:linear-gradient(90deg,#04035c,#0073e6);
+      color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:16px;
+      margin-bottom:30px;
+    }
+
+    /* messages + preview */
+    .message-container{display:flex; align-items:center; justify-content:center; margin-bottom:20px}
+    .message{padding:10px; color:#0407be; margin-right:20px}
+    .download-button{
+      display:inline-block; padding:10px 20px; background:#1294eb; color:#0a0a0a;
+      text-decoration:none; border-radius:4px; transition:.3s;
+    }
+    .download-button:hover{background:#0d0d0e; color:#fff}
+
+    .image-preview{margin-top:10px}
+    .image-preview img{max-width:200px; height:auto; border:1px solid #ccc; border-radius:4px}
+    .error-message{color:#dc3545; font-weight:700; margin-bottom:10px}
+
+    /* Mobile stacking for labels/inputs */
+    @media (max-width:768px){
+      label,
+      input[type="text"],
+      input[type="datetime-local"],
+      input[type="file"]{ width:100%; }
+      .sub{ margin-left:0; width:100%; }
+    }
+
+    /* ===== SHOW MOBILE UI ONLY ON MOBILE ===== */
+    @media (max-width:768px){
+      .navbar{display:none}
+      .mobile-header{display:flex}
+      .mobile-footer{display:flex}
+      body{ padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h); }
+      .content{ padding:12px 10px 70px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Desktop Navbar -->
+  <div class="navbar" role="navigation" aria-label="Primary">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo"/>
+
+    <div class="nav-links">
+      <a href="{% url 'visitor_log_list' %}">
+        <i class="fas fa-history"></i>
+        <span>History</span>
+      </a>
+      <a href="{% url 'admin' %}">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </a>
+
+      <!-- {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" style="margin:0" aria-label="Logout">
+        {% csrf_token %}
+        <button type="submit" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </form>
+      {% endif %} -->
+
+      <!-- {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}?next=/superuser/login/" method="POST" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" style="background:none; border:none; color:rgb(0, 2, 82); cursor:pointer; font:inherit; padding:0;">
+            <i class="fas fa-sign-out-alt" style="font-size:18px; margin-right:8px;"></i>Logout
+          </button>
+        </form>
+      {% endif %} -->
+
+
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}?next=/superuser/login/" method="POST" style="margin:0" aria-label="Logout">
+        {% csrf_token %}
+        <button type="submit" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </form>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- Mobile Header -->
+  <div class="mobile-header" role="navigation" aria-label="Mobile">
+    <div class="m-left">
+      <img src="{% static 'logo.png' %}" alt="Logo" style="height:32px"/>
+    </div>
+    <div class="m-right">
+      <a class="icon-btn" href="{% url 'admin' %}" title="Dashboard" aria-label="Dashboard"><i class="fas fa-home"></i></a>
+      <!-- {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="icon-btn" title="Logout" aria-label="Logout"><i class="fas fa-sign-out-alt"></i></button>
+      </form>
+      {% endif %} -->
+
+      {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}?next=/superuser/login/" method="POST" style="margin:0">
+          {% csrf_token %}
+          <button type="submit" class="icon-btn" title="Logout" aria-label="Logout">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </form>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- ===== MAIN CONTENT (old layout restored) ===== -->
+  <div class="content">
+    <div class="form-container">
+      <h2>Visitor Gate Pass</h2>
+
+      {% if messages %}
+        <div class="message-container">
+          {% for message in messages %}
+            <div class="message">{{ message }}</div>
+          {% endfor %}
+          {% if visitor_log %}
+            <a class="download-button" href="{% url 'download_visitor_log_pdf' log_id=visitor_log.id %}">Download PDF</a>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <form id="gatepassForm" method="POST" enctype="multipart/form-data" action="{% url 'visitor_log' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="gatepass_id"><b>Gatepass ID</b></label>
+          <input type="text" id="gatepass_id" name="gatepass_id" value="{{ gatepass_id }}" readonly>
+        </div>
+
+        <label for="name_of_plant">Name of the Plant/Project:</label>
+        <input type="text" id="name_of_plant" name="name_of_plant" required>
+
+        <label for="visitor_name">Visitor Name:</label>
+        <input type="text" id="visitor_name" name="visitor_name" required>
+
+        <label for="visitor_company_name">Visitor's Organization name:</label>
+        <input type="text" id="visitor_company_name" name="visitor_company_name" required>
+
+        <label for="purpose_of_visit">Purpose of Visit:</label>
+        <input type="text" id="purpose_of_visit" name="purpose_of_visit" required>
+
+        <label for="valid_from_datetime">Valid From:</label>
+        <input type="datetime-local" id="valid_from_datetime" name="valid_from_datetime" required>
+
+        <label for="valid_to_datetime">Valid To:</label>
+        <input type="datetime-local" id="valid_to_datetime" name="valid_to_datetime" required>
+
+        <label for="contact_details">Visitor Contact Number:</label>
+        <input type="text" id="contact_details" name="contact_details" required>
+
+        <label for="emergency_contact_details">Emergency Contact Name:</label>
+        <input type="text" id="emergency_contact_details" name="emergency_contact_details" required>
+
+        <label for="emergency_mobile_contact">Emergency Contact Number:</label>
+        <input type="text" id="emergency_mobile_contact" name="emergency_mobile_contact" required>
+
+        <label for="relationship">Relationship:</label>
+        <input type="text" id="relationship" name="relationship" required>
+
+        <label for="gate_pass_issue_datetime">Gate Pass Issue Date and Time:</label>
+        <input type="datetime-local" id="gate_pass_issue_datetime" name="gate_pass_issue_datetime" required>
+
+        <label for="visitor_image">Upload Visitor Image (JPEG only, Max 1MB):</label>
+        <input type="file" id="visitor_image" name="visitor_image" accept=".jpeg,.jpg" required>
+        <div id="imagePreviewContainer" class="image-preview"></div>
+        <div id="error-message" class="error-message"></div>
+
+        <button type="submit" class="sub"><b>Submit</b></button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Mobile Footer -->
+  <div class="mobile-footer" role="navigation" aria-label="Mobile Footer">
+    <a href="{% url 'visitor_log_list' %}">
+      <i class="fas fa-history"></i>
+      History
+    </a>
+  </div>
+
+  <script>
+    // AJAX submit
+    document.getElementById('gatepassForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const form = this;
+
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]').value }
+      })
+      .then(r => r.json())
+      .then(data => {
+        if(data.success){
+          alert('Gatepass saved. Check in History tab.');
+          if (data.data && data.data.gatepass_id){
+            document.getElementById('gatepass_id').value = data.data.gatepass_id;
+          }
+          form.reset();
+          document.getElementById('imagePreviewContainer').innerHTML = '';
+          document.getElementById('error-message').textContent = '';
+        }else{
+          alert('There was an issue with your submission. Please try again.');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('An error occurred. Please try again.');
+      });
+    });
+
+    // Image preview + validations
+    document.getElementById('visitor_image').addEventListener('change', function(){
+      const file = this.files[0];
+      const previewContainer = document.getElementById('imagePreviewContainer');
+      const errorEl = document.getElementById('error-message');
+      previewContainer.innerHTML = '';
+      errorEl.textContent = '';
+
+      if(!file) return;
+
+      const isJpeg = /image\/jpeg/.test(file.type) || /\.jpe?g$/i.test(file.name);
+      if(!isJpeg){
+        errorEl.textContent = 'Only JPEG/JPG images are allowed.';
+        this.value = '';
+        return;
+      }
+      if(file.size > 1048576){
+        errorEl.textContent = 'File size must not exceed 1MB.';
+        this.value = '';
+        return;
+      }
+
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.onload = () => previewContainer.appendChild(img);
+    });
+  </script>
+
+  <script>window.LOGIN_PATH = '/superuser/login/';</script>
+  <script>window.PING_URL = "{% url 'auth_ping' %}";</script>
+  <script src="{% static 'demoapp/js/auth-guard.js' %}"></script>
+
 </body>
 </html>

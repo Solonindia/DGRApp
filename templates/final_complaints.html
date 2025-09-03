@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -198,6 +198,7 @@
         <a href="{% url 'approval_complaints' %}"><b>Approvals</b></a>
         <a href="{% url 'complaint_analysis' %}"><b>Tracking</b></a>
         <a href="{% url 'admin' %}"><b>Dashboard</b></a>
+
                 {% if user.is_authenticated %}
                 <form action="{% url 'logout' %}" method="POST">
                     {% csrf_token %}
@@ -206,6 +207,15 @@
                     </a>
                 </form>
                 {% endif %}
+
+                {% if user.is_authenticated %}
+  <form action="{% url 'logout' %}?next=/superuser/login/" method="POST" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit" style="background:none; border:none; color:rgb(0, 2, 82); cursor:pointer; font:inherit; padding:0;">
+      <i class="fas fa-sign-out-alt" style="font-size:18px; margin-right:8px;"></i>Logout
+    </button>
+  </form>
+{% endif %}
         </div>
     </div>
     <div class="hist">
@@ -339,4 +349,339 @@
         }
     </script>
 </body>
+</html> -->
+
+
+
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Closed Complaints</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+  <style>
+    :root{
+      --brand:#002550;
+      --bg1:#a1c4fd; --bg2:#c2e9fb;
+      --navbar-h:60px;
+      --mheader-h:56px;
+      --mfooter-h:56px;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+    }
+
+    body {
+      margin:0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background:linear-gradient(120deg,var(--bg1) 0%, var(--bg2) 100%);
+      background-attachment:fixed;
+      color:#1b1f24;
+      min-height:100vh;
+      font-size:16px;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* ===== Desktop Navbar ===== */
+    .navbar{
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff; padding:10px 20px; box-shadow:var(--shadow);
+      height:var(--navbar-h); z-index:100;
+    }
+    @media(min-width:769px){
+      .navbar{position:fixed; top:0; left:0; right:0;}
+      body{padding-top:var(--navbar-h);}
+    }
+    .logo{height:40px}
+    .nav-links{display:flex; gap:24px; align-items:center}
+    .nav-links a,
+    .nav-links form button{
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:4px; text-decoration:none; color:var(--brand); font-size:12px; font-weight:600;
+      background:none; border:none; cursor:pointer; padding:4px 6px;
+    }
+    .nav-links i{font-size:18px}
+
+    /* ===== Mobile Header ===== */
+    .mobile-header{
+      display:none; position:fixed; top:0; left:0; right:0; height:var(--mheader-h);
+      background:#fff; box-shadow:var(--shadow); padding:8px 12px; z-index:1000;
+      align-items:center; justify-content:space-between;
+    }
+    .m-left{display:flex; align-items:center; gap:10px}
+    .m-right{display:flex; align-items:center; gap:8px}
+    .icon-btn{
+      background:#f3f4f6; border:none; border-radius:8px; padding:8px 10px; cursor:pointer;
+      color:var(--brand); display:inline-flex; align-items:center; justify-content:center;
+    }
+    .mobile-header i{font-size:18px}
+
+    /* ===== Mobile Footer ===== */
+    .mobile-footer{
+      display:none;
+      position:fixed; bottom:0; left:0; right:0; height:var(--mfooter-h);
+      background:#fff; box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      align-items:center; justify-content:space-around; z-index:1000;
+    }
+    .mobile-footer a{
+      text-decoration:none; color:var(--brand); font-weight:600; font-size:12px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+    .mobile-footer i{font-size:18px; margin-bottom:2px}
+
+    /* === Mobile Fix (padding for header/footer + scrollable content) === */
+    .content{
+      flex:1; overflow:auto; padding:20px 16px 24px;
+    }
+    @media(max-width:768px){
+      .navbar{display:none}
+      .mobile-header{display:flex}
+      .mobile-footer{display:flex}
+      body{padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h);}
+      .content{padding:12px 10px 70px;}
+    }
+
+    /* === Complaint list styles === */
+    ul { list-style-type:none; padding:0; }
+    li { padding:10px; text-align:left; }
+    .hist li {
+      border:1px solid black;
+      background-color:aliceblue;
+      color:#050505;
+      margin:0 2% 15px 2%;
+      padding:10px;
+      line-height:1.6;
+    }
+    .complaint-summary { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; }
+    .complaint-info { display:flex; gap:40px; flex-wrap:wrap; align-items:center; }
+    .complaint-serial-number { color:brown; font-weight:bold; }
+    .view-more { cursor:pointer; color:#0056b3; font-weight:bold; }
+
+    .hidden-details {
+      display:none;
+      padding:12px;
+      margin-top:10px;
+      background:#f9f9f9;
+      border-radius:6px;
+      border:1px solid #ddd;
+      color:#000;
+      line-height:1.6;
+    }
+    .hidden-details > div { margin-bottom:8px; }
+    .hidden-details strong {
+      display:inline-block;
+      width:220px;
+      color:#002550;
+    }
+
+    .image-container { margin-top:10px; }
+    .image-container img {
+      width:100px; height:auto; margin-right:10px; border:1px solid #ddd; cursor:pointer;
+    }
+
+    .delete-btn {
+      border:2px solid red; padding:8px 16px; background:#fff; cursor:pointer;
+      border-radius:4px; font-size:14px; margin-top:10px;
+    }
+    .delete-btn:hover { background:red; color:#fff; }
+
+    .no { color:red; font-size:large; text-align:center; margin-top:20px;
+          animation: blink-animation 1s step-start infinite; }
+    @keyframes blink-animation { 50% {opacity:0;} }
+
+    .closed-complaints-heading {
+      color:#0056b3;
+      text-align:center;
+      margin-top:20px;
+    }
+
+    /* === Modal === */
+    .modal {
+      display:none;
+      position:fixed;
+      z-index:1000;
+      left:0; top:0;
+      width:100%; height:100%;
+      overflow:auto;
+      background-color:rgba(0,0,0,0.9);
+    }
+    .modal-content {
+      margin:5% auto;
+      display:block;
+      width:80%;
+      max-width:700px;
+      border-radius:6px;
+    }
+    .close {
+      position:absolute;
+      top:20px;
+      right:30px;
+      color:#fff;
+      font-size:35px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+    .close:hover { color:#f1c40f; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Desktop Navbar ===== -->
+  <div class="navbar">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo"/>
+    <div class="nav-links">
+      <a href="{% url 'approval_complaints' %}">
+        <i class="fas fa-tasks"></i>
+        <span>Approvals</span>
+      </a>
+      <a href="{% url 'complaint_analysis' %}">
+        <i class="fas fa-chart-line"></i>
+        <span>Tracking</span>
+      </a>
+      <a href="{% url 'admin' %}">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}?next=/superuser/login/" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===== Mobile Header ===== -->
+  <div class="mobile-header">
+    <div class="m-left">
+      <img src="{% static 'logo.png' %}" alt="Logo" style="height:32px"/>
+    </div>
+    <div class="m-right">
+      <a class="icon-btn" href="{% url 'admin' %}" title="Dashboard"><i class="fas fa-home"></i></a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}?next=/superuser/login/" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="icon-btn" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===== Main Content ===== -->
+  <div class="content">
+    <div class="hist">
+      <h2 class="closed-complaints-heading">Closed Complaints</h2>
+      <ul>
+        {% for complaint in accepted_complaints %}
+        <li>
+          <div class="complaint-summary">
+            <div class="complaint-info">
+              <div class="complaint-serial-number">{{ forloop.counter }})</div>
+              <div><strong>Complaint ID:</strong> {{ complaint.complaint_id }}</div>
+              <div><strong>Location:</strong> 
+                {% if complaint.location == 'Other' and complaint.custom_location %}
+                  {{ complaint.custom_location }}
+                {% else %}
+                  {{ complaint.location }}
+                {% endif %}
+              </div>
+              <div><strong>Site Name:</strong> {{ complaint.site_name }}</div>
+            </div>
+            <div class="view-more" onclick="toggleDetails(this)">View More</div>
+          </div>
+
+          <div class="hidden-details">
+            <div><strong>Product/Equipment:</strong> {{ complaint.equipment }}</div>
+            <div><strong>Project Owner:</strong> {{ complaint.company_name }}</div>
+            <div><strong>Priority:</strong> {{ complaint.priority }}</div>
+            <div><strong>Complaint Raised by:</strong> {{ complaint.complaint_raised_by }}</div>
+            <div><strong>Nature of Complaint:</strong> {{ complaint.nature_of_complaint }}</div>
+            <div><strong>Complaint Open Date:</strong> {{ complaint.start_date|date:"Y-m-d" }}</div>
+            <div><strong>Summary of Action Taken:</strong> {{ complaint.summary_of_action_taken|default:"No summary provided." }}</div>
+            <div><strong>Root Cause:</strong> {{ complaint.root_cause }}</div>
+            <div><strong>Preventive Action:</strong> {{ complaint.preventive_action }}</div>
+            <div><strong>Claim Type:</strong> {{ complaint.claim_type }}</div>
+            <div><strong>Parts Replaced for Rectification:</strong> {{ complaint.parts_replaced_for_rectification }}</div>
+            <div><strong>Attended By:</strong> {{ complaint.attended_by }}</div>
+            <div><strong>Complaint Closed Date:</strong> {{ complaint.end_date|date:"Y-m-d" }}</div>
+            {% if complaint.pdf_file %}
+            <a href="{{ complaint.pdf_file.url }}" target="_blank">View PDF</a>
+            {% else %}
+            <p style="color:brown;">No PDF uploaded for this complaint.</p>
+            {% endif %}
+
+            <div class="image-container">
+              {% with images=complaint.get_images %}
+                {% if images %}
+                  {% for image in images %}
+                  <img src="{{ image }}" alt="Complaint Image" onclick="openModal('{{ image }}')">
+                  {% endfor %}
+                {% else %}
+                  <p>No images uploaded.</p>
+                {% endif %}
+              {% endwith %}
+            </div>
+
+            <form action="{% url 'delete_complaint' complaint.id %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="delete-btn"><b>Delete</b></button>
+            </form>
+          </div>
+        </li>
+        {% empty %}
+        <li class="no">No closed complaints</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== Mobile Footer ===== -->
+  <div class="mobile-footer">
+    <a href="{% url 'approval_complaints' %}">
+      <i class="fas fa-tasks"></i>
+      <span>Approvals</span>
+    </a>
+    <a href="{% url 'complaint_analysis' %}">
+      <i class="fas fa-chart-line"></i>
+      <span>Tracking</span>
+    </a>
+  </div>
+
+  <!-- Modal -->
+  <div id="myModal" class="modal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <img class="modal-content" id="img01">
+  </div>
+
+  <script>
+    function toggleDetails(element) {
+      const hiddenDetails = element.parentElement.nextElementSibling;
+      const isHidden = hiddenDetails.style.display === "none" || hiddenDetails.style.display === "";
+      hiddenDetails.style.display = isHidden ? "block" : "none";
+      element.textContent = isHidden ? "View Less" : "View More";
+    }
+    function openModal(imageSrc) {
+      document.getElementById("myModal").style.display = "block";
+      document.getElementById("img01").src = imageSrc;
+    }
+    function closeModal() {
+      document.getElementById("myModal").style.display = "none";
+    }
+  </script>
+
+  <script>window.LOGIN_PATH = '/superuser/login/';</script>
+  <script src="{% static 'demoapp/js/auth-guard.js' %}"></script>
+</body>
 </html>
+

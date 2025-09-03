@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -241,4 +241,307 @@
         </div>
     </div>
 </body>
+</html> -->
+
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Notification List</title>
+
+  <!-- Icons -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/> -->
+
+  <style>
+    :root{
+      --brand:#002550;
+      --bg-grad-1:#a1c4fd;
+      --bg-grad-2:#c2e9fb;
+      --badge:#ff3b30;
+      --text:#1b1f24;
+      --card:#ffffff;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+      --navbar-h:60px;
+      --mheader-h:60px;
+      --mfooter-h:60px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg,var(--bg-grad-1) 0%,var(--bg-grad-2) 100%);
+      background-attachment: fixed;
+      min-height:100vh;
+      font-size:18px;
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* ===== Desktop navbar (fixed) ===== */
+    .navbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:#fff;
+      padding:10px 20px;
+      box-shadow:var(--shadow);
+      z-index:100;
+      height:var(--navbar-h);
+    }
+    @media (min-width:769px){
+      .navbar{position:fixed; top:0; left:0; right:0}
+      body{padding-top:var(--navbar-h)}
+    }
+    .logo{height:40px}
+    .nav-links{display:flex; gap:25px; align-items:center}
+    .nav-links a,.nav-links button{
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      text-decoration:none; color:var(--brand); font-size:13px; font-weight:600;
+      background:none; border:none; cursor:pointer; padding:4px 6px;
+    }
+    .nav-links i{font-size:20px; margin-bottom:5px}
+
+    /* Badge */
+    .notification-link{position:relative; display:flex; flex-direction:column; align-items:center; color:var(--brand); text-decoration:none}
+    .notification-link i{position:relative; font-size:20px; margin-bottom:5px}
+    .notification-count{
+      position:absolute; top:-8px; right:-10px; min-width:18px; height:18px; padding:0 5px;
+      border-radius:999px; background:var(--badge); color:#fff; font-size:11px; font-weight:700;
+      display:inline-flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.2);
+    }
+    .notification-count[data-cap="true"]{min-width:20px; padding:0 6px}
+
+    /* ===== Mobile header/footer (fixed) ===== */
+    .mobile-header{
+      display:none; position:fixed; top:0; left:0; width:100%; height:var(--mheader-h);
+      background:#fff; padding:10px 15px; box-shadow:var(--shadow);
+      justify-content:space-between; align-items:center; z-index:1000;
+    }
+    .mobile-icons{display:flex; align-items:center; gap:16px}
+    .mobile-icons a{font-size:18px; color:var(--brand); text-decoration:none}
+
+    .mobile-footer{
+      display:none; position:fixed; bottom:0; left:0; width:100%; height:var(--mfooter-h);
+      background:#fff; padding:10px 0; box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      justify-content:space-around; align-items:center; z-index:1000;
+    }
+    .mobile-footer a{display:flex; flex-direction:column; align-items:center; font-size:12px; color:var(--brand); text-decoration:none}
+    .mobile-footer i{font-size:20px; margin-bottom:3px}
+
+    /* ===== Main content ===== */
+    .container{
+      flex:1; padding:20px; border-radius:10px; width:90%; margin:0 auto;
+      display:flex; flex-direction:column; min-height:0;
+    }
+    h2{
+      text-align:center; color:rgba(2,37,70,.85);
+      margin:10px 0 20px 0;
+    }
+
+    /* Optional results pill */
+    .results{
+      align-self:flex-start;
+      background:#fff; border-radius:8px; box-shadow:var(--shadow);
+      padding:8px 12px; margin-bottom:12px; font-size:14px; color:#334155;
+    }
+
+    /* ===== Table wrapper (site_analysis style) ===== */
+    .table-wrap{
+      background:#fff; border-radius:8px; box-shadow:var(--shadow);
+      overflow:hidden; display:flex; flex-direction:column; min-height:0;
+    }
+    .table-scroll{overflow:auto; min-height:0}
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:#fff;
+    }
+    th,td{
+      padding:10px 8px;
+      border:1px solid #eee;
+      font-size:14px;
+      text-align:left;
+      vertical-align:top;  /* keeps row height consistent when desc wraps */
+      line-height:1.3;
+    }
+    th{
+      background:var(--brand); color:#fff; position:sticky; top:0; z-index:1;
+    }
+
+    /* ===== Actions side-by-side ===== */
+    td.actions{
+      display:flex;            /* lay forms in a row */
+      align-items:center;
+      gap:8px;                 /* space between buttons */
+      white-space:nowrap;      /* keep on one line */
+    }
+    td.actions form{display:inline}
+    td.actions button{
+      display:inline-block; padding:6px 10px; font-size:12px; line-height:1;
+      border-radius:6px; border:1px solid transparent; cursor:pointer;
+    }
+    td.actions button[name="mark_as_read"]{background:#22c55e; border-color:#16a34a; color:#fff}
+    td.actions button[name="delete"]{background:#fee2e2; border-color:#fecaca; color:#991b1b}
+    td.actions button:hover{filter:brightness(.96)}
+
+    /* ===== Mobile layout ===== */
+    @media (max-width:768px){
+      .navbar{display:none}
+      .mobile-header,.mobile-footer{display:flex}
+      body{padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h)}
+      .container{width:100%; padding:15px}
+      .notification-count{top:-5px; right:-5px}
+      th,td{white-space:normal}
+      .table-scroll{overflow:auto}
+      /* stack buttons on very small screens */
+      td.actions{flex-direction:column; align-items:flex-start; gap:6px; white-space:normal}
+      td.actions form{display:block}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Desktop Navbar -->
+  <div class="navbar" role="navigation" aria-label="Primary">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo"/>
+
+    <div class="nav-links">
+      <a href="{% url 'upload_inventory' %}" title="Upload">
+        <i class="fas fa-upload" aria-hidden="true"></i>
+        <span>Upload</span>
+      </a>
+
+      <a href="{% url 'site_analysis' %}" title="Tracking">
+        <i class="fas fa-chart-line" aria-hidden="true"></i>
+        <div>Tracking</div>
+      </a>
+
+      <a href="{% url 'notification_list' %}" title="History">
+        <i class="fas fa-history" aria-hidden="true"></i>
+        <span>History</span>
+      </a>
+
+      <a href="{% url 'admin' %}" title="Home">
+        <i class="fas fa-home" aria-hidden="true"></i>
+        <span>Home</span>
+      </a>
+
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" aria-label="Logout">
+        {% csrf_token %}
+        <button type="submit" title="Logout">
+          <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+          <span>Logout</span>
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Mobile Header -->
+  <div class="mobile-header" role="navigation" aria-label="Mobile">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo"/>
+    <div class="mobile-icons">
+      <a href="{% url 'home' %}" title="Home" aria-label="Home">
+        <i class="fas fa-home" aria-hidden="true"></i>
+      </a>
+      <a href="{% url 'logout' %}" title="Logout" aria-label="Logout">
+        <i class="fas fa-sign-out-alt"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h2>Real-Time Notifications</h2>
+
+    <div class="results"><strong>Results:</strong> {% if notifications %}{{ notifications|length }}{% else %}0{% endif %}</div>
+
+    <div class="table-wrap" aria-label="Real-Time Notification Table">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Site Name</th>
+              <th>Material Code</th>
+              <th>Material Desc</th>
+              <th>UOM</th>
+              <th>Opening Stock</th>
+              <th>Consumption</th>
+              <th>Closing Stock</th>
+              <th>Timestamp</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if notifications %}
+              {% for notification in notifications %}
+              <tr class="{% if not notification.is_read %}unread{% else %}read{% endif %}">
+                <td>{{ notification.site.name }}</td>
+                <td>{{ notification.material_code }}</td>
+                <td>{{ notification.material_desc }}</td>
+                <td>{{ notification.uom }}</td>
+                <td>{{ notification.opening_stock }}</td>
+                <td>{{ notification.consumption }}</td>
+                <td>{{ notification.closing_stock }}</td>
+                <td>{{ notification.timestamp }}</td>
+                <td class="actions">
+                  {% if not notification.is_read %}
+                  <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="notification_id" value="{{ notification.id }}">
+                    <button type="submit" name="mark_as_read">Mark as Read</button>
+                  </form>
+                  {% endif %}
+                  <form method="post" onsubmit="return confirm('Are you sure you want to delete this notification?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="notification_id" value="{{ notification.id }}">
+                    <button type="submit" name="delete">Delete</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="9">No real-time notifications available.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Footer -->
+  <div class="mobile-footer" role="navigation" aria-label="Mobile Footer">
+    <a href="{% url 'upload_inventory' %}">
+      <i class="fas fa-upload" aria-hidden="true"></i>
+      <span>Upload</span>
+    </a>
+
+    <a href="{% url 'site_analysis' %}">
+      <i class="fas fa-chart-line" aria-hidden="true"></i>
+      Tracking
+    </a>
+
+    <a href="{% url 'notification_list' %}">
+      <i class="fas fa-history" aria-hidden="true"></i>
+      <span>History</span>
+    </a>
+  </div>
+</body>
 </html>
+
+
+
+

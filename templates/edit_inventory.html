@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -187,7 +187,7 @@
     </div>
     <div class="edit">
         <h2>Edit Inventory for {{ site.name }}</h2>
-        <!-- Search form -->
+        
         <form method="GET">
             <label for="material_code">Search by Material Code:</label>
             <input type="text" id="material_code" name="material_code" value="{{ search_query }}">
@@ -195,7 +195,7 @@
         </form>
         </div>
     <div class="container">
-        <!-- Form for updating consumption -->
+        
         <form method="POST">
             {% csrf_token %}
             <table border="1">
@@ -229,13 +229,13 @@
                 </tbody>
             </table> <br>
 
-            <!-- Center the Update Inventory button -->
+            
             <div class="update-button-container">
                 <button type="submit">Update Inventory</button>
             </div>
         </form>
 
-        <!-- Display messages for success or errors -->
+        
         {% if messages %}
             <ul>
                 {% for message in messages %}
@@ -244,5 +244,335 @@
             </ul>
         {% endif %}
     </div>
+</body>
+</html> -->
+
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Inventory – {{ site.name }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+
+  <style>
+    :root{
+      --brand:#002550;
+      --bg1:#a1c4fd; --bg2:#c2e9fb;
+      --text:#1b1f24;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+      --navbar-h:60px;
+      --mheader-h:56px;
+      --mfooter-h:56px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background:linear-gradient(120deg, var(--bg1) 0%, var(--bg2) 100%);
+      background-attachment:fixed;
+      min-height:100vh;
+      font-size:16px;
+      color:var(--text);
+      display:flex; flex-direction:column;
+    }
+
+    /* ===== DESKTOP NAVBAR (fixed) ===== */
+    .navbar{
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff; padding:10px 20px; box-shadow:var(--shadow);
+      height:var(--navbar-h); z-index:100;
+    }
+    @media (min-width:769px){
+      .navbar{ position:fixed; top:0; left:0; right:0; }
+      body{ padding-top:var(--navbar-h); }
+    }
+    .logo{height:40px}
+
+    /* icon on top, label below for desktop nav items */
+    .nav-links{display:flex; gap:22px; align-items:center}
+    .nav-links a{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      color:var(--brand);
+      font-weight:700;
+      line-height:1.1;
+      text-align:center;
+    }
+    .nav-links form a{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      color:var(--brand);
+      font-weight:700;
+      line-height:1.1;
+      text-align:center;
+    }
+    .nav-links i{
+      font-size:20px;
+      margin:0 0 4px 0;
+    }
+
+    /* ===== MOBILE HEADER/FOOTER ===== */
+    .mobile-header{
+      display:none; position:fixed; top:0; left:0; right:0; height:var(--mheader-h);
+      background:#fff; box-shadow:var(--shadow); padding:8px 12px; z-index:1000;
+      align-items:center; justify-content:space-between;
+    }
+    .m-left{display:flex; align-items:center; gap:10px}
+    .m-right{display:flex; align-items:center; gap:10px}
+
+    /* Unified icon button style (works for <a> and <button>) */
+    .icon-btn{
+      background:#f3f4f6;
+      border:none;
+      border-radius:8px;
+      padding:8px 10px;
+      cursor:pointer;
+      color:var(--brand);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      line-height:1;
+      transition:background-color .2s ease, transform .05s ease;
+    }
+    .icon-btn i{ font-size:18px; }
+    /* Lock color across states so it doesn’t flip */
+    .icon-btn:link,
+    .icon-btn:visited,
+    .icon-btn:hover,
+    .icon-btn:active{
+      color:var(--brand);
+      text-decoration:none;
+    }
+    .icon-btn:hover{ background:#e9eef5; }
+    .icon-btn:active{ background:#e2e8f0; transform:translateY(1px); }
+    .icon-btn:focus-visible{ outline:2px solid #94a3b8; outline-offset:2px; }
+
+    .mobile-footer{
+      display:none; position:fixed; bottom:0; left:0; right:0; height:var(--mfooter-h);
+      background:#fff; box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      align-items:center; justify-content:space-around; z-index:1000;
+    }
+    .mobile-footer a{
+      text-decoration:none; color:var(--brand); font-weight:700; font-size:12px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+    .mobile-footer i{font-size:18px; margin-bottom:2px}
+
+    /* ===== PAGE CONTENT ===== */
+    .container{
+      flex:1; padding:20px; width:92%; max-width:1200px; margin:0 auto;
+      display:flex; flex-direction:column;
+    }
+    .edit{ text-align:center; }
+    .edit h2{ margin:8px 0 10px; color:rgba(2,37,70,.9); }
+
+    .search-strip{
+      display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+      margin:8px 0 10px;
+    }
+    .search-strip label{ font-weight:600; }
+    .search-strip input[type="text"]{
+      padding:8px 12px; border:1px solid #ddd; border-radius:6px; width:220px; max-width:100%;
+    }
+    .search-strip button{
+      padding:8px 14px; border:none; border-radius:6px; cursor:pointer;
+      background-color:#002550; color:#fff;
+    }
+
+    /* ===== TABLE ===== */
+    .table-wrap{
+      margin-top:10px; background:#fff; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1);
+      overflow:hidden;
+    }
+    .table-scroll{ overflow:auto; }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background-color:#FFFFFF;
+    }
+    th, td{
+      border:1px solid #ddd;
+      padding:12px 16px;
+      text-align:left;
+      font-size:14px;
+    }
+    th{
+      background-color:#002550;
+      color:#fff;
+      font-weight:bold;
+      position:sticky; top:0; z-index:1;
+    }
+    tr:nth-child(even){ background-color:#f9f9f9; }
+    tr:hover{ background-color:#E3F2FD; }
+
+    input[type="number"]{
+      padding:8px 10px; border:1px solid #ddd; border-radius:6px; width:120px; max-width:100%;
+    }
+
+    .update-button-container{
+      display:flex; justify-content:center; margin:16px 0 6px;
+    }
+    .update-button-container button{
+      padding:12px 20px; font-size:16px; background-color:#002550; color:#fff;
+      border:none; border-radius:6px; cursor:pointer; box-shadow:0 4px 8px rgba(0,0,0,0.15);
+    }
+    .update-button-container button:hover{ background-color:#001a36; }
+
+    .messages{ margin-top:10px; }
+    .messages li{ margin:6px 0; }
+
+    /* ===== MOBILE ===== */
+    @media (max-width:768px){
+      .navbar{display:none}
+      .mobile-header{display:flex}
+      .mobile-footer{display:flex}
+      body{ padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h); }
+      .container{ width:96%; padding:16px; }
+      .search-strip{ justify-content:stretch }
+      .search-strip input[type="text"], .search-strip button{ width:100%; }
+      .table-scroll{ overflow:auto; }
+      table{ min-width:720px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Desktop Navbar (fixed) ===== -->
+  <div class="navbar" role="navigation" aria-label="Primary">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <div class="nav-links">
+      <a href="{% url 'inventory_history' site_name=site.name %}"><i class="fas fa-history"></i>Inventory Result</a>
+      <a href="{% url 'stock_report' site_name=site.name %}"><i class="fas fa-clipboard-list"></i>Stock Results</a>
+      <a href="{% url 'user' %}"><i class="fas fa-home"></i>Home</a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" style="margin:0">
+        {% csrf_token %}
+        <a href="{% url 'home' %}" style="text-decoration:none;">
+          <i class="fas fa-sign-out-alt"></i>Logout
+        </a>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===== Mobile Header ===== -->
+  <div class="mobile-header" role="navigation" aria-label="Mobile">
+    <div class="m-left">
+      <img src="{% static 'logo.png' %}" alt="Logo" style="height:32px">
+    </div>
+    <div class="m-right">
+      <!-- Home now uses .icon-btn so color doesn’t change -->
+      <a class="icon-btn" href="{% url 'user' %}" title="Home" aria-label="Dashboard">
+        <i class="fas fa-home" aria-hidden="true"></i>
+      </a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="icon-btn" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===== Main Content ===== -->
+  <div class="container">
+    <div class="edit">
+      <h2>Edit Inventory for {{ site.name }}</h2>
+
+      <!-- Search (GET) — unchanged logic -->
+      <!-- <form method="GET" class="search-strip">
+        <label for="material_code">Search by Material Code:</label>
+        <input type="text" id="material_code" name="material_code" value="{{ search_query }}">
+        <button type="submit">Search</button>
+      </form> -->
+
+      <form method="GET" class="search-strip">
+        <label for="material_desc">Search by Material Description:</label>
+        <input type="text" id="material_desc" name="material_desc" value="{{ search_query }}">
+        <button type="submit">Search</button>
+      </form>
+    </div>
+
+    <!-- Update form (POST) — unchanged logic -->
+    <form method="POST">
+      {% csrf_token %}
+
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table border="1" aria-label="Edit Inventory Table">
+            <thead>
+              <tr>
+                <th>Material Code</th>
+                <th>Material Description</th>
+                <th>Owner</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>UOM</th>
+                <th>Opening Stock</th>
+                <th>Consumption</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in inventory_items %}
+              <tr>
+                <td>{{ item.material_code }}</td>
+                <td>{{ item.material_desc }}</td>
+                <td>{{ item.owner }}</td>
+                <td>{{ item.type }}</td>
+                <td>{{ item.category }}</td>
+                <td>{{ item.uom }}</td>
+                <td>{{ item.opening_stock }}</td>
+                <td>
+                  <input type="number" name="consumption_{{ item.id }}" value="0" min="0">
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="update-button-container">
+        <button type="submit">Update Inventory</button>
+      </div>
+    </form>
+
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+
+  <!-- ===== Mobile Footer ===== -->
+  <div class="mobile-footer" role="navigation" aria-label="Mobile Footer">
+    <a href="{% url 'inventory_history' site_name=site.name %}">
+      <i class="fas fa-history"></i>
+      Inventory
+    </a>
+    <a href="{% url 'stock_report' site_name=site.name %}">
+      <i class="fas fa-clipboard-list"></i>
+      Stock
+    </a>
+  </div>
+
 </body>
 </html>

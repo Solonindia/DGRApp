@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,7 +102,7 @@
                     <th>Visitor Name</th>
                     <th>Visitor Company</th>
                     <th>Purpose of Visit</th>
-                    <th>Download</th> <!-- New column for download -->
+                    <th>Download</th> 
                 </tr>
             </thead>
             <tbody>
@@ -113,9 +113,9 @@
                     <td>{{ log.visitor_company_name }}</td>
                     <td>{{ log.purpose_of_visit }}</td>
                     <td>
-                        <!-- Download PDF Button -->
+                        
                         <a href="{% url 'download_visitor_log_pdf' log.id %}" class="download-btn">Download</a>
-                        <!-- Assuming a Delete Button might also be added here -->
+                        
                     </td>
                 </tr>
                 {% endfor %}
@@ -124,5 +124,251 @@
     {% else %}
         <h3 style="margin-top:50px;text-align:center;color:rgb(226, 8, 8);"><b>No Gate Passes found</b></h3>
     {% endif %}
+</body>
+</html> -->
+
+
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gatepass List for User</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- Keep the same FA version you’re using elsewhere -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+  <style>
+    :root{
+      --brand:#002550;
+      --bg1:#a1c4fd; --bg2:#c2e9fb;
+      --card:#ffffff;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+      --navbar-h:60px;
+      --mheader-h:56px;
+      --mfooter-h:56px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background:linear-gradient(120deg, var(--bg1) 0%, var(--bg2) 100%);
+      background-attachment:fixed;
+      min-height:100vh;
+      font-size:16px;
+      color:#1b1f24;
+      display:flex; flex-direction:column;
+    }
+
+    /* ===== Desktop navbar (fixed) ===== */
+    .navbar{
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff; padding:10px 20px; box-shadow:var(--shadow);
+      z-index:100; height:var(--navbar-h);
+    }
+    @media (min-width:769px){
+      .navbar{ position:fixed; top:0; left:0; right:0; }
+      body{ padding-top:var(--navbar-h); }
+    }
+    .logo{height:40px}
+    .nav-links{display:flex; gap:16px; align-items:center}
+    .nav-links a,
+    .nav-links form button{
+      /* icon on top, name below (no logic change) */
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:4px; text-decoration:none; color:var(--brand); font-weight:600; font-size:12px;
+      background:none; border:none; cursor:pointer; padding:6px 8px;
+    }
+    .nav-links i{font-size:20px}
+
+    /* ===== Mobile header/footer (mobile only) ===== */
+    .mobile-header{
+      display:none;
+      position:fixed; top:0; left:0; right:0; height:var(--mheader-h);
+      background:#fff; box-shadow:var(--shadow); padding:8px 12px; z-index:1000;
+      align-items:center; justify-content:space-between;
+    }
+    .m-left{display:flex; align-items:center; gap:10px}
+    .m-right{display:flex; align-items:center; gap:8px}
+    .icon-btn{
+      background:#f3f4f6; border:none; border-radius:8px; padding:8px 10px; cursor:pointer;
+      color:var(--brand); display:inline-flex; align-items:center; justify-content:center;
+    }
+
+    .mobile-footer{
+      display:none;
+      position:fixed; bottom:0; left:0; right:0; height:var(--mfooter-h);
+      background:#fff; box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      z-index:1000; align-items:center; justify-content:space-around;
+    }
+    .mobile-footer a{
+      text-decoration:none; color:var(--brand); font-weight:600; font-size:12px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+    .mobile-footer i{font-size:18px; margin-bottom:2px}
+
+    /* ===== Content ===== */
+    .content{ flex:1; overflow:auto; padding:18px 12px 18px; }
+    @media (max-width:768px){
+      .navbar{display:none}
+      .mobile-header{display:flex}
+      .mobile-footer{display:flex}
+      body{ padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h); }
+      .content{ padding:12px 8px 70px; }
+    }
+
+    /* ===== Main section ===== */
+    h2{
+      text-align:center;
+      color:rgba(59,0,13,.95);
+      margin:12px 0 8px;
+    }
+
+    .table-wrap{
+      width:90%; margin:0 auto 20px; max-width:1200px;
+      background:#fff; border-radius:10px; box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .table-scroll{ overflow:auto; }
+    table{
+      width:100%; border-collapse:collapse; background:#fff; min-width:720px;
+    }
+    th, td{
+      border:1px solid #070707; padding:12px; text-align:left;
+    }
+    th{ background:#f2f2f2; position:sticky; top:0; z-index:1; }
+
+    .download-btn{
+      background-color:#0f9987; color:#fff; padding:8px 12px;
+      text-decoration:none; border-radius:4px; transition:filter .2s;
+      display:inline-block;
+    }
+    .download-btn:hover{ filter:brightness(.95); }
+
+    @media (max-width:768px){
+      th,td{ padding:10px; font-size:14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Desktop navbar -->
+  <div class="navbar" role="navigation" aria-label="Primary">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <div class="nav-links">
+      <a href="{% url 'visitor_log_user_view' %}">
+        <i class="fas fa-pen"></i>
+        <span>Gatepass Register</span>
+      </a>
+      <a href="{% url 'user' %}">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </a>
+      
+      <!-- {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </form>
+      {% endif %} -->
+
+      {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}?next=/user/login/" method="POST" style="margin:0" aria-label="Logout">
+          {% csrf_token %}
+          <button type="submit" title="Logout" style="background:none; border:none; color:var(--brand); cursor:pointer; display:flex; flex-direction:column; align-items:center;">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </button>
+        </form>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- Mobile header -->
+  <div class="mobile-header" role="navigation" aria-label="Mobile">
+    <div class="m-left">
+      <img src="{% static 'logo.png' %}" alt="Logo" style="height:32px">
+    </div>
+    <div class="m-right">
+      <a class="icon-btn" href="{% url 'user' %}" title="Dashboard"><i class="fas fa-home"></i></a>
+
+      <!-- {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="icon-btn" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+      </form>
+      {% endif %} -->
+
+      {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}?next=/user/login/" method="POST" style="margin:0">
+          {% csrf_token %}
+          <button type="submit" class="icon-btn" title="Logout" aria-label="Logout">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </form>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="content">
+    <h2>Visitor Gate Pass Details</h2>
+
+    {% if visitor_logs %}
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table aria-label="Gatepass List (User)">
+            <thead>
+              <tr>
+                <th>Gatepass ID</th>
+                <th>Visitor Name</th>
+                <th>Visitor Company</th>
+                <th>Purpose of Visit</th>
+                <th>Download</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for log in visitor_logs %}
+              <tr>
+                <td>{{ log.gatepass_id }}</td>
+                <td>{{ log.visitor_name }}</td>
+                <td>{{ log.visitor_company_name }}</td>
+                <td>{{ log.purpose_of_visit }}</td>
+                <td>
+                  <a href="{% url 'download_visitor_log_pdf' log.id %}" class="download-btn">Download</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% else %}
+      <h3 style="margin-top:50px;text-align:center;color:rgb(226, 8, 8);"><b>No Gate Passes found</b></h3>
+    {% endif %}
+  </div>
+
+  <!-- Mobile footer (mobile only) -->
+  <div class="mobile-footer" role="navigation" aria-label="Mobile Footer">
+    <a href="{% url 'visitor_log_user_view' %}">
+      <i class="fas fa-pen"></i>
+      Gatepass Register
+    </a>
+  </div>
+
+  <script>window.LOGIN_PATH = '/user/login/';</script>
+  <script>window.PING_URL = "{% url 'auth_ping' %}";</script>
+  <script src="{% static 'demoapp/js/auth-guard.js' %}"></script>
+
 </body>
 </html>

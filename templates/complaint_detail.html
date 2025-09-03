@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -234,12 +234,22 @@
                     </a>
                 </form>
                 {% endif %}
+
+
+                {% if user.is_authenticated %}
+  <form action="{% url 'logout' %}?next=/superuser/login/" method="POST" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit" style="background:none; border:none; color:rgb(0, 2, 82); cursor:pointer; font:inherit; padding:0;">
+      <i class="fas fa-sign-out-alt" style="font-size:18px; margin-right:8px;"></i>Logout
+    </button>
+  </form>
+{% endif %}
         </div>
     </div>
     <div class="wrapper">
-        <!-- Top Border (10% height) -->
+       
         <div class="top-border">
-            <!-- Top Center: Heading, Back to Analysis, and Search -->
+            
             <div class="top-center">
                 <div class="heading-container">
                     <h2>{{ complaint_type|title }} Complaints</h2>
@@ -254,7 +264,7 @@
                 </div>
             </div>
 
-            <!-- Top Right: Logout and Export -->
+            
             <div class="top-right">
                 <a href="{% url 'export_complaints_to_csv' complaint_type site_name|default:'All' %}">
                     <button class="export-btn">Export to CSV</button>
@@ -262,7 +272,7 @@
             </div>
         </div>
 
-    <!-- Bottom Border (Table Section) -->
+    
     <div class="bottom-border">
         <div class="container">
             {% if complaints %}
@@ -396,5 +406,330 @@ function openModal(imageUrl) {
 }
 </script>
 
+<script>window.LOGIN_PATH = '/superuser/login/';</script>
+<script src="{% static 'demoapp/js/auth-guard.js' %}"></script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complaints Dashboard</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'styles.css' %}">
+
+  <style>
+    body {
+      margin: 0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      font-size: 16px;
+      overflow-x: hidden;
+    }
+
+    /* ===== Desktop Navbar ===== */
+    .navbar {
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff; padding:10px 20px; box-shadow:0 2px 4px rgba(0,0,0,.1);
+      height:60px; z-index:1000;
+    }
+    .logo {height:40px;}
+    .nav-links {display:flex; gap:24px; align-items:center;}
+    .nav-links a,
+    .nav-links form button {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:4px; text-decoration:none; color:#002550; font-size:12px; font-weight:600;
+      background:none; border:none; cursor:pointer; padding:4px 6px;
+    }
+    .nav-links i {font-size:18px;}
+
+    /* ===== Mobile Header ===== */
+    .mobile-header {
+      display:none; position:fixed; top:0; left:0; right:0; height:56px;
+      background:#fff; box-shadow:0 2px 4px rgba(0,0,0,.1);
+      padding:8px 12px; z-index:1000;
+      align-items:center; justify-content:space-between;
+    }
+    .mobile-header img {height:32px;}
+    .m-right {display:flex; gap:10px; align-items:center;}
+    .icon-btn {
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+      background:#f3f4f6; border:none; border-radius:8px;
+      padding:6px 8px; cursor:pointer; color:#002550;
+    }
+    .icon-btn i{font-size:18px;}
+    .icon-btn span{font-size:10px; font-weight:600;}
+
+    /* ===== Mobile Footer ===== */
+    .mobile-footer {
+      display:none; position:fixed; bottom:0; left:0; right:0; height:56px;
+      background:#fff; box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      justify-content:space-around; align-items:center; z-index:1000;
+    }
+    .mobile-footer a {
+      text-decoration:none; color:#002550; font-weight:600; font-size:12px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+    .mobile-footer i{font-size:18px; margin-bottom:2px;}
+
+    /* ===== Responsive Switch ===== */
+    @media(max-width:768px){
+      .navbar{display:none;}
+      .mobile-header{display:flex;}
+      .mobile-footer{display:flex;}
+      body{padding-top:56px; padding-bottom:56px;}
+    }
+    @media(min-width:769px){
+      .navbar{position:fixed; top:0; left:0; right:0;}
+      .mobile-header{display:none;}
+      .mobile-footer{display:none;}
+      body{padding-top:60px;}
+    }
+
+    /* ===== Wrapper / Content ===== */
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .top-border {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 18%;
+      padding: 5px;
+      border-bottom: 2px solid white;
+    }
+    .top-center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      flex: 1;
+    }
+    .search-container {
+      display: flex;
+      align-items: center;
+      margin-top: 6px;
+    }
+    .search-container input {
+      padding: 5px 10px;
+      margin-right: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .search-container button {
+      padding: 6px 15px;
+      background-color: #007bff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color:#fff;
+    }
+    .export-btn {
+      background-color: #007bff;
+      padding: 8px 15px;
+      border-radius: 4px;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .bottom-border {
+      flex: 1;
+      overflow-y: scroll;
+      background-color: white;
+      width: 100%;
+    }
+    #complaintsTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    #complaintsTable th, #complaintsTable td {
+      border: 1px solid #747474;
+      text-align: center;
+      padding: 6px;
+    }
+    #complaintsTable th {
+      background-color: #007bff;
+      font-weight: bold;
+      color: white;
+    }
+    #complaintsTable td img {
+      max-width: 50px;
+      cursor: pointer;
+    }
+    .no{color:brown;}
+    .nowrap { white-space: nowrap; } /* ✅ dates wrap avvakunda */
+  </style>
+</head>
+<body>
+
+  <!-- Desktop Navbar -->
+  <div class="navbar">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <div class="nav-links">
+      <a href="{% url 'approval_complaints' %}"><i class="fas fa-tasks"></i><span>Approvals</span></a>
+      <a href="{% url 'final_complaints' %}"><i class="fas fa-check-circle"></i><span>Closed Complaints</span></a>
+      <a href="{% url 'complaint_analysis' %}"><i class="fas fa-chart-line"></i><span>Tracking</span></a>
+      <a href="{% url 'admin' %}"><i class="fas fa-home"></i><span>Home</span></a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}?next=/superuser/login/" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <div class="m-left">
+      <img src="{% static 'logo.png' %}" alt="Logo">
+    </div>
+    <div class="m-right">
+      <a class="icon-btn" href="{% url 'admin' %}"><i class="fas fa-home"></i></a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}?next=/superuser/login/" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="icon-btn"><i class="fas fa-sign-out-alt"></i></button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Wrapper -->
+  <div class="wrapper">
+    <div class="top-border">
+      <div class="top-center">
+        <h2>{{ complaint_type|title }} Complaints</h2>
+        <div class="search-container">
+          <input type="text" id="searchInput" placeholder="Search by Complaint ID..." onkeyup="filterComplaints()">
+          <button onclick="filterComplaints()"><i class="fas fa-search"></i></button>
+        </div>
+      </div>
+      <div class="top-right">
+        <a href="{% url 'export_complaints_to_csv' complaint_type site_name|default:'All' %}">
+          <button class="export-btn">Export to CSV</button>
+        </a>
+      </div>
+    </div>
+
+    <div class="bottom-border">
+      {% if complaints %}
+      <table id="complaintsTable">
+        <thead>
+          <tr>
+            <th>Complaint ID</th>
+            <th>Location</th>
+            <th>Equipment</th>
+            <th>Project Owner</th>
+            <th>Site Name</th>
+            <th>Priority</th>
+            <th>Raised By</th>
+            <th>Nature</th>
+            <th>Open Date</th>
+            {% if complaint_type == 'closed' %}
+              <th>Summary</th>
+              <th>Root Cause</th>
+              <th>Preventive</th>
+              <th>Claim</th>
+              <th>Parts</th>
+              <th>Attended</th>
+              <th>Closed Date</th>
+            {% endif %}
+            <th>Images</th>
+            <th>PDFs</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for complaint in complaints %}
+          <tr>
+            <td>{{ complaint.complaint_id }}</td>
+            <td>{{ complaint.location }}</td>
+            <td>{{ complaint.equipment }}</td>
+            <td>{{ complaint.company_name }}</td>
+            <td>{{ complaint.site_name }}</td>
+            <td>{{ complaint.priority }}</td>
+            <td>{{ complaint.complaint_raised_by }}</td>
+            <td>{{ complaint.nature_of_complaint }}</td>
+            <td class="nowrap">{{ complaint.start_date|date:"d-m-Y" }}</td>
+            {% if complaint_type == 'closed' %}
+              <td>{{ complaint.summary_of_action_taken }}</td>
+              <td>{{ complaint.root_cause }}</td>
+              <td>{{ complaint.preventive_action }}</td>
+              <td>{{ complaint.claim_type }}</td>
+              <td>{{ complaint.parts_replaced_for_rectification }}</td>
+              <td>{{ complaint.attended_by }}</td>
+              <td class="nowrap">{% if complaint.end_date %}{{ complaint.end_date|date:"d-m-Y" }}{% endif %}</td>
+            {% endif %}
+            <td>
+              {% with images=complaint.get_images %}
+                {% if images %}
+                  {% for image in images %}
+                    <img src="{{ image }}" onclick="openModal('{{ image }}')">
+                  {% endfor %}
+                {% else %}<p class="no">No images</p>{% endif %}
+              {% endwith %}
+            </td>
+            <td>
+              {% if complaint.pdf_file %}
+                <a href="{{ complaint.pdf_file.url }}" target="_blank">View PDF</a>
+              {% else %}<p class="no">No PDF</p>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p>No {{ complaint_type }} complaints found.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Mobile Footer -->
+  <div class="mobile-footer">
+    <a href="{% url 'approval_complaints' %}"><i class="fas fa-tasks"></i><span>Approvals</span></a>
+    <a href="{% url 'final_complaints' %}"><i class="fas fa-check-circle"></i><span>Closed</span></a>
+    <a href="{% url 'complaint_analysis' %}"><i class="fas fa-chart-bar"></i><span>Tracking</span></a>
+  </div>
+
+  <script>
+    function filterComplaints(){
+      var input=document.getElementById("searchInput").value.toUpperCase();
+      var rows=document.querySelectorAll("#complaintsTable tbody tr");
+      rows.forEach(r=>{
+        var id=r.cells[0].innerText.toUpperCase();
+        r.style.display=id.indexOf(input)>-1?"":"none";
+      });
+    }
+    function openModal(imageUrl){
+      var modal=document.createElement("div");
+      modal.style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;";
+      var img=document.createElement("img");
+      img.src=imageUrl; img.style="max-width:80%;max-height:80%";
+      modal.appendChild(img);
+      modal.onclick=()=>modal.remove();
+      document.body.appendChild(modal);
+    }
+  </script>
+
+  <script>window.LOGIN_PATH = '/superuser/login/';</script>
+  <script src="{% static 'demoapp/js/auth-guard.js' %}"></script>
+  
 </body>
 </html>

@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -240,7 +240,7 @@
                     <div class="form-column form-left">
                         <div class="form-group">
                             <label for="complaint_id"><b>Complaint ID</b></label>
-                            <input type="text" id="complaint_id" name="complaint_id" value="{{ complaint_id }}" readonly>  <!-- Display the complaint_id -->
+                            <input type="text" id="complaint_id" name="complaint_id" value="{{ complaint_id }}" readonly>  
                         </div>
                         <div class="form-group">
                             <label for="location"><b>Location *</b></label>
@@ -413,4 +413,375 @@
         }
     }
     </script>
+</body> -->
+
+
+
+
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Complaint</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+  <style>
+    :root {
+      --brand:#002550;
+      --bg1:#a1c4fd; --bg2:#c2e9fb;
+      --navbar-h:60px;
+      --mheader-h:56px;
+      --mfooter-h:56px;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+    }
+    body {
+      margin: 0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg, var(--bg1) 0%, var(--bg2) 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      font-size: 16px;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* ===== Desktop Navbar ===== */
+    .navbar {
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff; padding:10px 20px; box-shadow:var(--shadow);
+      height:var(--navbar-h); z-index:1000;
+    }
+    @media(min-width:769px){
+      .navbar {position:fixed; top:0; left:0; right:0;}
+      body {padding-top:var(--navbar-h);}
+    }
+    .logo {height:40px;}
+    .nav-links {display:flex; gap:24px; align-items:center;}
+    .nav-links a,
+    .nav-links form button {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:4px; text-decoration:none; color:var(--brand); font-size:12px; font-weight:600;
+      background:none; border:none; cursor:pointer; padding:4px 6px;
+    }
+    .nav-links i {font-size:18px;}
+
+    /* ===== Mobile Header ===== */
+    .mobile-header {
+      display:none; position:fixed; top:0; left:0; right:0; height:var(--mheader-h);
+      background:#fff; box-shadow:var(--shadow); padding:8px 12px; z-index:1000;
+      align-items:center; justify-content:space-between;
+    }
+    .m-left img {height:32px;}
+    .m-right {display:flex; gap:8px; align-items:center;}
+    .icon-btn {
+      background:#f3f4f6; border:none; border-radius:8px; padding:8px 10px; cursor:pointer;
+      color:var(--brand); display:inline-flex; align-items:center; justify-content:center;
+    }
+    .mobile-header i {font-size:18px;}
+
+    /* ===== Mobile Footer ===== */
+    .mobile-footer {
+      display:none; position:fixed; bottom:0; left:0; right:0; height:var(--mfooter-h);
+      background:#fff; box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      align-items:center; justify-content:space-around; z-index:1000;
+    }
+    .mobile-footer a {
+      text-decoration:none; color:var(--brand); font-weight:600; font-size:12px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+    .mobile-footer i {font-size:18px; margin-bottom:2px;}
+
+    /* === Scrollable Content === */
+    .content {flex:1; overflow:auto; padding:20px;}
+    @media(max-width:768px){
+      .navbar {display:none;}
+      .mobile-header {display:flex;}
+      .mobile-footer {display:flex;}
+      body {padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h);}
+      .content {padding:12px 10px 70px;}
+    }
+
+    /* === Original Form Styles === */
+    h3 {
+      color: rgba(59, 0, 13, 0.952);
+      margin: 7px 0;
+      text-align: center;
+    }
+    .form-wrapper {
+      font-size: large;
+      width: 70%;
+      padding: 30px;
+      position: relative;
+      color: #050775;
+      border: 2px solid white;
+      border-radius: 2%;
+      background-color: rgba(255, 255, 255, 0.7);
+      margin-left: 10%;
+      margin-top: 2%;
+      margin-bottom: 2%;
+    }
+    .form-row {display:flex; flex-wrap:wrap; gap:10px;}
+    .form-column {flex:1; min-width:300px;}
+    .form-group, .readonly-group {margin-bottom:20px;}
+    .form-group label, .readonly-group label {
+      font-size:14px; font-weight:600; margin-bottom:8px; display:block;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      border:none; border-bottom:1px solid #201f1f;
+      outline:none; width:90%; padding:2px;
+      background:transparent; color:#000; font-size:14px;
+    }
+    .form-group textarea {resize:vertical; min-height:100px;}
+    .readonly-group input {
+      background:#e9ecef; border:1px solid #ced4da; cursor:not-allowed;
+      width:100%; padding:5px;
+    }
+    .submit-button {
+      margin-left:80%; width:30%;
+      background:linear-gradient(90deg,#04035c,#0073e6);
+      font-size:14px; border:none; border-radius:10px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:transform 0.2s ease, box-shadow 0.2s ease;
+      color:aliceblue; padding:10px 12px;
+    }
+    .submit-button:active {transform:scale(0.95); box-shadow:0 2px 10px rgba(0,0,0,0.2);}
+    .error-message {color:#dc3545; text-align:center; margin-top:20px; font-size:16px; font-weight:600;}
+    .image-preview {display:flex; margin-top:10px; gap:10px;}
+    .image-preview img {width:100px; height:auto; border:1px solid #ced4da; border-radius:4px;}
+    .warning-message {color:#dc3545; font-size:14px; margin-top:10px; display:none;}
+  </style>
+</head>
+<body>
+
+  <!-- ===== Desktop Navbar ===== -->
+  <div class="navbar">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <div class="nav-links">
+      <a href="{% url 'existing_complaints' %}"><i class="fas fa-exclamation-circle"></i><span>Open Complaints </span></a>
+      <a href="{% url 'final_complaints_user' %}"><i class="fas fa-check-circle"></i><span>Closed Complaints </span></a>
+      <a href="{% url 'rejected_complaints' %}"><i class="fas fa-times-circle"></i><span>Rejected Complaints </span></a>
+      <a href="{% url 'user' %}"><i class="fas fa-home"></i><span>Home</span></a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}?next=/user/login/" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===== Mobile Header ===== -->
+  <div class="mobile-header">
+    <div class="m-left">
+      <img src="{% static 'logo.png' %}" alt="Logo">
+    </div>
+    <div class="m-right">
+      <a class="icon-btn" href="{% url 'user' %}"><i class="fas fa-home"></i></a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}?next=/user/login/" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="icon-btn"><i class="fas fa-sign-out-alt"></i></button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===== Main Content ===== -->
+  <div class="content">
+    <div class="form-wrapper">
+      <form id="complaintForm" method="post" enctype="multipart/form-data" action="{% url 'complaint_form' %}">
+        {% csrf_token %}
+        <h3>Register a New Complaint</h3>
+
+        <div class="form-group">
+          <label for="company_name"><b>Project Owner *</b></label>
+          <input type="text" id="company_name" name="company_name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="site_name"><b>Site Name *</b></label>
+          <input type="text" id="site_name" name="site_name" required>
+        </div>              
+
+        <div class="form-row">
+          <div class="form-column form-left">
+            <div class="form-group">
+              <label for="complaint_id"><b>Complaint ID</b></label>
+              <input type="text" id="complaint_id" name="complaint_id" value="{{ complaint_id }}" readonly>
+            </div>
+            <div class="form-group">
+              <label for="location"><b>Location *</b></label>
+              <input type="text" id="location" name="location" required>
+            </div>
+            <div class="form-group">
+              <label for="equipment"><b>Product/Equipment *</b></label>
+              <input type="text" id="equipment" name="equipment" required>
+            </div>
+            <div class="form-group">
+              <label for="priority"><b>Priority *</b></label>
+              <select id="priority" name="priority" required>
+                <option value="High">High</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="complaint_raised_by"><b>Complaint Raised By *</b></label>
+              <input type="text" id="complaint_raised_by" name="complaint_raised_by" required>
+            </div>
+            <div class="form-group">
+              <label for="nature_of_complaint"><b>Nature of Complaint *</b></label>
+              <textarea id="nature_of_complaint" name="nature_of_complaint" rows="4" maxlength="5000" required oninput="validateWordCount()"></textarea>
+              <div id="warningMessage" class="warning-message">Maximum word limit of 50 words exceeded.</div>
+            </div>
+            <div class="form-group">
+              <label for="start_date"><b>Complaint Raised Date *</b></label>
+              <input type="date" id="start_date" name="start_date" required onchange="toggleEndDateInput()">
+            </div>
+            <div class="form-group">
+              <label for="images"><b>Upload 1 or 2 Images (Max 1MB each, JPEG only) - Optional</b></label>
+              <input type="file" id="images" name="images" accept=".jpeg,.jpg" multiple onchange="previewImages()">
+            </div>
+            <div class="image-preview" id="imagePreviewContainer"></div>
+            <ul class="image-names" id="imageNameContainer"></ul>
+            <div class="button-group">
+              <button type="submit" class="submit-button"><b>Register</b></button>
+            </div>
+          </div>
+
+          <div class="form-column form-right">
+            <h5 style="color:#b90404">(These details you will fill later)</h5>
+            <div class="readonly-group">
+              <label for="summary_of_action_taken">Summary of Action Taken:</label>
+              <input type="text" id="summary_of_action_taken" name="summary_of_action_taken" readonly>
+            </div>
+            <div class="readonly-group">
+              <label for="root_cause">Root Cause:</label>
+              <input type="text" id="root_cause" name="root_cause" readonly>
+            </div>
+            <div class="readonly-group">
+              <label for="preventive_action">Preventive Action:</label>
+              <input type="text" id="preventive_action" name="preventive_action" readonly>
+            </div>
+            <div class="readonly-group">
+              <label for="claim_type">Claim Type:</label>
+              <input type="text" id="claim_type" name="claim_type" readonly>
+            </div>
+            <div class="readonly-group">
+              <label for="parts_replaced_for_rectification">Parts Replaced for Rectification:</label>
+              <input type="text" id="parts_replaced_for_rectification" name="parts_replaced_for_rectification" readonly>
+            </div>
+            <div class="readonly-group">
+              <label for="attended_by">Attended By:</label>
+              <input type="text" id="attended_by" name="attended_by" readonly>
+            </div>
+            <div class="readonly-group">
+              <label for="end_date">Complaint Closed Date *</label>
+              <input type="date" id="end_date" name="end_date" readonly>
+            </div>
+          </div>
+        </div>
+
+        {% if error %}
+          <div class="error-message">{{ error }}</div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Mobile Footer ===== -->
+  <div class="mobile-footer">
+    <a href="{% url 'existing_complaints' %}"><i class="fas fa-exclamation-circle"></i><span>Open Complaints</span></a>
+    <a href="{% url 'final_complaints_user' %}"><i class="fas fa-check-circle"></i><span>Closed Complaints</span></a>
+    <a href="{% url 'rejected_complaints' %}"><i class="fas fa-times-circle"></i><span>Rejected Complaints</span></a>
+  </div>
+
+  <!-- ===== Old JS (unchanged) ===== -->
+  <script>
+    document.getElementById('complaintForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent normal submit
+      fetch(this.action, {
+        method: 'POST',
+        body: new FormData(this),
+        headers: {
+          'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]').value
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Your complaint has been registered successfully!');
+          document.getElementById('complaint_id').value = data.data.complaint_id;
+          this.reset();
+        } else {
+          alert('There was an issue with your submission. Please try again.');
+        }
+      })
+      .catch(error => {
+        alert('An error occurred. Please try again.');
+        console.error('Error:', error);
+      });
+    });
+
+    function toggleEndDateInput() {
+      const startDate = document.getElementById('start_date').value;
+      if (startDate) {
+        document.getElementById('end_date').removeAttribute('readonly');
+        document.getElementById('end_date').setAttribute('min', startDate);
+      } else {
+        document.getElementById('end_date').setAttribute('readonly', 'true');
+      }
+    }
+
+    function previewImages() {
+      const input = document.getElementById('images');
+      const previewContainer = document.getElementById('imagePreviewContainer');
+      const nameContainer = document.getElementById('imageNameContainer');
+      previewContainer.innerHTML = '';
+      nameContainer.innerHTML = '';
+      Array.from(input.files).forEach(file => {
+        if (file) {
+          if (file.type.startsWith('image/jpeg') && file.size <= 1 * 1024 * 1024) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const img = document.createElement('img');
+              img.src = e.target.result;
+              previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+            const li = document.createElement('li');
+            li.textContent = file.name;
+            nameContainer.appendChild(li);
+          } else {
+            alert('Please upload only JPEG images with a maximum size of 1MB.');
+          }
+        }
+      });
+    }
+
+    function validateWordCount() {
+      const textarea = document.getElementById('nature_of_complaint');
+      const warningMessage = document.getElementById('warningMessage');
+      const words = textarea.value.trim().split(/\s+/).filter(Boolean); // words array
+      const wordCount = words.length;
+      if (wordCount > 50) {
+        textarea.value = words.slice(0, 50).join(' ');
+        warningMessage.style.display = 'block';
+      } else {
+        warningMessage.style.display = 'none';
+      }
+    }
+  </script>
+
+  <script>window.LOGIN_PATH = '/user/login/';</script>
+  <script src="{% static 'demoapp/js/auth-guard.js' %}"></script>
+
+  
 </body>
+</html>
