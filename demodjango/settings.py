@@ -128,7 +128,7 @@ USE_L10N = True
 TIME_ZONE = 'Asia/Kolkata'
 USE_TZ = True
 
-
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 
 if DEBUG:
