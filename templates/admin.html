@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -91,7 +91,7 @@
 </head>
 <body>
 
-    <!-- Navbar -->
+    
     <div class="navbar">
         <img src="{% static 'logo.png' %}" alt="Logo">
         <div class="logout">
@@ -106,10 +106,10 @@
         </div>
     </div>
 
-    <!-- Blurred Background -->
+    
     <div class="background"></div>
 
-    <!-- Glass Menu Bar -->
+    
     <div class="menu-bar">
         <a href="{% url 'approval_complaints' %}"><h3>Complaints</h3></a>
         <a href="{% url 'visitor_log' %}"><h3>Gate Pass</h3></a>
@@ -117,5 +117,293 @@
         <a href="{% url 'button_page' %}"><h3>Service Report</h3></a>
         <a href="{% url 'signup' %}"><h3>Register</h3></a>
     </div>
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+  <style>
+    :root{
+      --brand:#001e6a;
+      --brand-2:#0b5fe0;
+      --text:#0f172a;
+      --muted:#64748b;
+      --card:#ffffff;
+      --ring:#3b82f6;
+      --shadow:0 12px 30px rgba(2,6,23,.18);
+      --radius:16px;
+      --header-h:72px;      /* 64px on mobile */
+      --touch:48px;
+      --safe:env(safe-area-inset-bottom,0px);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%; margin:0; padding:0}
+
+    /* Video background + overlay */
+    .video-bg{ position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:-2 }
+    .video-overlay{ position:fixed; inset:0; z-index:-1;
+      background:linear-gradient(180deg, rgba(0,0,0,.25) 0%, rgba(0,0,0,.35) 40%, rgba(0,0,0,.25) 100%);
+    }
+
+    body{
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,Cantarell,"Open Sans","Helvetica Neue",sans-serif;
+      color:var(--text); min-height:100svh; display:flex; flex-direction:column;
+    }
+
+    /* Header */
+    .navbar{
+      position:sticky; top:0; z-index:10;
+      display:flex; align-items:center; justify-content:space-between;
+      height:var(--header-h);
+      background:rgba(255,255,255,.86);
+      backdrop-filter:saturate(180%) blur(8px);
+      border-bottom:1px solid rgba(0,0,0,.06);
+      padding:0 16px;
+    }
+    .navbar .logo{ height:40px; width:auto }
+    .nav-end{ display:flex; align-items:center; gap:8px; color:var(--brand) }
+
+    /* Icon buttons */
+    .icon-btn{
+      width:var(--touch); height:var(--touch);
+      display:inline-flex; align-items:center; justify-content:center;
+      border:none; background:transparent; cursor:pointer;
+      border-radius:12px; color:var(--brand); font-size:18px;
+      transition:background .12s ease, transform .12s ease;
+      position:relative;
+    }
+    .icon-btn:hover{ background:rgba(2,6,23,.06); transform:translateY(-1px) }
+    .icon-btn:focus{ outline:none; box-shadow:0 0 0 4px rgba(59,130,246,.18) }
+
+    /* Remove tooltip behavior globally (kept classes off in HTML) */
+    .tooltip::after{ content:none !important }
+
+    /* Main */
+    main{ flex:1; position:relative; z-index:1; padding:clamp(16px, 4vw, 32px) 16px }
+
+    /* Segmented control */
+    .segmented{
+      width:min(100%, 980px); margin: 12px auto 18px; display:flex; gap:8px;
+      background:rgba(255,255,255,.75); border:1px solid rgba(0,0,0,.06);
+      border-radius:12px; padding:6px;
+      backdrop-filter: blur(6px); margin-top: 10%;
+    }
+    .seg-btn{
+      flex:1 1 0; height:42px; border:none; cursor:pointer; border-radius:8px;
+      background:transparent; color:#0b306e; font-weight:700;
+      transition:background .12s ease, color .12s ease, transform .12s ease;
+    }
+    .seg-btn.is-active{
+      background:linear-gradient(90deg, #001e6a, #0b5fe0); color:#fff;
+      box-shadow:0 4px 12px rgba(0,0,0,.15);
+    }
+    .seg-btn:active{ transform:translateY(0.5px) }
+
+    /* Menus — centered rows of cards */
+    .menu{ width:min(100%, 980px); margin:0 auto }
+    .grid{
+      display:flex;
+      justify-content:center;
+      flex-wrap:wrap;
+      gap:18px;
+    }
+    .card{
+      background:var(--card);
+      border:1.5px solid rgba(161,196,253,.85);
+      border-radius:var(--radius);
+      padding:18px 16px;
+      min-height:96px;
+      width:clamp(190px, 26vw, 260px);
+      box-shadow:var(--shadow);
+      text-decoration:none; color:#0b3a83;
+      display:flex; align-items:center; justify-content:center; text-align:center;
+      transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+      backdrop-filter: blur(6px);
+    }
+    .card--sr{ width:clamp(180px, 22vw, 220px); }
+    .card:hover{ transform:translateY(-3px); box-shadow:0 14px 34px rgba(2,6,23,.2); background:#f8fbff }
+    .card:focus{ outline:none; box-shadow:0 0 0 4px rgba(59,130,246,.18) }
+
+    .label{ display:flex; align-items:center; justify-content:center; gap:10px }
+    .card i{ font-size:22px; color:var(--brand-2) }
+    .card h3{ margin:0; font-size:1rem; white-space:nowrap }
+
+    /* Footer */
+    footer{
+      background:rgba(255,255,255,.86);
+      border-top:1px solid rgba(0,0,0,.06);
+      text-align:center; padding:12px 12px calc(12px + var(--safe));
+      font-size:.9rem; color:#0a0a0a; position:relative; z-index:1;
+    }
+
+    /* Prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce){
+      .video-bg{ display:none }
+      .video-overlay{ background:linear-gradient(135deg,#a1c4fd 0%,#c2e9fb 100%) }
+      *{transition:none !important}
+    }
+
+    /* Desktop: show labels below icons (no tooltips) */
+    @media (min-width: 801px){
+      .navbar{ height: 78px; }            /* enough room for label */
+      .nav-end{ gap: 6px; }
+
+      .nav-end .icon-btn{
+        width:auto; height:auto;
+        padding:4px 8px;
+        flex-direction:column;            /* stack icon over label */
+        gap:2px;
+        min-width:84px;
+      }
+      .nav-end .icon-btn::after{
+        content: attr(data-label);        /* use data-label for text */
+        display:block;
+        font-size:.74rem;
+        line-height:1.05;
+        font-weight:800;
+        color:var(--brand);
+      }
+      .nav-end .icon-btn i{ font-size:22px; line-height:1 }
+    }
+
+    /* Mobile tweaks */
+    @media (max-width:640px){
+      :root{ --header-h:64px }
+      .navbar{ padding:0 12px }
+      .navbar .logo{ height:32px }
+      .seg-btn{ height:40px; font-weight:700 }
+      .grid{ gap:14px }
+      .card{ min-height:88px; width:clamp(160px, 44vw, 220px); padding:16px 12px }
+      .card--sr{ width:clamp(150px, 40vw, 200px) }
+    }
+    .nav-end a.icon-btn,
+    .nav-end a.icon-btn:link,
+    .nav-end a.icon-btn:visited,
+    .nav-end a.icon-btn:hover,
+    .nav-end a.icon-btn:focus{
+      text-decoration: none !important;   /* override global a:hover underline */
+    }
+
+    /* pseudo-element label ki kuda underline vaddu */
+    .nav-end a.icon-btn::after{
+      text-decoration: none;
+      border-bottom: 0;                    /* just in case */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background -->
+  <video class="video-bg" autoplay muted loop playsinline preload="metadata" poster="{% static 'video-poster.jpg' %}">
+    <source src="{% static 'solar.mp4' %}" type="video/mp4">
+  </video>
+  <div class="video-overlay"></div>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <img src="{% static 'logo.png' %}" alt="SOLON logo" class="logo">
+    <div class="nav-end">
+      <!-- Removed tooltip; added data-label for visible text below icon -->
+      <a href="{% url 'signup' %}" class="icon-btn" data-label="Register new user" aria-label="Register new user">
+        <i class="fas fa-user-plus" aria-hidden="true"></i>
+      </a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}?next=/superuser/login/" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="icon-btn" data-label="Logout" aria-label="Logout">
+          <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main>
+    <!-- Segmented control -->
+    <div class="segmented" role="tablist" aria-label="Sections">
+      <button class="seg-btn is-active" role="tab" aria-selected="true" aria-controls="ops" id="tab-ops"><h4>Operations</h4></button>
+      <button class="seg-btn" role="tab" aria-selected="false" aria-controls="reports" id="tab-reports"><h4>Reports</h4></button>
+    </div>
+
+    <!-- Menus -->
+    <section class="menu">
+      <!-- Operations -->
+      <div class="grid" id="ops" role="tabpanel" aria-labelledby="tab-ops">
+        <a class="card" href="{% url 'approval_complaints' %}">
+          <span class="label"><i class="fas fa-tools"></i><h3>Complaints</h3></span>
+        </a>
+        <a class="card" href="{% url 'visitor_log' %}">
+          <span class="label"><i class="fas fa-id-card"></i><h3>Gate Pass</h3></span>
+        </a>
+        <a class="card" href="{% url 'upload_inventory' %}">
+          <span class="label"><i class="fas fa-boxes"></i><h3>Inventory</h3></span>
+        </a>
+      </div>
+
+      <!-- Reports -->
+      <div class="grid" id="reports" role="tabpanel" aria-labelledby="tab-reports" style="display:none">
+        <a class="card card--sr" href="{% url 'button_page' %}">
+          <span class="label"><i class="fas fa-file-signature"></i><h3>Service Report</h3></span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © {% now "Y" %} SOLON India Private Limited. All rights reserved.
+  </footer>
+
+  <script>
+    const tabOps = document.getElementById('tab-ops');
+    const tabReports = document.getElementById('tab-reports');
+    const panelOps = document.getElementById('ops');
+    const panelReports = document.getElementById('reports');
+
+    function activate(which){
+      const isOps = which === 'ops';
+      tabOps.classList.toggle('is-active', isOps);
+      tabReports.classList.toggle('is-active', !isOps);
+      tabOps.setAttribute('aria-selected', String(isOps));
+      tabReports.setAttribute('aria-selected', String(!isOps));
+      panelOps.style.display = isOps ? 'flex' : 'none';      // flex for .grid
+      panelReports.style.display = isOps ? 'none' : 'flex';
+    }
+
+    tabOps.addEventListener('click', () => activate('ops'));
+    tabReports.addEventListener('click', () => activate('reports'));
+    activate('ops'); // show operations first
+
+    // Keyboard support
+    [tabOps, tabReports].forEach(btn=>{
+      btn.addEventListener('keydown', (e)=>{
+        if(e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
+          (btn === tabOps ? tabReports : tabOps).focus();
+        }
+        if(e.key === 'Enter' || e.key === ' '){
+          btn.click();
+          e.preventDefault();
+        }
+      });
+    });
+  </script>
+
+  <script>window.LOGIN_PATH = '/superuser/login/';</script>
+  <script src="{% static 'demoapp/js/auth-guard.js' %}"></script>
 </body>
 </html>

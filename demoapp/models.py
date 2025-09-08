@@ -105,3 +105,14 @@ class Complaint(models.Model):
         super().save(*args, **kwargs)
 
 
+
+
+class ComplaintMeta(models.Model):
+    format_no = models.CharField(max_length=50, blank=True, null=True)
+    revision_no = models.CharField(max_length=50, blank=True, null=True)
+    issue_no = models.CharField(max_length=50, blank=True, null=True)
+    issue_date  = models.DateField(blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Format: {self.format_no}, Rev: {self.revision_no}, Issue: {self.issue_no}"

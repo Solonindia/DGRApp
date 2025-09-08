@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -128,7 +128,7 @@
 </head>
 <body>
 
-    <!-- Navbar -->
+  
     <div class="navbar">
         <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
         <div class="nav-links">
@@ -136,7 +136,7 @@
         </div>
     </div>
 
-    <!-- Glassmorphism Login Form -->
+   
     <div class="signup-container">
         {% if error_message %}
             <p class="error-message">{{ error_message }}</p>
@@ -155,6 +155,238 @@
             </button>
         </form>
     </div>
+
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+  <style>
+    :root{
+      --brand:#0a017a;
+      --bg1:#a1c4fd; --bg2:#c2e9fb;
+      --text:#0f172a; --muted:#64748b;
+      --ring:#3b82f6;
+      --shadow:0 10px 30px rgba(2,6,23,.15);
+      --radius:18px;
+      --header-h:72px;
+      --touch:52px;                    /* taller inputs/buttons */
+      --safe:env(safe-area-inset-bottom,0px);
+    }
+    #title{
+        text-align: center;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,Cantarell,"Open Sans","Helvetica Neue",sans-serif;
+      color:var(--text);
+      background:linear-gradient(120deg,var(--bg1) 0%, var(--bg2) 100%) fixed;
+      min-height:100svh; display:flex; flex-direction:column;
+    }
+
+    /* Header */
+    header.navbar{
+      position:sticky; top:0; z-index:10;
+      display:flex; align-items:center; justify-content:space-between;
+      height:var(--header-h);
+      background:rgba(255,255,255,.9);
+      backdrop-filter:saturate(180%) blur(8px);
+      border-bottom:1px solid rgba(0,0,0,.06);
+      padding:0 16px;
+    }
+    .navbar .logo{width:110px; height:auto}
+    .nav-links a{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:44px; height:44px; border-radius:10px;
+      color:var(--brand); text-decoration:none;
+    }
+    .nav-links a:hover{background:rgba(2,6,23,.06)}
+
+    /* Layout */
+    main{flex:1; display:grid; place-items:center; padding:clamp(16px,4vw,32px) clamp(12px,4vw,24px)}
+
+    /* Card */
+    .card{
+      width:100%; max-width:520px;             /* wider & taller */
+      background:#fff; color:#0a0a0a;
+      border:1.5px solid rgba(161,196,253,.9);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:32px 28px 28px;
+      animation:fadeIn .45s ease both;
+      backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    }
+    .card h1{
+      margin:0 0 6px 0; font-size:clamp(1.3rem,2.2vw+.7rem,1.7rem); color:var(--brand);
+    }
+    .kicker{margin:0 0 16px 0; color:var(--muted)}
+
+    /* Form */
+    form{margin-top:8px}
+    .field{margin-bottom:18px}
+    label{display:block; font-weight:700; font-size:1rem; margin-bottom:6px}
+
+    .control{position:relative}
+    .icon-left{
+      position:absolute; left:12px; top:50%; transform:translateY(-50%);
+      opacity:.7; pointer-events:none;
+    }
+    .input{
+      width:100%; height:var(--touch);
+      padding:0 52px 0 40px;               /* room for icons */
+      border-radius:12px;
+      border:1px solid rgba(13, 13, 14, 0.822);
+      background:#fff; font-size:17px; line-height:1;
+      transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    .input:focus{outline:none; border-color:var(--ring); box-shadow:0 0 0 4px rgba(59,130,246,.15)}
+
+    /* Hide native password reveal icons (Edge/Chromium) */
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-ms-clear{display:none}
+    input[type="password"]::-webkit-credentials-auto-fill-button{visibility:hidden; display:none !important; pointer-events:none}
+
+    /* Eye toggle */
+    .toggle-btn{
+      position:absolute; right:6px; top:50%; transform:translateY(-50%);
+      width:var(--touch); height:var(--touch);
+      display:flex; align-items:center; justify-content:center;
+      border:none; background:transparent; border-radius:10px; cursor:pointer; color:#334155;
+    }
+    .toggle-btn:hover{background:rgba(2,6,23,.06)}
+
+    /* Submit */
+    .actions{margin-top:20px}
+    .btn{
+      width:30%; height:var(--touch);margin-left: 35%;
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      border:none; border-radius:12px; cursor:pointer; font-weight:800;
+      background:linear-gradient(90deg,#04035c,#0073e6); color:#fff;
+      transition:transform .12s ease, box-shadow .12s ease;
+    }
+    .btn:hover{transform:translateY(-1px); box-shadow:0 8px 20px rgba(2,6,23,.18)}
+
+    /* Error */
+    .error-message{color:#c01010; text-align:center; margin:0 0 12px 0; font-weight:700}
+
+    /* Footer */
+    footer{
+      background:rgba(255,255,255,.9); border-top:1px solid rgba(0,0,0,.06);
+      text-align:center; padding:12px 12px calc(12px + var(--safe)); font-size:.9rem; color:#0a0a0a;
+    }
+
+    /* Animations */
+    @keyframes fadeIn{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+    /* Mobile */
+    @media (max-width:640px){
+      :root{ --header-h:64px }
+      header.navbar{padding:0 14px}
+      .navbar .logo{width:90px; height:auto}
+      .card{max-width:95vw; padding:26px 20px}
+    }
+    @media (max-width:360px){
+      .card{padding:18px 16px}
+      .input{padding-left:36px; padding-right:48px}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="navbar" role="banner">
+    <img src="{% static 'logo.png' %}" alt="SOLON logo" class="logo" />
+    <nav class="nav-links" aria-label="Primary">
+      <a href="{% url 'home' %}" class="nav-link nav-home tooltip" data-tip="Home" aria-label="Home" title="Home">
+        <i class="fas fa-home fa-lg"></i> 
+      </a>
+    </nav>
+  </header>
+
+  <!-- Main -->
+  <main role="main">
+    <section class="card" aria-labelledby="title">
+      {% if error_message %}
+        <p class="error-message">{{ error_message }}</p>
+      {% endif %}
+
+      <h1 id="title">Admin Login</h1>
+
+      <form action="" method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="field">
+          <label for="username">Username</label>
+          <div class="control">
+            <i class="far fa-user icon-left" aria-hidden="true"></i>
+            <input class="input" id="username" name="username" type="text" autocomplete="username" required />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="control">
+            <i class="fas fa-lock icon-left" aria-hidden="true"></i>
+            <input class="input" id="password" name="password" type="password" autocomplete="current-password" required />
+            <!-- Eye toggle: open eye = visible, slashed = hidden -->
+            <button type="button" class="toggle-btn" aria-label="Show password" title="Show Password" onclick="togglePw()">
+              <i class="far fa-eye-slash" id="eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn">
+            <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+            <span>Login</span>
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    © {% now "Y" %} SOLON India Private Limited. All rights reserved.
+  </footer>
+
+  <script>
+    // Reverse behavior: 👁 = visible, 👁‍🗨 = hidden
+    function togglePw(){
+      const input = document.getElementById('password');
+      const eye   = document.getElementById('eye');
+      const btn   = eye.parentElement;
+
+      if(input.type === 'password'){
+        input.type = 'text';
+        eye.className = 'far fa-eye';          // open eye
+        btn.title = 'Hide Password';
+        btn.setAttribute('aria-label','Hide password');
+      }else{
+        input.type = 'password';
+        eye.className = 'far fa-eye-slash';    // slashed eye
+        btn.title = 'Show Password';
+        btn.setAttribute('aria-label','Show password');
+      }
+    }
+  </script>
 
 </body>
 </html>

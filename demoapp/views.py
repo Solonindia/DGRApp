@@ -418,7 +418,11 @@ def final_complaints(request):
     
     # Fetch complaints with 'Update' status, ordered by creation date (latest first)
     accepted_complaints = Complaint.objects.filter(status='Update').order_by('-created_at')
-    return render(request, 'final_complaints.html', {'accepted_complaints': accepted_complaints})
+
+     # Fetch meta row (only 1)
+    meta = ComplaintMeta.objects.first()
+    return render(request, 'final_complaints.html', {'accepted_complaints': accepted_complaints,
+    'meta': meta})
 
 @never_cache
 @login_required(login_url='/user/login')
@@ -427,8 +431,12 @@ def final_complaints_user(request):
     # Filter complaints that have 'Update' status and belong to the logged-in user
     accepted_usercomplaints = Complaint.objects.filter(status='Update', dup_username=username).order_by('-created_at')
     
+    # ✅ Get ComplaintMeta (only one row, global info)
+    meta = ComplaintMeta.objects.first()
+
     return render(request, 'final_complaints_user.html', {
-        'accepted_usercomplaints': accepted_usercomplaints
+        'accepted_usercomplaints': accepted_usercomplaints,
+        'meta': meta,
     })
 
 
@@ -540,23 +548,70 @@ def complaint_analysis(request):
 import csv
 from django.http import HttpResponse
 
+# @never_cache
+# @login_required(login_url='/superuser/login/') 
+# def ComplaintDetailView(request, type, site_name):
+#     # Determine complaint status based on the type
+#     if type == 'open':
+#         complaints = Complaint.objects.filter(status__in=['Accepted', 'Pending'])
+#     elif type == 'closed':
+#         complaints = Complaint.objects.filter(status='Update')
+    
+#     # Filter by site name if not 'All'
+#     if site_name != 'All':
+#         complaints = complaints.filter(site_name=site_name)
+
+#     return render(request, 'complaint_detail.html', {
+#         'complaints': complaints,
+#         'complaint_type': type,  # Pass the complaint type (open or closed)
+#     })
+
+
+
+
+
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import redirect
+from .models import ComplaintMeta, Complaint
+from datetime import datetime
+
 @never_cache
-@login_required(login_url='/superuser/login/') 
+@login_required(login_url='/superuser/login/')
 def ComplaintDetailView(request, type, site_name):
-    # Determine complaint status based on the type
+    # Get or create ComplaintMeta (only one row needed)
+    meta, created = ComplaintMeta.objects.get_or_create(id=1)
+
+    # ✅ Handle update request
+    if request.method == "POST":
+        meta.format_no = request.POST.get("format_no")
+        meta.revision_no = request.POST.get("revision_no")
+        meta.issue_no = request.POST.get("issue_no")
+        issue_date_val = request.POST.get("issue_date")
+        if issue_date_val:
+            meta.issue_date = datetime.strptime(issue_date_val, "%Y-%m-%d").date()
+        else:
+            meta.issue_date = None
+        meta.save()
+        return redirect(request.path)  # reload page
+
+    # Complaint filtering
     if type == 'open':
         complaints = Complaint.objects.filter(status__in=['Accepted', 'Pending'])
     elif type == 'closed':
         complaints = Complaint.objects.filter(status='Update')
-    
-    # Filter by site name if not 'All'
+    else:
+        complaints = Complaint.objects.none()
+
     if site_name != 'All':
         complaints = complaints.filter(site_name=site_name)
 
     return render(request, 'complaint_detail.html', {
         'complaints': complaints,
-        'complaint_type': type,  # Pass the complaint type (open or closed)
+        'complaint_type': type,
+        'site_name': site_name,
+        'meta': meta,   # ✅ Pass meta to template
     })
+
 
 @never_cache
 @login_required(login_url='/superuser/login/') 

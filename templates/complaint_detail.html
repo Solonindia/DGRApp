@@ -502,16 +502,46 @@ function openModal(imageUrl) {
     .wrapper {
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      height: 110vh;
       overflow-y: auto;
+      margin-top: 20px;
+      /* margin-bottom: 60px; */
     }
+
     .top-border {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 18%;
+      height: 26%;
       padding: 5px;
       border-bottom: 2px solid white;
+      
+    }
+    .meta-box {
+      background:#fff;
+      padding:10px;
+      border-radius:8px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom:8px;
+    }
+    .meta-box form {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+    .meta-box input {
+      padding:4px 8px;
+      border:1px solid #ccc;
+      border-radius:4px;
+    }
+    .meta-box button {
+      padding:4px 10px;
+      background:#007bff;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
     }
     .top-center {
       display: flex;
@@ -574,7 +604,7 @@ function openModal(imageUrl) {
       cursor: pointer;
     }
     .no{color:brown;}
-    .nowrap { white-space: nowrap; } /* ✅ dates wrap avvakunda */
+    .nowrap { white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -615,6 +645,65 @@ function openModal(imageUrl) {
   <!-- Wrapper -->
   <div class="wrapper">
     <div class="top-border">
+      <!-- ✅ ComplaintMeta Box -->
+      
+      <div class="meta-box">
+        <form method="POST">
+          {% csrf_token %}
+
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div>
+              <label for="format_no" style="font-weight:600;font-size:14px;margin-right:6px;">Format No:</label>
+              <input type="text" id="format_no" name="format_no" value="{{ meta.format_no }}" placeholder="Format No">
+            </div>
+
+            <div>
+              <label for="revision_no" style="font-weight:600;font-size:14px;margin-right:6px;">Revision No:</label>
+              <input type="text" id="revision_no" name="revision_no" value="{{ meta.revision_no }}" placeholder="Revision No">
+            </div>
+
+            <div>
+              <label for="issue_no" style="font-weight:600;font-size:14px;margin-right:6px;">Issue No:</label>
+              <input type="text" id="issue_no" name="issue_no" value="{{ meta.issue_no }}" placeholder="Issue No">
+            </div>
+
+            <!-- <div>
+              <label for="issue_date" style="font-weight:600;font-size:14px;margin-right:6px;">Issue Date:</label>
+              <input type="date" id="issue_date" name="issue_date" value="{{ meta.issue_date|date:'Y-m-d' }}">
+            </div> -->
+
+            <div>
+  <label for="issue_date_display" style="font-weight:600;font-size:14px;margin-right:6px;">
+    Issue Date:
+  </label>
+
+  <!-- visible input in dd-mm-yyyy -->
+  <input
+    type="text"
+    id="issue_date_display"
+    name="issue_date_display"
+    placeholder="dd-mm-yyyy"
+    value="{% if meta.issue_date %}{{ meta.issue_date|date:'d-m-Y' }}{% endif %}"
+    pattern="\d{2}-\d{2}-\d{4}"
+    style="padding:4px 8px;border:1px solid #ccc;border-radius:4px;"
+  />
+
+  <!-- hidden field actually posted in yyyy-mm-dd -->
+  <input
+    type="hidden"
+    id="issue_date"
+    name="issue_date"
+    value="{% if meta.issue_date %}{{ meta.issue_date|date:'Y-m-d' }}{% endif %}"
+  />
+</div>
+
+
+            <button type="submit" style="margin-top:8px;">Update</button>
+          </div>
+        </form>
+      </div>
+
+
       <div class="top-center">
         <h2>{{ complaint_type|title }} Complaints</h2>
         <div class="search-container">
@@ -622,6 +711,7 @@ function openModal(imageUrl) {
           <button onclick="filterComplaints()"><i class="fas fa-search"></i></button>
         </div>
       </div>
+
       <div class="top-right">
         <a href="{% url 'export_complaints_to_csv' complaint_type site_name|default:'All' %}">
           <button class="export-btn">Export to CSV</button>
@@ -726,6 +816,44 @@ function openModal(imageUrl) {
       modal.onclick=()=>modal.remove();
       document.body.appendChild(modal);
     }
+
+
+    // Convert dd-mm-yyyy to yyyy-mm-dd
+  function dmyToYmd(dmy) {
+    const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(dmy);
+    if (!m) return null;
+    const [_, dd, mm, yyyy] = m;
+    const d = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+    if (
+      d.getFullYear() !== Number(yyyy) ||
+      d.getMonth() !== Number(mm) - 1 ||
+      d.getDate() !== Number(dd)
+    ) return null;
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${yyyy}-${pad(Number(mm))}-${pad(Number(dd))}`;
+  }
+
+  (function attachSync() {
+    const display = document.getElementById('issue_date_display');
+    const hidden  = document.getElementById('issue_date');
+    const form = display.closest('form');
+
+    // On submit convert dd-mm-yyyy -> yyyy-mm-dd
+    if (form) {
+      form.addEventListener('submit', function(e){
+        const val = display.value.trim();
+        if (!val) { hidden.value = ''; return true; }
+        const ymd = dmyToYmd(val);
+        if (!ymd) {
+          alert('Enter Issue Date in dd-mm-yyyy (e.g., 06-09-2025)');
+          e.preventDefault();
+          display.focus();
+        } else {
+          hidden.value = ymd;
+        }
+      });
+    }
+  })();
   </script>
 
   <script>window.LOGIN_PATH = '/superuser/login/';</script>
@@ -733,3 +861,4 @@ function openModal(imageUrl) {
   
 </body>
 </html>
+

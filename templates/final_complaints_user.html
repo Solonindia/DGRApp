@@ -459,6 +459,29 @@
     .complaint-details span, .complaint-details p {display:block; margin-bottom:12px;}
     .image-container img {max-width:100px; margin-right:10px; margin-bottom:10px;}
     .no {color:red; font-size:larger; text-align:center;}
+
+    .meta-inline {
+      display: flex;
+      justify-content: center; /* center align below heading */
+      gap: 30px; /* space between fields */
+      /* background: #fff; */
+      /* border: 1px solid #ccc; */
+      /* border-radius: 8px; */
+      padding: 10px 15px;
+      margin-bottom: 20px;
+      /* box-shadow: 0 2px 6px rgba(0,0,0,0.1); */
+      flex-wrap: wrap; /* mobile lo wrap avvali */
+    }
+
+    .meta-inline .label {
+      color: brown;        /* labels red */
+      font-weight: 600;
+      margin-right: 4px;
+    }
+    .meta-inline .value {
+      color: #002550;    /* values dark blue */
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
@@ -500,6 +523,15 @@
   <!-- ===== Main Content ===== -->
   <div class="content">
     <h3>Closed Complaints</h3>
+    {% if meta %}
+    <div class="meta-inline">
+      <span><span class="label">Format No:</span> <span class="value">{{ meta.format_no|default:"-" }}</span></span>
+      <span><span class="label">Revision No:</span> <span class="value">{{ meta.revision_no|default:"-" }}</span></span>
+      <span><span class="label">Issue No:</span> <span class="value">{{ meta.issue_no|default:"-" }}</span></span>
+      <span><span class="label">Issue Date:</span> <span class="value">{% if meta.issue_date %}{{ meta.issue_date|date:"d-m-Y" }}{% else %}-{% endif %}</span></span>
+    </div>
+    {% endif %}
+
     <div class="hist">
       <ul>
         {% for complaint in accepted_usercomplaints %}
