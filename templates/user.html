@@ -1,148 +1,12 @@
-<!-- {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <style>
-        body {
-            margin: 0;
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
-            background-attachment: fixed;
-            color: #fff;
-            min-height: 100vh;
-        }
-        /* Navbar */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: white;
-            padding: 10px 30px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo {
-            height: 40px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 10px;
-        }
-
-        .nav-links a {
-            margin-left: 20px;
-            text-decoration: none;
-            color: rgb(0, 2, 82);
-        }
-
-        .navbar img {
-            height: 40px;
-        }
-        .menu-bar {
-            position: relative;
-            margin-top: 15%;
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 20px;
-            background: transparent; /* remove bar background */
-        }
-
-        .menu-bar a {
-            display: inline-block;
-            background-color: white;
-            color: #0056b3;
-            border:2px solid #a1c4fd;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            text-decoration: none;
-            font-size: 16px;
-            padding: 12px 20px;
-            border-radius: 12px;
-            transition: 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-            min-width: 150px;
-            text-align: center;
-        }
-
-        .menu-bar a:hover {
-            background-color: #007bff;
-            color: white;
-            transform: translateY(-3px);
-        }
-
-        /* Responsive Menu */
-        @media (max-width: 768px) {
-            .menu-bar {
-                flex-wrap: wrap;
-                gap: 10px;
-                width: 95%;
-            }
-        }
-
-    </style>
-</head>
-<body>
-   
-    <div class="navbar">
-        <img src="{% static 'logo.png' %}" alt="Logo">
-        <div class="logout">
-            {% if user.is_authenticated %}
-            <form action="{% url 'logout' %}" method="POST">
-                {% csrf_token %}
-                <a href="{% url 'home' %}" style="text-decoration: none;">
-                    <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
-                </a>
-            </form>
-            {% endif %}
-        </div>
-    </div>
-
-    
-    <div class="background"></div>
-
-    
-    <div class="menu-bar">
-        <a href="{% url 'complaint_form' %}" class="button"><h3>Complaints</h3></a>
-        <a href="{% url 'visitor_log_user_view' %}"><h3>Gate Pass</h3></a>
-        <a href="{% url 'edit_inventory' site_name=site_name %}"><h3>Inventory</h3></a>
-        <a href="{% url 'button_page' %}"><h3>Service Report</h3></a>
-    </div>
-
-    <div class="content">
-        
-
-        
-        {% if messages %}
-            <div class="alert-box">
-                {% for message in messages %}
-                    <div class="alert">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
-
-</body>
-</html> -->
-
-
-
-
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
+<meta name="theme-color" content="#002550">
+<link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-192.png' %}">
   <title>User Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
@@ -417,6 +281,11 @@
     }
     links.forEach(a => a.addEventListener('click', ()=>{ localStorage.setItem('dash.last', a.getAttribute('href')); }));
   })();
+  if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js');
+  });
+}
 </script>
 
    <script>window.LOGIN_PATH = '/user/login/';</script>

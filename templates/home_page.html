@@ -1,192 +1,3 @@
-<!-- {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home page</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            position: relative;
-            background-color: white;
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .background {
-            position: absolute;
-            top: 10%;
-            left: 0;
-            width: 100%;
-            height: 80%;
-            background-image: url("{% static 'solon2.jpg' %}");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: 0;
-        }
-
-        .logo {
-            position: absolute;
-            top: 0;
-            left: 0;
-            margin: 10px;
-            z-index: 2;
-        }
-        .logo img {
-            width: 100px;
-            height: 50px;
-        }
-        .right {
-            position: absolute;
-            top: 4%;
-            right: 4%;
-            z-index: 2;
-        }
-        .link {
-            color: rgb(2, 31, 68);
-            text-decoration: none;
-            font-size: 20px;
-            margin: 0 10px;
-            position: relative;
-        }
-        .dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background-color: white;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 3;
-        }
-        .dropdown a {
-            color: rgb(2, 31, 68);
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-        .dropdown a:nth-child(1) {
-            background-color: #117af1; /* Yellow for Login */
-            color: #f7f5ee;
-        }
-        .dropdown a:hover {
-            background-color: #080808;
-        }
-        .right:hover .dropdown {
-            display: block;
-        }
-        .right1:hover .dropdown {
-            display: block;
-        }
-        .right1 {
-            position: absolute;
-            top: 4%;
-            right: 12%;
-            z-index: 2;
-        }
-        .content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1;
-            text-align: center;
-            color: rgb(1, 9, 48);
-            font-size: 30px;
-            font-weight: bold;
-            padding: 0 20px;
-        }
-
-        .content p {
-            margin: 0;
-            opacity: 0;
-            animation: fadeIn 2s forwards;
-            font-size: 50px; /* Adjust this value as needed */
-            white-space: nowrap; /* Ensures text stays on a single line */
-            overflow: hidden; /* Hides overflowed content if any */
-            text-overflow: ellipsis; /* Adds ellipsis if text overflows */
-            display: flex; /* Ensures inline elements are aligned in one line */
-            justify-content: center; /* Center text horizontally */
-        }
-
-        .content span {
-            display: inline-block;
-            opacity: 0;
-            animation: wordReveal 1s forwards;
-            margin: 0 8px; /* Add space between words, adjust as needed */
-        }
-
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes wordReveal {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-    </style>
-</head>
-<body>
-    {% if messages %}
-    <ul>
-    {% for message in messages %}
-        <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-    {% endif %}
-    <div class="background"></div>
-    <div class="logo">
-        <img src="{% static 'logo.png' %}" alt="Logo">
-    </div>
-    <div class="right">
-        <a href="{% url 'login1' %}" class="link"><b>Admin</b></a>
-    </div>
-    <div class="right1">
-        <a href="{% url 'login' %}"class="link"><b>User</b></a>
-    </div>
-    <div class="content">
-        <p>
-            <span>Streamline</span>
-            <span>your</span> 
-            <span>solar</span> 
-            <span>operations</span> 
-            <span>with</span> 
-            <span>ease</span>
-        </p>
-    </div>
-    <script>
-        // JavaScript to delay each word reveal
-        document.addEventListener("DOMContentLoaded", function() {
-            const words = document.querySelectorAll('.content span');
-            words.forEach((word, index) => {
-                word.style.animationDelay = `${index * 0.5}s`;
-            });
-        });
-    </script>
-</body>
-</html> -->
-
-
-
-
-
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -201,7 +12,9 @@
   <meta property="og:type" content="website" />
   <meta property="og:image" content="{% static 'solon2.jpg' %}" />
   <meta name="theme-color" content="#021f44" />
-
+  <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
+<meta name="theme-color" content="#002550">
+<link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-192.png' %}">
   <style>
     :root{
       --brand:#021f44;        /* your logo deep blue */
@@ -371,5 +184,12 @@
   <footer>
   © {% now "Y" %} SOLON India Private Limited. All rights reserved.
   </footer>
+  <script>
+    if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js');
+  });
+}
+  </script>
 </body>
 </html>

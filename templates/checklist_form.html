@@ -4,6 +4,10 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
+  <meta name="theme-color" content="#002550">
+  <link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-192.png' %}">
+
     <title>{{ report_type }} Checklist Form</title>
     <style>
         body {
@@ -716,6 +720,11 @@ function zoomImage(src) {
 
 function closeZoom() {
     document.getElementById("zoomModal").style.display = "none";
+}
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js');
+  });
 }
 </script>
 </body>

@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
+<meta name="theme-color" content="#002550">
+<link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-192.png' %}">
     <title>Service Report</title>
     <style>
         /* Global Styles for the whole site */
@@ -165,6 +168,11 @@
         window.onload = function () {
             document.getElementById('buttonsContainer').style.display = 'block';
         };
+        if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js');
+  });
+}
     </script>
 
 </body>

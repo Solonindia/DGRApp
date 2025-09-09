@@ -3,6 +3,10 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
+<meta name="theme-color" content="#002550">
+<link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-192.png' %}">
+
     <meta charset="utf-8">
     <style>
         body {
@@ -156,6 +160,12 @@
         <td colspan="4"><strong>Comments:</strong><br>{{ comments|linebreaksbr }}</td>
     </tr>
 </table>
-
+<script>
+    if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js');
+  });
+}
+</script>
 </body>
 </html>
