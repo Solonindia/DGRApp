@@ -240,7 +240,7 @@
             </form>
         </div>
 </body>
-</html> -->
+</html>  -->
 
 
 
@@ -507,7 +507,7 @@
     </a>
   </div>
 </body>
-</html> -->
+</html>
 
 
 
@@ -807,6 +807,8 @@
 </html> -->
 
 
+
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -1091,6 +1093,18 @@
 
   <!-- ✅ Scrollable Content -->
   <div class="content">
+
+    <!-- 🔹 Error messages block add cheyyali ikkadey -->
+    {% if messages %}
+      <div class="error-container" style="margin:20px auto; max-width:600px; color:#dd0c21;">
+        <ul>
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
     <div class="form-wrapper">
       <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
@@ -1138,4 +1152,3 @@
   </div>
 </body>
 </html>
-

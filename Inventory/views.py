@@ -14,12 +14,134 @@ import math
 from django.views.decorators.cache import never_cache
 
 
+# @login_required(login_url='/superuser/login/')
+# def upload_inventory(request):
+#     excel_data = None
+#     columns = None
+#     site_name = None
+#     user_name = None
+#     # Count unread notifications
+#     unread_notifications = RealTimeNotification.objects.filter(is_read=False).count()
+
+#     if request.method == 'POST' and 'file' in request.FILES:
+#         file = request.FILES['file']
+#         site_name = request.POST.get('site_name')
+#         user_name = request.POST.get('user_name')
+
+#         try:
+#             user = User.objects.get(username=user_name)
+#         except User.DoesNotExist:
+#             messages.error(request, f"User '{user_name}' does not exist. Please register the user first.")
+#             return redirect('upload_inventory')
+
+#         if file.name.endswith('.xlsx') or file.name.endswith('.xls'):
+#             try:
+#                 # Step 1: Read first few rows without header
+#                 temp_df = pd.read_excel(file, header=None)
+                
+#                 # Step 2: Define expected column names
+#                 expected_columns = ['Material Code', 'Material Description', 'Owner', 'Type', 'Category', 'UOM','Opening Stock']#,'Unit Value \n(INR)']
+
+#                 # Step 3: Detect header row dynamically
+#                 header_row_index = None
+#                 for i in range(min(10, len(temp_df))):  # Check first 10 rows
+#                     row_values = temp_df.iloc[i].astype(str).str.strip().tolist()
+#                     if all(col in row_values for col in expected_columns):
+#                         header_row_index = i
+#                         break
+
+#                 if header_row_index is None:
+#                     messages.error(request, "Header row with expected columns not found in uploaded Excel file.")
+#                     return redirect('upload_inventory')
+
+#                 # Step 4: Re-read with correct header row
+#                 df = pd.read_excel(file, header=header_row_index)
+#                 # print(df)
+
+#                 # Step 5: Clean the data
+#                 df_cleaned = df.dropna(subset=['Material Description'])
+#                 columns = df_cleaned.columns.tolist()
+#                 # print(columns)
+
+#                 # Get or create the site
+#                 site, created = Site.objects.get_or_create(name=site_name)
+
+
+#                 # Save inventory data
+#                 for _, row in df_cleaned.iterrows():
+
+                    
+
+#                     # Safely handle NaN or blank values
+#                     opening_stock_raw = row.get('Opening Stock', 0)
+
+#                     if pd.isna(opening_stock_raw) or str(opening_stock_raw).strip() == '':
+#                         opening_stock_value = 0
+#                     else:
+#                         try:
+#                             opening_stock_value = int(float(opening_stock_raw))  # Convert safely
+#                         except ValueError:
+#                             opening_stock_value = 0  # fallback if it still fails
+
+
+#                     unit_value_raw = row.get('Unit Value \n(INR)', 0)
+
+#                     if pd.isna(unit_value_raw) or str(unit_value_raw).strip() == '':
+#                         unit_value = 0
+#                     else:
+#                         try:
+#                             unit_value = float(unit_value_raw)  # use float, since unit value may be decimal
+#                         except ValueError:
+#                             unit_value = 0
+
+#                     Inventory.objects.create(
+#                         site=site,
+#                         material_code=row['Material Code'],
+#                         material_desc=row['Material Description'],
+#                         owner=row['Owner'],
+#                         type=row['Type'],
+#                         category=row['Category'],
+#                         uom=row['UOM'], 
+#                         opening_stock=opening_stock_value,#row['Opening Stock'],# \n(FY-2024-25)'],
+#                         unit_value=unit_value,
+#                         fixed_stock=opening_stock_value, 
+#                         user=user
+#                     )
+
+#                 messages.success(request, 'Inventory data loaded and saved successfully.')
+
+#             except Exception as e:
+#                 messages.error(request, f"Error reading the file: {e}")
+#         else:
+#             messages.error(request, 'Please upload a valid Excel file.')
+
+#     return render(request, 'upload_inventory.html', {
+#         'excel_data': excel_data,
+#         'columns': columns,
+#         'site_name': site_name,
+#         'unread_notifications': unread_notifications
+#     })
+
+
+
+
+
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+import pandas as pd
+from .models import Inventory, Site, RealTimeNotification
+
+
 @login_required(login_url='/superuser/login/')
 def upload_inventory(request):
     excel_data = None
     columns = None
     site_name = None
     user_name = None
+
     # Count unread notifications
     unread_notifications = RealTimeNotification.objects.filter(is_read=False).count()
 
@@ -28,6 +150,7 @@ def upload_inventory(request):
         site_name = request.POST.get('site_name')
         user_name = request.POST.get('user_name')
 
+        # ✅ Validate user exists
         try:
             user = User.objects.get(username=user_name)
         except User.DoesNotExist:
@@ -38,9 +161,17 @@ def upload_inventory(request):
             try:
                 # Step 1: Read first few rows without header
                 temp_df = pd.read_excel(file, header=None)
-                
+
                 # Step 2: Define expected column names
-                expected_columns = ['Material Code', 'Material Description', 'Owner', 'Type', 'Category', 'UOM','Opening Stock']#,'Unit Value \n(INR)']
+                expected_columns = [
+                    'Material Code',
+                    'Material Description',
+                    'Owner',
+                    'Type',
+                    'Category',
+                    'UOM',
+                    'Opening Stock'
+                ]  # ,'Unit Value \n(INR)']
 
                 # Step 3: Detect header row dynamically
                 header_row_index = None
@@ -54,55 +185,65 @@ def upload_inventory(request):
                     messages.error(request, "Header row with expected columns not found in uploaded Excel file.")
                     return redirect('upload_inventory')
 
+                # 🔴 Reset file pointer before re-read
+                file.seek(0)
+
                 # Step 4: Re-read with correct header row
-                df = pd.read_excel(file, header=header_row_index)
-                # print(df)
+                # ✅ Force Material Code as string → prevents float precision junk
+                df = pd.read_excel(
+                    file,
+                    header=header_row_index,
+                    # dtype={'Material Code': str},   # force this column as string
+                    keep_default_na=False,           # don't turn blanks into NaN
+                    converters={
+                            'Material Code': lambda x: f"{x:.2f}" if isinstance(x, float) else str(x).strip()
+                        }
+                )
 
                 # Step 5: Clean the data
                 df_cleaned = df.dropna(subset=['Material Description'])
                 columns = df_cleaned.columns.tolist()
-                print(columns)
 
                 # Get or create the site
                 site, created = Site.objects.get_or_create(name=site_name)
 
-
-                # Save inventory data
+                # Step 6: Save inventory data
                 for _, row in df_cleaned.iterrows():
+                    # ✅ Material Code now always string exactly as in Excel
+                    material_code = str(row.get('Material Code', '')).strip()
 
-                    # Safely handle NaN or blank values
+                    # Opening stock
                     opening_stock_raw = row.get('Opening Stock', 0)
-
                     if pd.isna(opening_stock_raw) or str(opening_stock_raw).strip() == '':
                         opening_stock_value = 0
                     else:
                         try:
-                            opening_stock_value = int(float(opening_stock_raw))  # Convert safely
+                            opening_stock_value = int(float(opening_stock_raw))
                         except ValueError:
-                            opening_stock_value = 0  # fallback if it still fails
+                            opening_stock_value = 0
 
-
+                    # Unit value
                     unit_value_raw = row.get('Unit Value \n(INR)', 0)
-
                     if pd.isna(unit_value_raw) or str(unit_value_raw).strip() == '':
                         unit_value = 0
                     else:
                         try:
-                            unit_value = float(unit_value_raw)  # use float, since unit value may be decimal
+                            unit_value = float(unit_value_raw)
                         except ValueError:
                             unit_value = 0
 
+                    # Save into DB
                     Inventory.objects.create(
                         site=site,
-                        material_code=row['Material Code'],
+                        material_code=material_code,   # ✅ clean string, no float garbage
                         material_desc=row['Material Description'],
                         owner=row['Owner'],
                         type=row['Type'],
                         category=row['Category'],
-                        uom=row['UOM'], 
-                        opening_stock=opening_stock_value,#row['Opening Stock'],# \n(FY-2024-25)'],
+                        uom=row['UOM'],
+                        opening_stock=opening_stock_value,
                         unit_value=unit_value,
-                        fixed_stock=opening_stock_value, 
+                        fixed_stock=opening_stock_value,
                         user=user
                     )
 
@@ -119,6 +260,7 @@ def upload_inventory(request):
         'site_name': site_name,
         'unread_notifications': unread_notifications
     })
+
 
 
 from django.shortcuts import render, redirect

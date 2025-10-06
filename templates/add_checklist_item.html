@@ -1,4 +1,4 @@
-{% load static %}
+<!-- {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -126,7 +126,7 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
+    
     <div class="navbar">
         <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
         <div class="nav-links">
@@ -139,7 +139,7 @@
         </div>
     </div>
 
-    <!-- Form Content -->
+    
     <div class="form-page">
         <div class="form-card">
             {% if messages %}
@@ -163,5 +163,249 @@
             </form>
         </div>
     </div>
+</body>
+</html> -->
+
+
+
+
+
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Checklist Item</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+  <style>
+    :root {
+      --brand:#002550;
+      --bg1:#a1c4fd; --bg2:#c2e9fb;
+      --navbar-h:60px;
+      --mheader-h:56px;
+      --mfooter-h:56px;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+    }
+
+    body {
+      margin: 0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg, var(--bg1) 0%, var(--bg2) 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      font-size: 16px;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* ===== Desktop Navbar ===== */
+    .navbar {
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff; padding:10px 20px; box-shadow:var(--shadow);
+      height:var(--navbar-h); z-index:1000;
+    }
+    @media(min-width:769px){
+      .navbar{position:fixed; top:0; left:0; right:0;}
+      body{padding-top:var(--navbar-h);}
+    }
+    .logo {height:40px;}
+    .nav-links {display:flex; gap:24px; align-items:center;}
+    .nav-links a,
+    .nav-links form button {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:4px; text-decoration:none; color:var(--brand); font-size:12px; font-weight:600;
+      background:none; border:none; cursor:pointer; padding:4px 6px;
+    }
+    .nav-links i {font-size:18px;}
+
+    /* ===== Mobile Header ===== */
+    .mobile-header {
+      display:none; position:fixed; top:0; left:0; right:0; height:var(--mheader-h);
+      background:#fff; box-shadow:var(--shadow); padding:8px 12px; z-index:1000;
+      align-items:center; justify-content:space-between;
+    }
+    .m-left img {height:32px;}
+    .m-right {display:flex; gap:8px; align-items:center;}
+    .icon-btn {
+      background:#f3f4f6; border:none; border-radius:8px; padding:8px 10px; cursor:pointer;
+      color:var(--brand); display:inline-flex; align-items:center; justify-content:center;
+    }
+    .mobile-header i {font-size:18px;}
+
+    /* ===== Mobile Footer ===== */
+    .mobile-footer {
+      display:none; position:fixed; bottom:0; left:0; right:0; height:var(--mfooter-h);
+      background:#fff; box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      align-items:center; justify-content:space-around; z-index:1000;
+    }
+    .mobile-footer a {
+      text-decoration:none;
+      color:var(--brand);
+      font-weight:600;
+      font-size:12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      line-height:1.2;
+    }
+    .mobile-footer i {font-size:18px; margin-bottom:4px;}
+    .footer-label {display:block; word-break:break-word; white-space:normal;}
+
+    /* === Content === */
+    .content {
+      flex:1;
+      overflow:auto;
+      padding:20px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+    }
+    @media(max-width:768px){
+      .navbar{display:none;}
+      .mobile-header{display:flex;}
+      .mobile-footer{display:flex;}
+      body{padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h);}
+      .content{padding:12px 10px 70px;}
+    }
+
+    /* === Form Card === */
+    /* .form-card {
+      width:100%;
+      max-width:500px;
+      background:#fff;
+      border-radius:12px;
+      padding:30px;
+      box-shadow:0 8px 20px rgba(0,0,0,0.1);
+    } */
+
+    .form-card {
+    width: 100%;
+    max-width: 500px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    margin-top: 40px;   /* 👈 adjust this value as needed */
+    }
+
+    .form-card h2 {
+      margin-bottom:20px;
+      font-size:22px;
+      color:#003366;
+      text-align:center;
+    }
+    .form-group {margin-bottom:18px;}
+    .form-group label {
+      display:block;
+      font-weight:600;
+      margin-bottom:6px;
+      color:#333;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width:100%;
+      padding:8px 0;
+      font-size:15px;
+      border:none;
+      border-bottom:2px solid #ccc;
+      background:transparent;
+      outline:none;
+      transition:border-color 0.3s;
+    }
+    .form-group textarea {height:80px; resize:vertical;}
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-bottom:2px solid #007BFF;
+    }
+    .submit-btn {
+      width:100%;
+      padding:12px;
+      background:#007BFF;
+      color:#fff;
+      border:none;
+      border-radius:6px;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+      margin-top:10px;
+      transition:background 0.3s ease;
+    }
+    .submit-btn:hover {background:#0056b3;}
+    .message {text-align:center; color:green; font-weight:bold; font-size:large;}
+  </style>
+</head>
+<body>
+
+  <!-- ===== Desktop Navbar ===== -->
+  <div class="navbar">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <div class="nav-links">
+      <a href="{% url 'button_page' %}"><i class="fas fa-plus-circle"></i><span>New Report</span></a>
+      <a href="{% url 'history_servicereport' %}"><i class="fas fa-history"></i><span>History</span></a>
+      <a href="{% url 'admin' %}"><i class="fas fa-home"></i><span>Home</span></a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===== Mobile Header ===== -->
+  <div class="mobile-header">
+    <div class="m-left">
+      <img src="{% static 'logo.png' %}" alt="Logo">
+    </div>
+    <div class="m-right">
+      <a class="icon-btn" href="{% url 'admin' %}"><i class="fas fa-home"></i></a>
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="icon-btn"><i class="fas fa-sign-out-alt"></i></button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===== Main Content ===== -->
+  <div class="content">
+    <div class="form-card">
+      {% if messages %}
+        {% for message in messages %}
+          <p class="message">{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+      <h2>Add New Checklist Item</h2>
+      <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="form-group">
+            {{ field.label_tag }}
+            {{ field }}
+            {% if field.errors %}
+              <div style="color:red;">{{ field.errors|striptags }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <button type="submit" class="submit-btn">Add Item</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Mobile Footer ===== -->
+  <div class="mobile-footer">
+    <a href="{% url 'button_page' %}"><i class="fas fa-plus-circle"></i><span class="footer-label">New Report</span></a>
+    <a href="{% url 'history_servicereport' %}"><i class="fas fa-history"></i><span class="footer-label">History</span></a>
+  </div>
+
 </body>
 </html>
