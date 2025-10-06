@@ -14,11 +14,11 @@ def _serve(path, ctype, extra_headers=None):
     return resp
 
 def service_worker(request):
-    p = os.path.join(settings.BASE_DIR, 'DGRApp', 'static', 'pwa', 'service-worker.js')
+    p = os.path.join(settings.BASE_DIR, 'static', 'pwa', 'service-worker.js')
     return _serve(p, 'application/javascript', {'Service-Worker-Allowed': '/', 'Cache-Control': 'no-cache'})
 
 def webmanifest(request):
-    p = os.path.join(settings.BASE_DIR, 'DGRApp', 'static', 'pwa', 'manifest.json')
+    p = os.path.join(settings.BASE_DIR, 'static', 'pwa', 'manifest.json')
     return _serve(p, 'application/manifest+json')
 
 urlpatterns = [

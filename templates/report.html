@@ -2,178 +2,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
-<meta name="theme-color" content="#002550">
-<link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-192.png' %}">
-    <title>Service Report</title>
-    <style>
-        /* Global Styles for the whole site */
-        body {
-            margin: 0;
-            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            background-size: cover;
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Reports</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    :root {
+      --brand:#002550;
+      --bg1:#a1c4fd; --bg2:#c2e9fb;
+      --navbar-h:60px;
+      --mheader-h:56px;
+      --mfooter-h:56px;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+    }
+    body {
+      margin: 0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg, var(--bg1) 0%, var(--bg2) 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      font-size: 16px;
+      display:flex;
+      flex-direction:column;
+    }
 
-        /* Navbar Styles */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: white;
-            padding: 10px 30px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+    /* ===== Desktop Navbar ===== */
+    .navbar {
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff; padding:10px 20px; box-shadow:var(--shadow);
+      height:var(--navbar-h); z-index:1000;
+    }
+    @media(min-width:769px){
+      .navbar {position:fixed; top:0; left:0; right:0;}
+      body {padding-top:var(--navbar-h);}
+    }
+    .logo {height:40px;}
+    .nav-links {display:flex; gap:24px; align-items:center;}
+    .nav-links a,
+    .nav-links form button {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:4px; text-decoration:none; color:var(--brand); font-size:12px; font-weight:600;
+      background:none; border:none; cursor:pointer; padding:4px 6px;
+    }
+    .nav-links i {font-size:18px;}
 
-        .logo {
-            height: 40px;
-        }
+    /* ===== Mobile Header ===== */
+    .mobile-header {
+      display:none; position:fixed; top:0; left:0; right:0; height:var(--mheader-h);
+      background:#fff; box-shadow:var(--shadow); padding:8px 12px; z-index:1000;
+      align-items:center; justify-content:space-between;
+    }
+    .m-left img {height:32px;}
+    .m-right {display:flex; gap:8px; align-items:center;}
+    .icon-btn {
+      background:#f3f4f6; border:none; border-radius:8px; padding:8px 10px; cursor:pointer;
+      color:var(--brand); display:inline-flex; align-items:center; justify-content:center;
+    }
+    .mobile-header i {font-size:18px;}
 
-        .nav-links {
-            display: flex;
-            gap: 10px;
-        }
+    /* ===== Mobile Footer ===== */
+    .mobile-footer {
+      display:none; position:fixed; bottom:0; left:0; right:0; height:var(--mfooter-h);
+      background:#fff; box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      align-items:center; justify-content:space-around; z-index:1000;
+    }
+    .mobile-footer a {
+      text-decoration:none;
+      color:var(--brand);
+      font-weight:600;
+      font-size:12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      line-height:1.2;
+    }
+    .mobile-footer i {
+      font-size:18px;
+      margin-bottom:4px;
+    }
+    .footer-label {
+      display:block;
+      word-break: break-word;
+      white-space: normal;
+    }
 
-        .nav-links a {
-            margin-left: 20px;
-            text-decoration: none;
-            color: rgb(0, 2, 82);
-            margin-top: 3px;
-        }
+    /* === Scrollable Content === */
+    .content {flex:1; overflow:auto; padding:20px;}
+    @media(max-width:768px){
+      .navbar {display:none;}
+      .mobile-header {display:flex;}
+      .mobile-footer {display:flex;}
+      body {padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h);}
+      .content {padding:12px 10px 70px;}
+    }
 
-        .navbar img {
-            height: 40px;
-        }
+    /* ===== Main Content ===== */
+    h3 {color: rgba(59, 0, 13, 0.952); text-align: center; margin-bottom: 2%;}
 
-        /* Content Section */
-        .content {
-            padding: 30px;
-        }
-
-        /* Service Report Page Styles */
-        .report-heading {
-            color: #003366;
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-align: center;
-            margin-top: 0;
-        }
-
-        /* Button Styles */
-        .main-btn, .report-btn {
-            padding: 12px 25px;
-            background-color: #007BFF;
-            color: white;
-            font-size: 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .main-btn:hover, .report-btn:hover {
-            background-color: #0056b3;
-        }
-
-        .sub-buttons {
-            margin-top: 20px;
-        }
-
-        .button-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .report-btn {
-            background-color: #ffffff;
-            border: 2px solid #007BFF;
-            color: #007BFF;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            flex: 1;  /* Makes 3 buttons per row evenly spaced */
-            text-align: center;
-            transition: 0.3s ease;
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .report-btn:hover {
-            background-color: #007BFF;
-            color: white;
-        }
-
-        .selected {
-            background-color: #007BFF !important;
-            color: white !important;
-            border: 2px solid #0056b3;
-        }
-    </style>
+    /* Service Report Buttons */
+    .sub-buttons {margin-top:20px;}
+    .button-row {display:flex; gap:15px; margin-bottom:15px; flex-wrap:wrap;}
+    .report-btn {
+      flex:1;
+      padding:12px 20px;
+      background-color:#fff;
+      border:2px solid #007BFF;
+      color:#007BFF;
+      border-radius:6px;
+      font-weight:600;
+      cursor:pointer;
+      text-align:center;
+      transition:0.3s ease;
+    }
+    .report-btn:hover {background:#007BFF; color:#fff;}
+    .selected {background:#007BFF !important; color:#fff !important;}
+  </style>
 </head>
 <body>
-      <!-- Navbar -->
-        <div class="navbar">
-            <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
-            <div class="nav-links">
-                {% if user_type == 'admin' %}
-                    <a href="{% url 'history_servicereport' %}">History</a>
-                    <a href="{% url 'add_checklist_item' %}">Add Checklist Item</a>
-                    <a href="{% url 'admin' %}">Dashboard</a>
-                {% else %}
-                    <a href="{% url 'user' %}">Dashboard</a>
-                {% endif %}
-                {% if user.is_authenticated %}
-                <form action="{% url 'logout' %}" method="POST">
-                    {% csrf_token %}
-                <a href="{% url 'home' %}" style="text-decoration: none;">
-                    <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
-                </a>
-                </form>
-                {% endif %}
+
+  <!-- ===== Desktop Navbar ===== -->
+  <div class="navbar">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <div class="nav-links">
+      {% if user_type == 'admin' %}
+        <a href="{% url 'history_servicereport' %}"><i class="fas fa-history"></i><span>History</span></a>
+        <a href="{% url 'add_checklist_item' %}"><i class="fas fa-plus-circle"></i><span>Add Checklist Item</span></a>
+        <a href="{% url 'admin' %}"><i class="fas fa-home"></i><span>Home</span></a>
+      {% else %}
+        <a href="{% url 'user' %}"><i class="fas fa-home"></i><span>Home</span></a>
+      {% endif %}
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===== Mobile Header ===== -->
+  <div class="mobile-header">
+    <div class="m-left">
+      <img src="{% static 'logo.png' %}" alt="Logo">
+    </div>
+    <div class="m-right">
+      {% if user_type == 'admin' %}
+        <a class="icon-btn" href="{% url 'admin' %}"><i class="fas fa-home"></i></a>
+      {% else %}
+        <a class="icon-btn" href="{% url 'user' %}"><i class="fas fa-home"></i></a>
+      {% endif %}
+      {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="POST" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="icon-btn"><i class="fas fa-sign-out-alt"></i></button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===== Main Content ===== -->
+  <div class="content">
+    <h3>Preventive Maintenance Inspection - Service Reports</h3>
+    <div id="buttonsContainer" class="sub-buttons">
+      <form method="get" action="{% url 'checklist_form' %}">
+        {% for report in reports %}
+          {% if forloop.first or forloop.counter0|divisibleby:3 %}
+            <div class="button-row">
+          {% endif %}
+
+          <button type="submit" name="report_type" value="{{ report }}"
+                  class="report-btn {% if report == report_type %}selected{% endif %}">
+            {{ report }}
+          </button>
+
+          {% if forloop.counter|divisibleby:3 or forloop.last %}
             </div>
-        </div>
+          {% endif %}
+        {% endfor %}
+      </form>
     </div>
+  </div>
 
-    <!-- Main Content -->
-    <div class="content">
-        <h2 class="report-heading">Preventive Maintenance Inspection - Service Reports</h2>
+  <!-- ===== Mobile Footer ===== -->
+  <div class="mobile-footer">
+    {% if user_type == 'admin' %}
+      <a href="{% url 'history_servicereport' %}"><i class="fas fa-history"></i><span class="footer-label">History</span></a>
+      <a href="{% url 'add_checklist_item' %}"><i class="fas fa-plus-circle"></i><span class="footer-label">Add Checklist Item</span></a>
+      <a href="{% url 'admin' %}"><i class="fas fa-home"></i><span class="footer-label">Home</span></a>
+    {% else %}
+      <a href="{% url 'user' %}"><i class="fas fa-home"></i><span class="footer-label">Home</span></a>
+    {% endif %}
+  </div>
 
-        <!-- Buttons in rows of 3 -->
-        <div id="buttonsContainer" class="sub-buttons">
-            <form method="get" action="{% url 'checklist_form' %}">
-                {% for report in reports %}
-                    {% if forloop.first or forloop.counter0|divisibleby:3 %}
-                        <div class="button-row">
-                    {% endif %}
-
-                    <button type="submit" name="report_type" value="{{ report }}"
-                            class="report-btn {% if report == report_type %}selected{% endif %}">
-                        {{ report }}
-                    </button>
-                    {% if forloop.counter|divisibleby:3 or forloop.last %}
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </form>
-        </div>
-    </div>
-
-    <script>
-        window.onload = function () {
-            document.getElementById('buttonsContainer').style.display = 'block';
-        };
-        if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js');
-  });
-}
-    </script>
-
+  <script>
+    window.onload = function () {
+      document.getElementById('buttonsContainer').style.display = 'block';
+    };
+  </script>
 </body>
 </html>

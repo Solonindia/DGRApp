@@ -3,392 +3,323 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
-    <meta name="theme-color" content="#002550">
-    <link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-192.png' %}">
-    <title>Preview - {{ report_type }}</title>
-    <style>
-        /* Global Styles */
-        body {
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-y: auto;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
+  <meta name="theme-color" content="#002550">
+  <link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-192.png' %}">
+  <title>Preview - {{ report_type }}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    :root {
+      --brand:#002550;
+      --bg1:#a1c4fd;
+      --bg2:#c2e9fb;
+      --shadow:0 2px 4px rgba(0,0,0,.1);
+      --mheader-h:56px;
+      --mfooter-h:56px;
+      --navbar-h:60px;
+    }
 
-        /* Navbar */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: white;
-            padding: 10px 30px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+    body {
+      margin: 0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg, var(--bg1) 0%, var(--bg2) 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      display:flex; flex-direction:column;
+    }
 
-        .logo {
-            height: 40px;
-        }
+    /* ===== Desktop Navbar ===== */
+    .navbar {
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff; padding:10px 20px;
+      height:var(--navbar-h); box-shadow:var(--shadow); z-index:1000;
+    }
+    @media(min-width:769px){
+      .navbar {position:fixed; top:0; left:0; right:0;}
+      body {padding-top:var(--navbar-h);}
+    }
+    .logo {height:40px;}
+    .nav-links {display:flex; gap:24px; align-items:center;}
+    .nav-links a {
+      display:flex; flex-direction:column; align-items:center;
+      text-decoration:none; color:var(--brand); font-weight:600;
+      font-size:12px;
+    }
+    .nav-links i {font-size:18px;}
 
-        .nav-links {
-            display: flex;
-            gap: 10px;
-        }
+    /* ===== Mobile Header ===== */
+    .mobile-header {
+      display:none; position:fixed; top:0; left:0; right:0;
+      height:var(--mheader-h); background:#fff;
+      box-shadow:var(--shadow); padding:8px 12px;
+      z-index:1000; align-items:center; justify-content:space-between;
+    }
+    .m-left img {height:32px;}
+    .icon-btn {
+      background:#f3f4f6; border:none; border-radius:8px; padding:8px 10px;
+      cursor:pointer; color:var(--brand); display:inline-flex; align-items:center;
+      justify-content:center;
+    }
 
-        .nav-links a {
-            margin-left: 20px;
-            text-decoration: none;
-            color: rgb(0, 2, 82);
-        }
+    /* ===== Mobile Footer ===== */
+    .mobile-footer {
+      display:none; position:fixed; bottom:0; left:0; right:0;
+      height:var(--mfooter-h); background:#fff;
+      box-shadow:0 -2px 4px rgba(0,0,0,.1);
+      align-items:center; justify-content:space-around; z-index:1000;
+    }
+    .mobile-footer a {
+      text-decoration:none; color:var(--brand);
+      display:flex; flex-direction:column; align-items:center;
+      font-size:12px; font-weight:600;
+    }
+    .mobile-footer i {font-size:18px; margin-bottom:4px;}
+    @media(max-width:768px){
+      .navbar{display:none;}
+      .mobile-header{display:flex;}
+      .mobile-footer{display:flex;}
+      body{padding-top:var(--mheader-h); padding-bottom:var(--mfooter-h);}
+    }
 
-        .navbar img {
-            height: 40px;
-        }
+    /* ===== Preview Container ===== */
+    .content {flex:1; overflow:auto; padding:20px;}
+    .preview-card {
+      max-width:900px; margin:30px auto;
+      background:#fff; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);
+      padding:25px 30px;
+    }
+    .preview-title {text-align:center; color:var(--brand); margin-bottom:20px;}
 
-        /* Preview Styles */
-        .preview-container {
-            max-width: 900px;
-            margin: 30px auto;
-            padding: 30px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+    .preview-details {
+      display:flex; flex-wrap:wrap; gap:30px; margin-bottom:20px;
+    }
+    .preview-details div {flex:1; min-width:250px;}
+    .preview-details p {margin:6px 0; color:#333;}
 
-        .preview-title {
-            text-align: center;
-            color: #003366;
-            margin-bottom: 25px;
-        }
+    /* ===== Table ===== */
+    table.preview-table {
+      width:100%; border-collapse:collapse; margin-top:15px;
+      background:#fff;
+    }
+    table.preview-table th, table.preview-table td {
+      border:1px solid #ccc; padding:10px; text-align:left;
+    }
+    table.preview-table th {background:#f4f6fb; color:var(--brand);}
 
-        .preview-logo {
-            display: block;
-            margin: 0 auto 20px auto;
-            max-height: 60px;
-        }
+    /* ===== Image Grid ===== */
+    .image-grid {
+      display:flex; flex-wrap:wrap; gap:16px; margin-top:15px;
+    }
+    .image-box {
+      width:calc(33.33% - 16px);
+      text-align:center;
+    }
+    .preview-image {
+      width:100%; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.2);
+      cursor:pointer; transition:transform 0.3s ease;
+      max-height:200px; object-fit:cover;
+    }
+    .preview-image:hover {transform:scale(1.03);}
+    @media(max-width:768px){.image-box{width:calc(50% - 16px);}}
+    @media(max-width:480px){.image-box{width:100%;}}
 
-        .preview-details p {
-            margin: 6px 0;
-            color: #333;
-        }
+    /* ===== Comments & Signatures ===== */
+    .comments-box {
+      background:#f9f9f9; padding:12px; border-radius:6px;
+      border:1px solid #ddd; margin:15px 0; color:#333;
+    }
+    .signatures {
+      display:flex; justify-content:space-between; flex-wrap:wrap;
+      gap:30px; margin-top:20px;
+    }
+    .sign-box {flex:1; min-width:250px; text-align:center;}
+    .sign-box img {
+      max-width:250px; max-height:250px; border-radius:8px; border:1px solid #ccc;
+      cursor:zoom-in;
+    }
 
-        .preview-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
+    /* ===== Buttons ===== */
+    .action-buttons {
+      display:flex; flex-wrap:wrap; gap:12px; margin-top:25px;
+    }
+    .action-buttons button, .download-btn {
+      flex:1; min-width:120px; padding:10px 16px;
+      border:none; border-radius:6px; font-weight:600; color:#fff;
+      cursor:pointer; transition:background-color 0.3s ease;
+    }
+    .edit-btn {background:#ffc107;}
+    .edit-btn:hover{background:#866603;}
+    .save-btn {background:#28a745;}
+    .save-btn:hover{background:#033d0f;}
+    .download-btn {background:#007bff; display:inline-block; text-align:center; text-decoration:none;}
+    .download-btn:hover{background:#0056b3;}
 
-        .preview-table th,
-        .preview-table td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: left;
-        }
-
-        .preview-table th {
-            background-color: #f0f0f0;
-        }
-
-        .image-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .image-box {
-            width: calc(33.33% - 20px);
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        .preview-image {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .preview-image:hover {
-            transform: scale(1.02);
-        }
-
-        @media (max-width: 768px) {
-            .image-box {
-                width: calc(50% - 20px);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .image-box {
-                width: 100%;
-            }
-        }
-
-        .comments-box {
-            background: #f1f1f1;
-            padding: 10px;
-            border-radius: 6px;
-            margin: 10px 0 20px;
-            color: #333;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .action-buttons button,
-        .download-btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            color: white;
-            transition: background-color 0.3s ease;
-        }
-
-        .edit-btn {
-            margin-left: 60%;
-            background-color: #ffc107;
-        }
-
-        .edit-btn:hover {
-            background-color: #866603;
-        }
-
-        .save-btn {
-            margin-left: 2%;
-            background-color: #28a745;
-        }
-
-        .save-btn:hover {
-            background-color: #033d0f;
-        }
-
-        .download-btn {
-            background-color: #007bff;
-            margin-top: 15px;
-            width: 40%;
-        }
-
-        .download-btn:hover {
-            background-color: #0056b3;
-        }
-
-        h3 {
-            color: #003366;
-            margin-top: 30px;
-        }
-
-        /* Modal zoom styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.9);
-        }
-
-        .modal-content {
-            display: block;
-            margin: 5% auto;
-            max-width: 80%;
-            max-height: 80%;
-            border-radius: 10px;
-        }
-
-        .close {
-            position: absolute;
-            top: 20px;
-            right: 35px;
-            color: #fff;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .modal-content, .close {
-            animation: zoom 0.3s;
-        }
-
-        @keyframes zoom {
-            from {transform: scale(0.7)}
-            to {transform: scale(1)}
-        }
-
-        .preview-image-large {
-            max-width: 250px;
-            max-height: 250px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            cursor: zoom-in;
-        }
-    </style>
+    /* ===== Modal Styles ===== */
+    .modal {
+      display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center;
+    }
+    .modal img {
+      max-width:85%; max-height:80%; border-radius:10px;
+    }
+    .close {
+      position:absolute; top:20px; right:35px; color:#fff;
+      font-size:40px; cursor:pointer;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Navbar -->
-    <div class="navbar">
-        <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
-        <div class="nav-links">
-            <a href="{% url 'add_checklist_item' %}">Add Checklist Item</a>
-            <a href="{% url 'history_servicereport' %}">History</a>
-        </div>
+  <!-- ===== Desktop Navbar ===== -->
+  <div class="navbar">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <div class="nav-links">
+      <a href="{% url 'add_checklist_item' %}"><i class="fas fa-plus-circle"></i><span>Add Checklist</span></a>
+      <a href="{% url 'history_servicereport' %}"><i class="fas fa-history"></i><span>History</span></a>
     </div>
+  </div>
 
-    <!-- Preview Content -->
-    <div class="preview-container">
-        <h2 class="preview-title"><i style="color:brown;">Preview</i> - Preventive Maintenance Inspection Checklist - {{ component }}</h2>
-
-        <div class="preview-details" style="display: flex; flex-wrap: wrap; gap: 30px;margin-left: 5%;">
-            <div style="flex: 1; min-width: 250px;">
-                <p><strong>Name of Project:</strong> {{ preview_data.project_name }}</p>
-                <p><strong>Location of project:</strong> {{ preview_data.project_location }}</p>
-                <p><strong>Department:</strong> Operations & Maintenance</p>
-                <p><strong>Date of Inspection:</strong> {{ preview_data.inspection_date }}</p>
-                <p><strong>Period of Inspection:</strong> {{ preview_data.period_of_inspection }}</p>
-                <p><strong>Next Inspection:</strong> {{ preview_data.next_inspection_date }}</p>
-            </div>
-            <div style="flex: 1; min-width: 250px;">
-                <p><strong>Date of Issue:</strong> {{ Date }}</p>
-                <p><strong>Format No:</strong> {{ format_no }}</p>
-                <p><strong>Make:</strong> {{ preview_data.make }}</p>
-                <p><strong>Type:</strong> {{ preview_data.Type }}</p>
-                <p><strong>S.No.:</strong> {{ preview_data.s_no }}</p>
-                <p><strong>Rating:</strong> {{ preview_data.rating }}</p>
-            </div>
-        </div>
-
-        <h3>Checklist</h3>
-        <table class="preview-table">
-            <thead>
-                <tr><th>S.No.</th><th>Checkpoint</th><th>Status</th><th>Remark</th></tr>
-            </thead>
-            <tbody>
-                {% for item in checklist %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ item.checklist_item.checkpoint }}</td>
-                    <td>{{ item.status }}</td>
-                    <td>{{ item.remark }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <h3>Uploaded Images (1–6)</h3>
-        <div class="image-grid">
-            {% for i in "123456" %}
-                {% with image_field="image"|add:i %}
-                    {% with image=preview_data|attr:image_field %}
-                        {% if image %}
-                            <div class="image-box">
-                                <p><strong>Image {{ i }}</strong></p>
-                                <img src="{{ image.url }}" class="preview-image" onclick="showModal(this.src)">
-                            </div>
-                        {% endif %}
-                    {% endwith %}
-                {% endwith %}
-            {% endfor %}
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; margin-top: 20px;">
-        <div style="text-align: center; flex: 1;">
-            <h3>Authorized Signatory (Customer)</h3>
-            <p><strong>Name:</strong> {{ preview_data.customer_name }}</p>
-            {% if preview_data.signature %}
-                <img src="{{ preview_data.signature.url }}" class="preview-image-large" onclick="showModal(this.src)">
-            {% elif preview_data.signature_pad_data %}
-                <img src="{{ preview_data.signature_pad_data }}" class="preview-image-large" onclick="showModal(this.src)">
-            {% else %}
-                <p>Not uploaded</p>
-            {% endif %}
-        </div>
-        <div style="text-align: center; flex: 1;">
-            <h3>Authorized Signatory (SOLON)</h3>
-            <p><strong>Name:</strong> {{ preview_data.solon_name }}</p>
-            {% if preview_data.signature1 %}
-                <img src="{{ preview_data.signature1.url }}" class="preview-image-large" onclick="showModal(this.src)">
-            {% elif preview_data.signature_pad_data1 %}
-                <img src="{{ preview_data.signature_pad_data1 }}" class="preview-image-large" onclick="showModal(this.src)">
-            {% else %}
-                <p>Not uploaded</p>
-            {% endif %}
-        </div>
-        </div>
-        <p><strong>Comments:</strong></p>
-        <div class="comments-box">{{ comments|linebreaksbr }}</div>
-        <p><strong>Send To:</strong> {{ preview_data.email_to }}</p>
-
-        <form method="post" class="action-buttons">
-            {% csrf_token %}
-            <input type="hidden" name="report_type" value="{{ report_type }}">
-            <input type="hidden" name="edit_id" value="{{ preview_data.id }}">
-            <input type="hidden" name="email_to" value="{{ email_to }}">
-            <button type="submit" name="edit" class="edit-btn">✏️ Edit</button>
-            <button type="submit" name="final_save" class="save-btn">💾 Save & Submit </button>
-        </form>
+  <!-- ===== Mobile Header ===== -->
+  <div class="mobile-header">
+    <div class="m-left"><img src="{% static 'logo.png' %}" alt="Logo"></div>
+    <div class="m-right">
+      <a class="icon-btn" href="{% url 'add_checklist_item' %}"><i class="fas fa-plus-circle"></i></a>
+      <a class="icon-btn" href="{% url 'history_servicereport' %}"><i class="fas fa-history"></i></a>
     </div>
+  </div>
 
-    <!-- Success Modal -->
-    <div id="successModal" class="modal">
-        <div style="background-color: #fff; margin: 10% auto; padding: 30px; border-radius: 10px; width: 90%; max-width: 500px; text-align: center; box-shadow: 0 0 15px rgba(0,0,0,0.3); position: relative;">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h3 style="color: green; margin-bottom: 20px;">✅ Service Report saved and shared successfully!</h3>
-            {% if preview_data.id %}
-                <a href="{% url 'download_pdf' preview_data.id %}" class="download-btn" style="text-decoration: none; display: inline-block;">⬇️ Download PDF</a>
-            {% endif %}
+  <!-- ===== Main Content ===== -->
+  <div class="content">
+    <div class="preview-card">
+      <h2 class="preview-title">Preview – Preventive Maintenance Inspection Checklist – {{ component }}</h2>
+
+      <div class="preview-details">
+        <div>
+          <p><strong>Project:</strong> {{ preview_data.project_name }}</p>
+          <p><strong>Location:</strong> {{ preview_data.project_location }}</p>
+          <p><strong>Department:</strong> Operations & Maintenance</p>
+          <p><strong>Inspection Date:</strong> {{ preview_data.inspection_date }}</p>
+          <p><strong>Period:</strong> {{ preview_data.period_of_inspection }}</p>
+          <p><strong>Next Inspection:</strong> {{ preview_data.next_inspection_date }}</p>
         </div>
+        <div>
+          <p><strong>Date of Issue:</strong> {{ Date }}</p>
+          <p><strong>Format No:</strong> {{ format_no }}</p>
+          <p><strong>Make:</strong> {{ preview_data.make }}</p>
+          <p><strong>Type:</strong> {{ preview_data.Type }}</p>
+          <p><strong>S.No:</strong> {{ preview_data.s_no }}</p>
+          <p><strong>Rating:</strong> {{ preview_data.rating }}</p>
+        </div>
+      </div>
+
+      <h3>Checklist</h3>
+      <table class="preview-table">
+        <thead><tr><th>S.No.</th><th>Checkpoint</th><th>Status</th><th>Remark</th></tr></thead>
+        <tbody>
+          {% for item in checklist %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ item.checklist_item.checkpoint }}</td>
+            <td>{{ item.status }}</td>
+            <td>{{ item.remark }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <h3>Uploaded Images (1–6)</h3>
+      <div class="image-grid">
+        {% for i in "123456" %}
+          {% with image_field="image"|add:i %}
+            {% with image=preview_data|attr:image_field %}
+              {% if image %}
+                <div class="image-box">
+                  <p><strong>Image {{ i }}</strong></p>
+                  <img src="{{ image.url }}" class="preview-image" onclick="openImageModal(this.src)">
+                </div>
+              {% endif %}
+            {% endwith %}
+          {% endwith %}
+        {% endfor %}
+      </div>
+
+      <div class="signatures">
+        <div class="sign-box">
+          <h3>Authorized Signatory (Customer)</h3>
+          <p><strong>Name:</strong> {{ preview_data.customer_name }}</p>
+          {% if preview_data.signature %}
+            <img src="{{ preview_data.signature.url }}" onclick="openImageModal(this.src)">
+          {% elif preview_data.signature_pad_data %}
+            <img src="{{ preview_data.signature_pad_data }}" onclick="openImageModal(this.src)">
+          {% else %}<p>Not uploaded</p>{% endif %}
+        </div>
+
+        <div class="sign-box">
+          <h3>Authorized Signatory (SOLON)</h3>
+          <p><strong>Name:</strong> {{ preview_data.solon_name }}</p>
+          {% if preview_data.signature1 %}
+            <img src="{{ preview_data.signature1.url }}" onclick="openImageModal(this.src)">
+          {% elif preview_data.signature_pad_data1 %}
+            <img src="{{ preview_data.signature_pad_data1 }}" onclick="openImageModal(this.src)">
+          {% else %}<p>Not uploaded</p>{% endif %}
+        </div>
+      </div>
+
+      <p><strong>Comments:</strong></p>
+      <div class="comments-box">{{ comments|linebreaksbr }}</div>
+      <p><strong>Send To:</strong> {{ preview_data.email_to }}</p>
+
+      <form method="post" class="action-buttons">
+        {% csrf_token %}
+        <input type="hidden" name="report_type" value="{{ report_type }}">
+        <input type="hidden" name="edit_id" value="{{ preview_data.id }}">
+        <input type="hidden" name="email_to" value="{{ email_to }}">
+        <button type="submit" name="edit" class="edit-btn">✏️ Edit</button>
+        <button type="submit" name="final_save" class="save-btn">💾 Save & Submit</button>
+      </form>
     </div>
+  </div>
 
-    <!-- Image Zoom Modal -->
-    <div id="imageModal" class="modal">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <img class="modal-content" id="modalImage">
+  <!-- ===== Mobile Footer ===== -->
+  <div class="mobile-footer">
+    <a href="{% url 'add_checklist_item' %}"><i class="fas fa-plus-circle"></i><span>Add</span></a>
+    <a href="{% url 'history_servicereport' %}"><i class="fas fa-history"></i><span>History</span></a>
+  </div>
+
+  <!-- ===== Image Modal ===== -->
+  <div id="imgModal" class="modal">
+    <span class="close" onclick="closeImageModal()">&times;</span>
+    <img id="modalImg" src="">
+  </div>
+
+  <!-- ===== Success Modal ===== -->
+  <div id="successModal" class="modal">
+    <div style="background:#fff; padding:30px; border-radius:10px; width:90%; max-width:480px; text-align:center; position:relative;">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h3 style="color:green;">✅ Service Report saved & shared successfully!</h3>
+      {% if preview_data.id %}
+      <a href="{% url 'download_pdf' preview_data.id %}" class="download-btn" target="_blank">⬇️ Download PDF</a>
+      {% endif %}
     </div>
+  </div>
 
-    <script>
-        function closeModal() {
-            document.getElementById("successModal").style.display = "none";
-        }
+  <script>
+    function openImageModal(src){
+      const modal=document.getElementById('imgModal');
+      const img=document.getElementById('modalImg');
+      img.src=src; modal.style.display='flex';
+    }
+    function closeImageModal(){document.getElementById('imgModal').style.display='none';}
+    function closeModal(){document.getElementById('successModal').style.display='none';}
 
-        window.onclick = function(event) {
-            const modal = document.getElementById("successModal");
-            if (event.target === modal) {
-                closeModal();
-            }
-        };
+    const showModal="{{ show_modal|yesno:'true,false' }}";
+    if(showModal==="true"){window.onload=()=>{document.getElementById('successModal').style.display='flex';};}
 
-        const showModal = "{{ show_modal|yesno:'true,false' }}";
-
-        if (showModal === "true") {
-            window.onload = function() {
-                document.getElementById("successModal").style.display = "block";
-            };
-        }
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js');
-            });
-            }
-    </script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load',()=>{navigator.serviceWorker.register('/service-worker.js');});
+    }
+  </script>
 </body>
 </html>

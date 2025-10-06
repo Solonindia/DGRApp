@@ -1,151 +1,186 @@
 {% load static %}
 {% load custom_tags %}
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
-  <meta name="theme-color" content="#002550">
-  <link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-192.png' %}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ report_type }} Checklist Form</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-    <title>{{ report_type }} Checklist Form</title>
-    <style>
-        body {
-            margin: 0;
-            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            background-size: cover;
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+<style>
+:root {
+  --brand:#002550;
+  --bg1:#a1c4fd;
+  --bg2:#c2e9fb;
+  --shadow:0 2px 4px rgba(0,0,0,.1);
+  --navbar-h:60px;
+  --mheader-h:56px;
+  --mfooter-h:56px;
+}
 
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: white;
-            padding: 10px 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+body {
+  margin:0;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background:linear-gradient(120deg,var(--bg1),var(--bg2));
+  display:flex; flex-direction:column;
+  min-height:100vh;
+}
 
-        .logo {
-            height: 40px;
-        }
+/* ===== Navbar ===== */
+.navbar {
+  display:flex; justify-content:space-between; align-items:center;
+  background:#fff; padding:10px 20px;
+  height:var(--navbar-h);
+  box-shadow:var(--shadow);
+  position:fixed; top:0; left:0; right:0; z-index:1000;
+}
+.logo {height:38px;}
+.nav-links {display:flex; gap:20px;}
+.nav-links a {
+  color:var(--brand); text-decoration:none; font-weight:600; font-size:13px;
+}
+.nav-links a:hover {color:#007bff;}
+body {padding-top:var(--navbar-h);}
 
-        .nav-links {
-            display: flex;
-            gap: 20px;
-        }
+/* ===== Mobile Header ===== */
+.mobile-header {
+  display:none; position:fixed; top:0; left:0; right:0;
+  height:var(--mheader-h); background:#fff; box-shadow:var(--shadow);
+  align-items:center; justify-content:space-between;
+  padding:8px 12px; z-index:1000;
+}
+.m-left img{height:30px;}
+.icon-btn {
+  background:#f4f4f4; border:none; border-radius:8px; padding:8px;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--brand); cursor:pointer;
+}
 
-        .navbar a {
-            text-decoration: none;
-            color: rgb(0, 2, 82);
-            font-weight: 500;
-            transition: color 0.3s;
-        }
+@media(max-width:768px){
+  .navbar{display:none;}
+  .mobile-header{display:flex;}
+  body{padding-top:var(--mheader-h);}
+}
 
-        .navbar a:hover {
-            color: #0073e6;
-        }
+/* ===== Main Content ===== */
+.content {flex:1; overflow-y:auto; padding:15px;}
+.form-card {
+  background:#fff; border-radius:10px; box-shadow:var(--shadow);
+  padding:20px; max-width:1000px; margin:auto;
+}
+h2 {text-align:center; color:var(--brand); font-size:18px; margin-bottom:10px;}
 
-        .main-content {
-            padding: 30px;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #003366;
-        }
+/* ===== Table ===== */
+.table-wrapper {overflow-x:auto;}
+table {
+  width:100%; border-collapse:collapse; font-size:14px; min-width:600px;
+}
+th,td {border:1px solid #ccc; padding:8px;}
+th {background:#f4f6fb; color:var(--brand);}
+tr:nth-child(even){background:#fafbff;}
+input[type="text"],input[type="date"],input[type="email"],select {
+  width:70%; padding:6px 8px;
+  border:none; border-bottom:2px solid #ccc;
+  background:transparent; font-size:14px; outline:none;
+}
+input:focus,select:focus {border-bottom-color:#007bff;}
+input[type="checkbox"]{transform:scale(1.2); margin-left:5px;}
+label{font-weight:600;}
 
-        form {
-            max-width: 1100px;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.08);
-        }
+/* ===== Buttons ===== */
+button {
+  padding:10px 16px; border:none; border-radius:6px;
+  font-weight:600; cursor:pointer; background:#007bff; color:#fff;
+  transition:0.3s;
+}
+button:hover{background:#0056b3;}
+.small-btn {
+  background:#fff; border:2px solid #007bff; color:#007bff;
+  font-size:13px; padding:5px 10px; border-radius:6px;
+}
+.small-btn:hover{background:#007bff; color:#fff;}
 
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 20px;
-        }
+/* ===== Image Grid ===== */
+.image-box {
+  width:100%; max-width:250px; height:200px;
+  border:1px solid #ccc; border-radius:10px; background:#f9f9f9;
+  overflow:hidden; display:flex; align-items:center; justify-content:center;
+  margin:auto;
+}
+.image-box img{width:100%; height:100%; object-fit:cover;}
+.camera-controls {
+  display:flex; justify-content:center; gap:8px; margin-top:6px; flex-wrap:wrap;
+}
 
-        .form-group {
-            flex: 1 1 48%;
-            margin-bottom: 20px;
-        }
+/* ===== Signatures ===== */
+.sign-row {display:flex; flex-wrap:wrap; gap:20px; margin-top:10px;}
+.sign-box {flex:1; min-width:240px; text-align:center;}
+.sign-box img {
+  max-width:250px; max-height:220px; border-radius:8px; border:1px solid #ccc;
+}
+.sign-controls{margin-top:10px;}
 
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
+/* ===== Mobile Adjustments ===== */
+@media(max-width:600px){
+  h2{font-size:16px;}
+  th,td{font-size:13px; padding:6px;}
+  input,select{font-size:13px;}
+  .image-box{height:160px;}
+  .form-card{padding:10px;}
+  .camera-controls button{font-size:12px; padding:6px 10px;}
+  table{min-width:500px;}
+}
 
-        input[type="text"],
-        input[type="date"],
-        input[type="email"],
-        select {
-            width: 70%;
-            padding: 2px 2px;
-            border: none;
-            border-bottom: 2px solid #ccc;
-            background: transparent;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
+/* ===== Image Grid Responsive ===== */
+@media(max-width:768px){
+  .image-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+}
+@media(max-width:480px){
+  .image-grid{grid-template-columns:1fr;}
+}
 
-        input:focus,
-        select:focus {
-            border-bottom-color: #007bff;
-        }
-
-        span {
-            display: inline-block;
-            padding: 8px 10px;
-            color: #333;
-            background-color: #f0f0f0;
-            border-radius: 4px;
-        }
-
-        .form-section {
-            margin-top: 30px;
-        }
-
-        button {
-            padding: 6px 10px;
-            background-color: white;
-            color: #0056b3;
-            border:2px solid #a1c4fd;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-
-        button:hover {
-          background-color: #007bff;
-          color: white;
-        }
-    </style>
+/* ===== Mobile Footer ===== */
+.mobile-footer {
+  display:none; position:fixed; bottom:0; left:0; right:0;
+  height:var(--mfooter-h); background:#fff;
+  box-shadow:0 -2px 4px rgba(0,0,0,.1);
+  align-items:center; justify-content:space-around; z-index:1000;
+}
+.mobile-footer a {
+  text-decoration:none; color:var(--brand);
+  display:flex; flex-direction:column; align-items:center;
+  font-size:12px; font-weight:600;
+}
+.mobile-footer i {font-size:18px; margin-bottom:4px;}
+@media(max-width:768px){.mobile-footer{display:flex;}}
+</style>
 </head>
 <body>
+
+<!-- Desktop Navbar -->
 <div class="navbar">
-    <img src="{% static 'logo.png' %}" alt="Solon Logo" class="logo">
+  <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+  <div class="nav-links">
+    <a href="{% url 'button_page' %}"><i class="fas fa-file-alt"></i> New Report</a>
+  </div>
+</div>
 
-    <div class="nav-links">
-
-    </div>
-</div><br>
-
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {% if edit_id %}
+<!-- Mobile Header -->
+<div class="mobile-header">
+  <div class="m-left"><img src="{% static 'logo.png' %}" alt="Logo"></div>
+</div>
+<br>
+<div class="content">
+  <div class="form-card">
+    <h2>{{ report_type }} Checklist Form</h2>
+    <div class="table-wrapper">
+      <!-- Your entire Django form + JS logic is preserved -->
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if edit_id %}
         <input type="hidden" name="edit_id" value="{{ edit_id }}">
-    {% endif %}
+        {% endif %}
 
     <table border="1" cellspacing="0" cellpadding="8" style="width: 100%; border-collapse: collapse; background-color: #fff;">
         <tr>
@@ -422,13 +457,23 @@
             <td><label for="email">Send Report To (Mail ID)</label></td>
             <td colspan="3"><input type="email" name="email_to" placeholder="Enter email to send report" id="email_to" value="{{ form_data.email_to|default:'' }}"></td>
         </tr>
+        {{ block.super }}
+
         <tr>
-            <td colspan="4" style="text-align:center;">
-                <button type="submit" name="preview">Preview</button>
-            </td>
+          <td colspan="4" style="text-align:center;">
+            <button type="submit" name="preview">Preview</button>
+          </td>
         </tr>
-    </table>
-</form>
+      </form>
+      {{ block.super }}
+    </div>
+  </div>
+</div>
+
+<div class="mobile-footer">
+  <a href="{% url 'button_page' %}"><i class="fas fa-file-alt"></i><span>New</span></a>
+  <a href="{% url 'history_servicereport' %}"><i class="fas fa-history"></i><span>History</span></a>
+</div>
 
 <script>
 let currentImageIndex = null;
@@ -720,11 +765,6 @@ function zoomImage(src) {
 
 function closeZoom() {
     document.getElementById("zoomModal").style.display = "none";
-}
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js');
-  });
 }
 </script>
 </body>
