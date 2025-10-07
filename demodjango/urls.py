@@ -16,16 +16,15 @@ def _serve(path, ctype, extra_headers=None):
     return resp
 
 def service_worker(request):
-    # Read the built static file and return from root with correct headers
-    file = staticfiles_storage.open('service-worker.js', 'rb')
-    data = file.read()
-    file.close()
-    resp = HttpResponse(data, content_type='application/javascript')
-    # Allow root scope control even if file lives under /static/
-    resp['Service-Worker-Allowed'] = '/'
-    # Prevent aggressive CDN/browser caching while you iterate
-    resp['Cache-Control'] = 'no-cache'
-    return resp
+    try:
+        with staticfiles_storage.open('service-worker.js') as f:
+            data = f.read()
+        resp = HttpResponse(data, content_type='application/javascript')
+        resp['Service-Worker-Allowed'] = '/'
+        resp['Cache-Control'] = 'no-cache'
+        return resp
+    except Exception as e:
+        return HttpResponse(str(e), status=500)
 
 def webmanifest(request):
     p = os.path.join(settings.BASE_DIR, 'static', 'pwa', 'manifest.json')
