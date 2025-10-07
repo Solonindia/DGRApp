@@ -19,7 +19,7 @@ DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 
 # Other Django settings (e.g., Secret Key)
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = [
     'oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
     '127.0.0.1',
@@ -135,21 +135,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 if DEBUG:
     # Local setup
     STATIC_URL = '/static/'
-    # STATIC_ROOT = BASE_DIR / 'static'
-    # LOGOUT_REDIRECT_URL = '/home/'
-    STATICFILES_DIRS = [BASE_DIR / 'static']   # ← for local dev
-
-
+    STATICFILES_DIRS = [BASE_DIR / 'static']
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 else:
-    # Azure setup
-    STATIC_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/'
+    # Azure setup for production only
     STATICFILES_STORAGE = 'storages.backends.azure_storage.AzureStorage'
     DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
-    # LOGOUT_REDIRECT_URL = '/home/'
+    STATIC_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/'
+
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
