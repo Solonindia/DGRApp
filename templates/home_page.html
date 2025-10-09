@@ -5,16 +5,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Home | Solar Ops</title>
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+<meta name="theme-color" content="#002550">
 
   <meta name="description" content="Streamline your solar operations with ease — fast, reliable tools for admins and users." />
   <meta property="og:title" content="Solar Ops" />
   <meta property="og:description" content="Streamline your solar operations with ease." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="{% static 'solon2.jpg' %}" />
+  <meta property="og:image" content="{% static 'Images/solon2.jpg' %}" />
   <meta name="theme-color" content="#021f44" />
-  <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
+  <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#002550">
-<link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-192.png' %}">
+<link rel="apple-touch-icon" href="{% static 'icons/icon-192.png' %}">
   <style>
     :root{
       --brand:#021f44;        /* your logo deep blue */
@@ -103,7 +105,7 @@
     }
     .hero::before{
       content:""; position:absolute; inset:0; z-index:0;
-      background-image:url("{% static 'solar6.jpg' %}");
+      background-image:url("{% static 'Images/solar6.jpg' %}");
       background-size:cover; background-position:center; background-repeat:no-repeat;
     }
     .hero::after{
@@ -166,7 +168,7 @@
 <body>
   <header>
     <a class="brand">
-      <img src="{% static 'logo.png' %}" alt="Solar Ops logo" />
+      <img src="{% static 'Images/logo.png' %}" alt="Solar Ops logo" />
     </a>
     <nav class="nav-links">
     <a class="btn primary" href="{% url 'login' %}">User</a>
