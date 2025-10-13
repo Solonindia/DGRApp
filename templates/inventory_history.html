@@ -136,7 +136,7 @@
 <body>
   <!-- Desktop Navbar -->
   <div class="navbar" role="navigation" aria-label="Primary">
-    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <img src="{% static 'Images/logo.png' %}" alt="Logo" class="logo">
     <div class="nav-links">
       <a href="{% url 'edit_inventory' site_name=site.name %}"><i class="fas fa-edit"></i>Edit Inventory</a>
       <a href="{% url 'stock_report' site_name=site.name %}"><i class="fas fa-clipboard-list"></i>Stock Results</a>
@@ -154,7 +154,7 @@
 
   <!-- Mobile Header -->
   <div class="mobile-header" role="navigation" aria-label="Mobile">
-    <img src="{% static 'logo.png' %}" alt="Logo" style="height:32px">
+    <img src="{% static 'Images/logo.png' %}" alt="Logo" style="height:32px">
     <div>
       <a class="icon-btn" href="{% url 'user' %}" title="Home" aria-label="Dashboard">
         <i class="fas fa-home" aria-hidden="true"></i>

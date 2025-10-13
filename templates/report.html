@@ -124,7 +124,7 @@
 
   <!-- ===== Desktop Navbar ===== -->
   <div class="navbar">
-    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <img src="{% static 'Images/logo.png' %}" alt="Logo" class="logo">
     <div class="nav-links">
       {% if user_type == 'admin' %}
         <a href="{% url 'history_servicereport' %}"><i class="fas fa-history"></i><span>History</span></a>
@@ -145,7 +145,7 @@
   <!-- ===== Mobile Header ===== -->
   <div class="mobile-header">
     <div class="m-left">
-      <img src="{% static 'logo.png' %}" alt="Logo">
+      <img src="{% static 'Images/logo.png' %}" alt="Logo">
     </div>
     <div class="m-right">
       {% if user_type == 'admin' %}

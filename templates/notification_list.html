@@ -172,7 +172,7 @@
 
   <!-- Desktop Navbar -->
   <div class="navbar" role="navigation" aria-label="Primary">
-    <img src="{% static 'logo.png' %}" alt="Logo" class="logo"/>
+    <img src="{% static 'Images/logo.png' %}" alt="Logo" class="logo"/>
 
     <div class="nav-links">
       <a href="{% url 'upload_inventory' %}" title="Upload">
@@ -213,7 +213,7 @@
 
   <!-- Mobile Header -->
   <div class="mobile-header" role="navigation" aria-label="Mobile">
-    <img src="{% static 'logo.png' %}" alt="Logo" class="logo"/>
+    <img src="{% static 'Images/logo.png' %}" alt="Logo" class="logo"/>
     <div class="mobile-icons">
       <a href="{% url 'admin' %}" title="Home" aria-label="Dashboard"><i class="fas fa-home"></i></a>
       {% if user.is_authenticated %}

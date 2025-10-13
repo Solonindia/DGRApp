@@ -160,7 +160,7 @@
 
   <!-- ===== Desktop Navbar ===== -->
   <div class="navbar">
-    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <img src="{% static 'Images/logo.png' %}" alt="Logo" class="logo">
     <div class="nav-links">
       <a href="{% url 'complaint_form' %}"><i class="fas fa-plus-circle"></i><span>New Complaint</span></a>
       <a href="{% url 'existing_complaints' %}"><i class="fas fa-exclamation-circle"></i><span>Open Complaints</span></a>
@@ -178,7 +178,7 @@
 
   <!-- ===== Mobile Header ===== -->
   <div class="mobile-header">
-    <div class="m-left"><img src="{% static 'logo.png' %}" alt="Logo"></div>
+    <div class="m-left"><img src="{% static 'Images/logo.png' %}" alt="Logo"></div>
     <div class="m-right">
       <a href="{% url 'user' %}" class="m-icon"><i class="fas fa-home"></i><span>Home</span></a>
       {% if user.is_authenticated %}
