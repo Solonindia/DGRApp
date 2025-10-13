@@ -232,6 +232,7 @@
     <a href="{% url 'button_page' %}"><i class="fas fa-plus-circle"></i><span class="footer-label">New Report</span></a>
     <a href="{% url 'history_servicereport' %}"><i class="fas fa-history"></i><span class="footer-label">History</span></a>
   </div>
-
+ <script>window.LOGIN_PATH = '/superuser/login/';</script>
+  <script src="{% static 'js/auth-guard.js' %}"></script>
 </body>
 </html>

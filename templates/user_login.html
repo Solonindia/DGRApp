@@ -4,11 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
-<meta name="theme-color" content="#002550">
-<link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-192.png' %}">
   <title>User Login</title>
-
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -273,5 +269,8 @@
   });
 }
   </script>
+  <script>window.LOGIN_PATH = '/user/login/';</script>
+  <script>window.PING_URL = "{% url 'auth_ping' %}";</script>
+  <script src="{% static 'js/auth-guard.js' %}"></script>
 </body>
 </html>

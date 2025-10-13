@@ -4,9 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
-<meta name="theme-color" content="#002550">
-<link rel="apple-touch-icon" href="{% static 'pwa/icons/icon-192.png' %}">
     <title>Register Page</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
@@ -162,5 +159,8 @@
   });
 }
     </script>
+  <script>window.LOGIN_PATH = '/superuser/login/';</script>
+  <script>window.PING_URL = "{% url 'auth_ping' %}";</script>
+  <script src="{% static 'js/auth-guard.js' %}"></script>
 </body>
 </html>
