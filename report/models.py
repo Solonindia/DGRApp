@@ -112,7 +112,7 @@ class ChecklistResponseItem(models.Model):
     response = models.ForeignKey(ChecklistResponse, on_delete=models.CASCADE)
     checklist_item = models.ForeignKey(ChecklistItem, on_delete=models.CASCADE)
     status = models.CharField(max_length=20)
-    remark = models.CharField(max_length=20)
+    remark = models.CharField(max_length=100)
 
     def __str__(self):
         return f"{self.response.project_name} - {self.checklist_item.checkpoint[:30]} - {self.status}"
