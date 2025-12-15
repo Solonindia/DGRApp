@@ -152,21 +152,26 @@
     </style>
 </head>
 <body>
-
     <!-- Navbar -->
     <div class="navbar">
         <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+
         <div class="nav-links">
             <a href="{% url 'button_page' %}">New Service Report</a>
-            <a href="{% url 'add_checklist_item' %}">Add checklist Item</a>
-             <a href="{% url 'admin' %}">Dashboard</a>
+
+            {% if user.is_superuser %}
+                <a href="{% url 'add_checklist_item' %}">Add checklist Item</a>
+                <a href="{% url 'admin' %}">Dashboard</a>
+            {% endif %}
+
             {% if user.is_authenticated %}
-            <form action="{% url 'logout' %}" method="POST">
-                {% csrf_token %}
-                <a href="{% url 'home' %}" style="text-decoration: none;">
+                <form action="{% url 'logout' %}" method="POST" style="display:inline;">
+                    <a href="{% url 'admin' %}">Dashboard</a>
+                    {% csrf_token %}
+                    <a href="{% url 'home' %}" style="text-decoration: none;">
                     <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
-                </a>
-            </form>
+                    </a>
+                </form>
             {% endif %}
         </div>
     </div>

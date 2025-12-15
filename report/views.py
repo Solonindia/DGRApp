@@ -65,15 +65,20 @@ def parse_date_safe(date_str):
         return None
 
 
+from django.http import HttpResponseForbidden
+from django.db import transaction
+from django.core.cache import cache
+
+
 def checklist_form_view(request):
-    ip = request.META['REMOTE_ADDR']
+    ip = request.META.get('REMOTE_ADDR', 'unknown')
+
     report_type = (
         request.GET.get('report_type')
         or request.POST.get('report_type')
         or cache.get(f'report_type_{ip}')
     )
 
-    # Frequency levels map
     FREQUENCY_LEVELS = {
         'Daily': 1,
         'Weekly': 2,
@@ -83,29 +88,27 @@ def checklist_form_view(request):
         'Annually': 6,
     }
 
-    # Determine selected frequency level
+    edit_id = request.GET.get('edit_id') or request.POST.get('edit_id')
+
+    # selected frequency
     selected_freq = (
         request.GET.get('inspection_period')
         or request.POST.get('inspection_period')
         or (
-            ChecklistResponse.objects.filter(id=request.GET.get('edit_id')).first().period_of_inspection
-            if request.GET.get('edit_id') else None
+            ChecklistResponse.objects.filter(id=edit_id).values_list('period_of_inspection', flat=True).first()
+            if edit_id else None
         )
         or 'Annually'
     )
+    selected_level = FREQUENCY_LEVELS.get(selected_freq, 6)
 
-    selected_level = FREQUENCY_LEVELS.get(selected_freq, 5)
-
-    # Fetch checklist items based on report type and frequency
     checklist_items = ChecklistItem.objects.filter(
         report_type=report_type,
         frequency_level__lte=selected_level
-    ).order_by('id')  # Sorting in descending order to get the latest date first
+    ).order_by('-id')  # latest first
 
     latest_date = checklist_items.first().Date if checklist_items.exists() else date.today()
-    print(f"Latest Date: {latest_date}")
 
-    # Generate constant comment text
     component = short_codes.get(report_type, report_type) or "Component"
     comments = (
         f"1) This is a Generalised Check Sheet for {component}. Some check points may not be applicable to {component} under consideration. "
@@ -114,129 +117,156 @@ def checklist_form_view(request):
         f"3) Please also refer to OEM Manual & Manufacturer’s Recommendation (MR) for Inspection, Maintenance & Testing of {component}."
     )
 
-    # ✅ PREVIEW → SAVE to DB
+    # -----------------------------
+    # POST: preview => save draft
+    # -----------------------------
     if request.method == 'POST' and 'preview' in request.POST:
-        edit_id = request.POST.get('edit_id')
         inspection_date = parse_date_safe(request.POST.get('inspection_date'))
         next_inspection_date = parse_date_safe(request.POST.get('next_inspection_date'))
 
-        # If editing an existing record, keep the latest Date from ChecklistItem; otherwise, set it to today's date
-        if edit_id:
-            response = get_object_or_404(ChecklistResponse, id=edit_id)          
-            response.project_name = request.POST.get('project_name')
-            response.project_location = request.POST.get('project_location')
-            response.inspection_date = inspection_date
-            response.next_inspection_date = next_inspection_date
-            response.period_of_inspection = request.POST.get('inspection_period')
-            response.make = request.POST.get('make', '').strip() or 'N/A'
-            response.Type = request.POST.get('Type', '').strip() or 'N/A'
-            response.s_no = request.POST.get('s_no', '').strip() or 'N/A'
-            response.rating = request.POST.get('rating', '').strip() or 'N/A'
-            response.comments = comments
-            response.email_to = request.POST.get('email_to') or response.email_to
-            response.customer_name = request.POST.get('customer_name')
-            response.solon_name = request.POST.get('solon_name')
-            
-            # Update the Date field to the latest Date from ChecklistItem
-            response.Date = latest_date
+        with transaction.atomic():
+            if edit_id:
+                response = get_object_or_404(ChecklistResponse, id=edit_id)
+
+                # 🔒 permission: only admin or owner can edit
+                if request.user.is_authenticated and not request.user.is_superuser:
+                    if response.created_by_id and response.created_by_id != request.user.id:
+                        return HttpResponseForbidden("You are not allowed to edit this report.")
+                # if response.created_by is NULL (old data), you can decide policy:
+                # here: allow edit but set owner now (below).
+
+                response.project_name = request.POST.get('project_name')
+                response.project_location = request.POST.get('project_location')
+                response.inspection_date = inspection_date
+                response.next_inspection_date = next_inspection_date
+                response.period_of_inspection = request.POST.get('inspection_period')
+                response.make = request.POST.get('make', '').strip() or 'N/A'
+                response.Type = request.POST.get('Type', '').strip() or 'N/A'
+                response.s_no = request.POST.get('s_no', '').strip() or 'N/A'
+                response.rating = request.POST.get('rating', '').strip() or 'N/A'
+                response.comments = comments
+                response.email_to = request.POST.get('email_to') or response.email_to
+                response.customer_name = request.POST.get('customer_name')
+                response.solon_name = request.POST.get('solon_name')
+                response.Date = latest_date
+                response.is_draft = True
+
+            else:
+                response = ChecklistResponse(
+                    report_type=report_type,
+                    project_name=request.POST.get('project_name'),
+                    project_location=request.POST.get('project_location'),
+                    inspection_date=inspection_date,
+                    next_inspection_date=next_inspection_date,
+                    period_of_inspection=request.POST.get('inspection_period'),
+                    make=request.POST.get('make', '').strip() or 'N/A',
+                    Type=request.POST.get('Type', '').strip() or 'N/A',
+                    s_no=request.POST.get('s_no', '').strip() or 'N/A',
+                    rating=request.POST.get('rating', '').strip() or 'N/A',
+                    comments=comments,
+                    email_to=request.POST.get('email_to'),
+                    customer_name=request.POST.get('customer_name'),
+                    solon_name=request.POST.get('solon_name'),
+                    Date=latest_date,
+                    is_draft=True,
+                )
+
+            # ✅ Set owner (don’t overwrite an existing owner)
+            if request.user.is_authenticated and not response.created_by_id:
+                response.created_by = request.user
+
+            # --- Images: image1..image6 + captured_image_1..6
+            for i in range(1, 7):
+                img_field = f'image{i}'
+                captured_field = f'captured_image_{i}'
+
+                if img_field in request.FILES:
+                    setattr(response, img_field, request.FILES[img_field])
+
+                elif request.POST.get(captured_field):
+                    try:
+                        fmt, imgstr = request.POST[captured_field].split(';base64,')
+                        ext = fmt.split('/')[-1]
+                        image_file = ContentFile(
+                            base64.b64decode(imgstr),
+                            name=f"captured_{response.id or 'new'}_{i}.{ext}"
+                        )
+                        setattr(response, img_field, image_file)
+                    except Exception as e:
+                        print(f"Error decoding base64 image for {captured_field}: {e}")
+
+            # --- Signatures
+            if 'signature' in request.FILES:
+                response.signature = request.FILES['signature']
+            if request.POST.get('signature_pad_data'):
+                fmt, imgstr = request.POST['signature_pad_data'].split(';base64,')
+                ext = fmt.split('/')[-1]
+                response.signature.save(
+                    f"sign_{response.id or 'new'}.{ext}",
+                    ContentFile(base64.b64decode(imgstr)),
+                    save=False
+                )
+
+            if 'signature1' in request.FILES:
+                response.signature1 = request.FILES['signature1']
+            if request.POST.get('signature_pad_data1'):
+                fmt, imgstr = request.POST['signature_pad_data1'].split(';base64,')
+                ext = fmt.split('/')[-1]
+                response.signature1.save(
+                    f"sign_{response.id or 'new'}_1.{ext}",
+                    ContentFile(base64.b64decode(imgstr)),
+                    save=False
+                )
+
+            # Save once (creates id if new)
             response.save()
 
-            # Delete previous response items before saving new ones
+            # Replace response items
             ChecklistResponseItem.objects.filter(response=response).delete()
-        else:
-            # Create new response with the latest Date
-            response = ChecklistResponse.objects.create(
-                report_type=report_type,
-                project_name=request.POST.get('project_name'),
-                project_location=request.POST.get('project_location'),
-                inspection_date=inspection_date,
-                next_inspection_date=next_inspection_date,
-                period_of_inspection=request.POST.get('inspection_period'),
-                make=request.POST.get('make'),
-                Type=request.POST.get('Type'),
-                s_no=request.POST.get('s_no'),
-                rating=request.POST.get('rating'),
-                comments=comments,
-                email_to=request.POST.get('email_to'),
-                customer_name=request.POST.get('customer_name'),
-                solon_name=request.POST.get('solon_name'),
-                is_draft=True
-            )
 
-        # Handling images and signatures
-        for i in range(1, 7):
-            img_field = f'image{i}'
-            captured_field = f'captured_image_{i}'
+            items_to_create = []
+            # NOTE: we ordered checklist_items by -id above. If you need form indexes to match the display,
+            # make sure your template loops in same order. Otherwise change order_by('id').
+            for idx, item in enumerate(checklist_items, start=1):
+                idx_str = str(idx)
+                status = request.POST.get(f'status_{idx_str}') or request.POST.get(f'status_select_{idx_str}')
+                remark = request.POST.get(f'remark_{idx_str}')
+                items_to_create.append(ChecklistResponseItem(
+                    response=response,
+                    checklist_item=item,
+                    status=status or '',
+                    remark=remark or ''
+                ))
 
-            if img_field in request.FILES:
-                setattr(response, img_field, request.FILES[img_field])
-
-            elif captured_field in request.POST and request.POST[captured_field]:
-                try:
-                    format, imgstr = request.POST[captured_field].split(';base64,')
-                    ext = format.split('/')[-1]
-                    image_file = ContentFile(base64.b64decode(imgstr), name=f"captured_{response.id}_{i}.{ext}")
-                    setattr(response, img_field, image_file)
-                except Exception as e:
-                    print(f"Error decoding base64 image for {captured_field}: {e}")
-
-        # Handle signature fields (signature_pad_data is for the digital signature)
-        if 'signature' in request.FILES:
-            response.signature = request.FILES['signature']
-        if 'signature_pad_data' in request.POST and request.POST['signature_pad_data']:
-            format, imgstr = request.POST['signature_pad_data'].split(';base64,')
-            ext = format.split('/')[-1]
-            response.signature.save(f"sign_{response.id}.{ext}", ContentFile(base64.b64decode(imgstr)), save=False)
-
-        if 'signature1' in request.FILES:
-            response.signature1 = request.FILES['signature1']
-        if 'signature_pad_data1' in request.POST and request.POST['signature_pad_data1']:
-            format, imgstr = request.POST['signature_pad_data1'].split(';base64,')
-            ext = format.split('/')[-1]
-            response.signature1.save(f"sign_{response.id}.{ext}", ContentFile(base64.b64decode(imgstr)), save=False)
-
-        # Save the response after handling images and signatures
-        response.save()
-
-        # Create ChecklistResponseItems based on the checklist items and their status
-        for idx, item in enumerate(checklist_items, start=1):
-            idx_str = str(idx)
-            status = request.POST.get(f'status_{idx_str}') or request.POST.get(f'status_select_{idx_str}')
-            remark = request.POST.get(f'remark_{idx_str}')
-            ChecklistResponseItem.objects.create(
-                response=response,
-                checklist_item=item,
-                status=status or '',
-                remark=remark or ''
-            )
+            ChecklistResponseItem.objects.bulk_create(items_to_create)
 
         email_to = request.POST.get('email_to', '')
         return redirect(f'/service-report/checklist/preview/{response.id}/?email_to={email_to}')
 
-    # ✅ GET or after EDIT
-    edit_id = request.GET.get('edit_id')
+    # -----------------------------
+    # GET / edit: load form data
+    # -----------------------------
     form_data = {}
-
     if edit_id:
         response = get_object_or_404(ChecklistResponse, id=edit_id)
+
+        # 🔒 permission (important)
+        if request.user.is_authenticated and not request.user.is_superuser:
+            if response.created_by_id and response.created_by_id != request.user.id:
+                return HttpResponseForbidden("You are not allowed to view/edit this report.")
+
         form_data = {
             "project_name": response.project_name,
             "project_location": response.project_location,
             "inspection_date": response.inspection_date,
             "next_inspection_date": response.next_inspection_date,
             "inspection_period": response.period_of_inspection,
-            'component': component,
-            'make': response.make,
-            'Type': response.Type,
-            's_no': response.s_no,
-            'rating': response.rating,
-            "comments": (
-                        f"1) This is a Generalised Check Sheet for {short_codes.get(response.report_type, response.report_type)}. Some check points may not be applicable to {short_codes.get(response.report_type, response.report_type)} under consideration. "
-                        "Please put Not Applicable (NA) in remark column for such points.\n"
-                        "2) Please put appropriate remark wherever required.\n"
-                        "3) Please also refer to OEM Manual & Manufacturer’s Recommendation (MR) for Inspection, Maintenance & Testing of "
-                        f"{short_codes.get(response.report_type, response.report_type)}."
-                    ),
+            "component": component,
+            "make": response.make,
+            "Type": response.Type,
+            "s_no": response.s_no,
+            "rating": response.rating,
+            "comments": response.comments or comments,
             "Date": latest_date,
             "signature": response.signature.url if response.signature else "",
             "signature1": response.signature1.url if response.signature1 else "",
@@ -245,21 +275,20 @@ def checklist_form_view(request):
             "solon_name": response.solon_name,
         }
 
-        # Set checklist item status and remarks from existing response items
-        checklist_response_items = ChecklistResponseItem.objects.filter(response=response)
+        # existing statuses/remarks
+        existing_items = ChecklistResponseItem.objects.filter(response=response)
         for idx, item in enumerate(checklist_items, start=1):
             idx_str = str(idx)
-            item_data = checklist_response_items.filter(checklist_item=item).first()
+            item_data = existing_items.filter(checklist_item=item).first()
             if item_data:
                 form_data[f'status_{idx_str}'] = item_data.status
                 form_data[f'remark_{idx_str}'] = item_data.remark
 
-        # Set images from existing response
         for i in range(1, 7):
             img = getattr(response, f"image{i}", None)
             if img:
                 form_data[f"image{i}"] = img.url
-  
+
     return render(request, 'checklist_form.html', {
         'report_type': report_type,
         'format_no': f"SIPL/O&M/{short_codes.get(report_type, report_type)}/37" if report_type else "",
@@ -296,6 +325,10 @@ import pdfkit
 import base64
  
 def checklist_preview_view(request, response_id):
+    response = get_object_or_404(ChecklistResponse, id=response_id)
+    if not request.user.is_superuser:
+        if response.created_by_id != request.user.id:
+            return HttpResponseForbidden("Not allowed")
     show_modal = False
     response = get_object_or_404(ChecklistResponse, id=response_id)
     report_type = response.report_type
@@ -635,6 +668,9 @@ import os
 def download_pdf_view(request, response_id):
     # Retrieve response object only once
     response = get_object_or_404(ChecklistResponse, id=response_id)
+    if request.user.is_authenticated and not request.user.is_superuser:
+        if response.created_by_id and response.created_by_id != request.user.id:
+            return HttpResponseForbidden("Not allowed")
 
     report_type = response.report_type
     FREQUENCY_LEVELS = {
@@ -645,7 +681,6 @@ def download_pdf_view(request, response_id):
         'Half Yearly': 5,
         'Annually': 6,
     }
-
 
     # Determine frequency level and default to 'Annually'
     selected_freq = response.period_of_inspection or 'Annually'
@@ -791,21 +826,45 @@ def add_image_watermark_to_pdf(pdf_data, output_buffer, watermark_image_path):
     pdf_writer.write(output_buffer)
     output_buffer.seek(0)
 
+from django.contrib.auth.decorators import login_required
+from django.db.models import Value
+from django.shortcuts import render
+
+@login_required
 def history_page(request):
     selected_type = request.GET.get('type')
     selected_project = request.GET.get('project')
 
+    # Base queryset
     all_histories = ChecklistHistory.objects.select_related('checklist')
-    report_types = all_histories.values_list('checklist__report_type', flat=True).distinct()
 
-    # Get projects related to selected type
+    # 🔒 Permission scope:
+    # Admin: everything
+    # User: only their own created reports
+    if not request.user.is_superuser:
+        all_histories = all_histories.filter(checklist__created_by=request.user)
+
+    # Dropdown values (scoped)
+    report_types = (
+        all_histories
+        .values_list('checklist__report_type', flat=True)
+        .distinct()
+        .order_by('checklist__report_type')
+    )
+
+    # Projects dropdown depends on selected type (scoped)
     if selected_type:
-        project_names = all_histories.filter(
-            checklist__report_type=selected_type
-        ).values_list('checklist__project_name', flat=True).distinct()
+        project_names = (
+            all_histories
+            .filter(checklist__report_type=selected_type)
+            .values_list('checklist__project_name', flat=True)
+            .distinct()
+            .order_by('checklist__project_name')
+        )
     else:
         project_names = []
 
+    # Main table results
     histories = []
     if selected_type:
         filtered = all_histories.filter(checklist__report_type=selected_type)
@@ -821,4 +880,3 @@ def history_page(request):
         'selected_project': selected_project,
         'all_histories': all_histories,
     })
-

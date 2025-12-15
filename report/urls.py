@@ -8,5 +8,5 @@ urlpatterns = [
     path('checklist/preview/<int:response_id>/', views.checklist_preview_view, name='checklist_preview'),
     path('download-pdf/<int:response_id>/', views.download_pdf_view, name='download_pdf'),
     path('history/', views.history_page, name='history_servicereport'),
-
+    path("my-history/", views.history_page, name="my_history_servicereport"),
 ]

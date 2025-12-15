@@ -1,5 +1,6 @@
 from datetime import date
 from django.db import models
+from django.conf import settings
 
 class ChecklistItem(models.Model):
     FREQUENCY_CHOICES = [
@@ -57,6 +58,13 @@ class ChecklistItem(models.Model):
 from django.core.validators import FileExtensionValidator
 
 class ChecklistResponse(models.Model):
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="checklist_responses"
+    )
+    Date = models.DateField(null=True, blank=True)
     report_type = models.CharField(max_length=50)
     project_name = models.CharField(max_length=100)
     project_location = models.CharField(max_length=100)
