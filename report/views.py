@@ -666,40 +666,31 @@ from .models import ChecklistResponse, ChecklistResponseItem
 from django.templatetags.static import static
 import os
 
-def download_pdf_view(request, response_id):
-    # Retrieve response object only once
+def _build_checklist_pdf_bytes(request, response_id):
     response = get_object_or_404(ChecklistResponse, id=response_id)
+
+    # permission
     if request.user.is_authenticated and not request.user.is_superuser:
         if response.created_by_id and response.created_by_id != request.user.id:
-            return HttpResponseForbidden("Not allowed")
+            return None, HttpResponseForbidden("Not allowed")
 
-    report_type = response.report_type
     FREQUENCY_LEVELS = {
-        'Daily': 1,
-        'Weekly': 2,
-        'Monthly': 3,
-        'Quarterly': 4,
-        'Half Yearly': 5,
-        'Annually': 6,
+        'Daily': 1, 'Weekly': 2, 'Monthly': 3,
+        'Quarterly': 4, 'Half Yearly': 5, 'Annually': 6,
     }
 
-    # Determine frequency level and default to 'Annually'
     selected_freq = response.period_of_inspection or 'Annually'
     selected_level = FREQUENCY_LEVELS.get(selected_freq, 6)
 
-    # Set up logo URL
     logo_url = request.build_absolute_uri(static('/logo.png'))
 
-    # Get checklist items for the report
     checklist_items_master = ChecklistItem.objects.filter(
         report_type=response.report_type,
         frequency_level__lte=selected_level
     )
-    
-    # Get the latest date from ChecklistItem
+
     latest_date = checklist_items_master.order_by('-Date').first().Date if checklist_items_master.exists() else date.today()
 
-    # Generate component-specific text
     component = short_codes.get(response.report_type, response.report_type)
     comments = (
         f"1) This is a Generalised Check Sheet for {component}. Some check points may not be applicable to {component} under consideration. "
@@ -708,29 +699,25 @@ def download_pdf_view(request, response_id):
         f"3) Please also refer to OEM Manual & Manufacturer’s Recommendation (MR) for Inspection, Maintenance & Testing of {component}."
     )
 
-    # Get checklist response items
     checklist_items = ChecklistResponseItem.objects.filter(response=response)
 
-    # Generate format number for the report
     format_no = f"SIPL/O&M/{short_codes.get(response.report_type, response.report_type)}/37"
 
-    # Prepare image URLs
     image_urls = []
     for i in range(1, 7):
         img = getattr(response, f'image{i}', None)
         if img:
             image_urls.append(request.build_absolute_uri(img.url))
 
-    # Prepare signature URLs
     signature_url = request.build_absolute_uri(response.signature.url) if response.signature else None
     signature1_url = request.build_absolute_uri(response.signature1.url) if response.signature1 else None
 
-    # Sanitize all response fields
     def sanitize_text(value):
         if value is None or str(value).strip() == "":
             return "-"
         return strip_tags(str(value))
 
+    # sanitize fields (same as your code)
     response.project_name = sanitize_text(response.project_name)
     response.project_location = sanitize_text(response.project_location)
     response.make = sanitize_text(response.make)
@@ -749,7 +736,6 @@ def download_pdf_view(request, response_id):
         item.status = sanitize_text(item.status)
         item.remark = sanitize_text(item.remark)
 
-    # Prepare context for rendering
     context = {
         'logo_url': logo_url,
         'response': response,
@@ -763,26 +749,37 @@ def download_pdf_view(request, response_id):
         'Date': latest_date
     }
 
-    # Render HTML to PDF using the context
     template = get_template('checklist_pdf_template.html')
     html = template.render(context)
 
-    # Convert HTML to PDF
     base_pdf = BytesIO()
-    pisa_status = pisa.CreatePDF(html, dest=base_pdf)
+    pisa.CreatePDF(html, dest=base_pdf)
     base_pdf.seek(0)
 
-    # Apply watermark (if required)
     watermarked_pdf = BytesIO()
     watermark_path = os.path.join(settings.BASE_DIR, 'static', 'Images', 'logo.png')
-    print("Watermark path:", watermark_path)
     add_image_watermark_to_pdf(base_pdf, watermarked_pdf, watermark_path)
 
-    # Send the watermarked PDF as a response for download
-    response_obj = HttpResponse(watermarked_pdf.getvalue(), content_type='application/pdf')
-    response_obj['Content-Disposition'] = f'attachment; filename="Checklist_{response.project_name}.pdf"'
-    return response_obj
+    return (watermarked_pdf.getvalue(), None)
 
+def view_pdf_view(request, response_id):
+    pdf_bytes, error_response = _build_checklist_pdf_bytes(request, response_id)
+    if error_response:
+        return error_response
+
+    resp = HttpResponse(pdf_bytes, content_type='application/pdf')
+    resp['Content-Disposition'] = 'inline; filename="Checklist.pdf"'
+    return resp
+
+
+def download_pdf_view(request, response_id):
+    pdf_bytes, error_response = _build_checklist_pdf_bytes(request, response_id)
+    if error_response:
+        return error_response
+
+    resp = HttpResponse(pdf_bytes, content_type='application/pdf')
+    resp['Content-Disposition'] = 'attachment; filename="Checklist.pdf"'
+    return resp
 
 from pypdf import PdfReader, PdfWriter
 from io import BytesIO

@@ -166,7 +166,6 @@
 
             {% if user.is_authenticated %}
                 <form action="{% url 'logout' %}" method="POST" style="display:inline;">
-                    <a href="{% url 'admin' %}">Dashboard</a>
                     {% csrf_token %}
                     <a href="{% url 'home' %}" style="text-decoration: none;">
                     <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
@@ -224,7 +223,11 @@
                     <td>{{ h.submitted_on|date:"d M Y, H:i" }}</td>
                     <td>{{ h.checklist.project_name }}</td>
                     <td>{{ h.checklist.project_location }}</td>
-                    <td><a href="{% url 'download_pdf' h.checklist.id %}" target="_blank">📄 Download PDF</a></td>
+                    <td>
+                        <a href="{% url 'view_pdf' h.checklist.id %}" target="_blank" class="action-link" title="View PDF">👁️ View</a>
+                        &nbsp; | &nbsp;
+                        <a href="{% url 'download_pdf' h.checklist.id %}" class="action-link" title="Download PDF">📥 Download</a>
+                        </td>
                 </tr>
                 {% endfor %}
             </tbody>
