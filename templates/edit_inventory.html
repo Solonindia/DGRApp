@@ -455,6 +455,7 @@
   <div class="navbar" role="navigation" aria-label="Primary">
     <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
     <div class="nav-links">
+      <a href="{% url 'upload_inventory' %}"><i class="fas fa-upload"></i><div>Upload Inventory</div></a>
       <a href="{% url 'inventory_history' site_name=site.name %}"><i class="fas fa-history"></i>Inventory Result</a>
       <a href="{% url 'stock_report' site_name=site.name %}"><i class="fas fa-clipboard-list"></i>Stock Results</a>
       <a href="{% url 'user' %}"><i class="fas fa-home"></i>Home</a>

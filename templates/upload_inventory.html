@@ -1022,70 +1022,60 @@
   <div class="navbar">
     <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
 
-    <!-- Desktop Navigation (Icons + Text) -->
     <div class="nav-links">
-      <a href="{% url 'site_analysis' %}">
-        <i class="fas fa-chart-line"></i>
-        <div>Tracking</div>
-      </a>
-      <a href="{% url 'notification_list' %}">
-        <i class="fas fa-history"></i>
-        <div>History</div>
-      </a>
-      <a href="{% url 'admin' %}">
-        <i class="fas fa-home"></i>
-        <div>Home</div>
-      </a>
+      {% if user.is_superuser %}
+        <!-- ✅ ADMIN NAV -->
+        <a href="{% url 'site_analysis' %}">
+          <i class="fas fa-chart-line"></i><div>Tracking</div>
+        </a>
 
-      {% if user.is_authenticated %}
-      <form action="{% url 'logout' %}" method="POST" style="margin:0;">
-        {% csrf_token %}
-        <button type="submit">
-          <i class="fas fa-sign-out-alt"></i>
-          <div>Logout</div>
-        </button>
-      </form>
-      {% endif %}
+        <a href="{% url 'notification_list' %}">
+          <i class="fas fa-history"></i><div>History</div>
+        </a>
 
-      <!-- Desktop Alerts with badge -->
-      <a href="{% url 'real_time_notification_list' %}" class="notification-link" title="Alerts" aria-label="Alerts">
-        <i class="fas fa-bell" aria-hidden="true">
+        <a href="{% url 'admin' %}">
+          <i class="fas fa-home"></i><div>Home</div>
+        </a>
+
+        <a href="{% url 'real_time_notification_list' %}" class="notification-link" title="Alerts" aria-label="Alerts">
+          <i class="fas fa-bell" aria-hidden="true"></i>
           {% if unread_notifications > 0 %}
             <span class="notification-count" {% if unread_notifications > 99 %}data-cap="true"{% endif %}>
               {% if unread_notifications > 99 %}99+{% else %}{{ unread_notifications }}{% endif %}
             </span>
           {% endif %}
-        </i>
-        <span>Alerts</span>
-      </a>
-    </div>
+          <span>Alerts</span>
+        </a>
 
-    <!-- Mobile Navigation (added bell with badge) -->
-    <div class="mobile-actions">
-      <a href="{% url 'admin' %}">
-        <i class="fas fa-home"></i>
-      </a>
+      {% else %}
+        <!-- ✅ USER NAV -->
+        {% if site_name %}
+          <a href="{% url 'inventory_history' site_name=site_name %}">
+            <i class="fas fa-history"></i><div>Inventory Result</div>
+          </a>
 
-      
+          <a href="{% url 'stock_report' site_name=site_name %}">
+            <i class="fas fa-clipboard-list"></i><div>Stock Results</div>
+          </a>
 
-      {% if user.is_authenticated %}
-      <form action="{% url 'logout' %}" method="POST" style="margin:0;">
-        {% csrf_token %}
-        <button type="submit">
-          <i class="fas fa-sign-out-alt"></i>
-        </button>
-      </form>
+          <a href="{% url 'edit_inventory' site_name=site_name %}">
+            <i class="fas fa-edit"></i><div>Edit Inventory</div>
+          </a>
+        {% endif %}
+
+        <a href="{% url 'user' %}">
+          <i class="fas fa-home"></i><div>Home</div>
+        </a>
       {% endif %}
 
-
-      <a href="{% url 'real_time_notification_list' %}" class="notification-link" title="Alerts" aria-label="Alerts" style="background:#f0f0f0; padding:6px 12px; border-radius:4px;">
-        <i class="fas fa-bell" aria-hidden="true"></i>
-        {% if unread_notifications > 0 %}
-          <span class="notification-count" {% if unread_notifications > 99 %}data-cap="true"{% endif %}>
-            {% if unread_notifications > 99 %}99+{% else %}{{ unread_notifications }}{% endif %}
-          </span>
-        {% endif %}
-      </a>
+      {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="POST" style="margin:0;">
+          {% csrf_token %}
+          <button type="submit">
+            <i class="fas fa-sign-out-alt"></i><div>Logout</div>
+          </button>
+        </form>
+      {% endif %}
     </div>
   </div>
 
@@ -1098,19 +1088,15 @@
 
         <div class="form-group">
           <label for="site_name"><b>Enter Site Name *</b></label>
-          <input type="text" name="site_name" id="site_name" required>
+          <input type="text" name="site_name" id="site_name" value="{{ site_name|default:'' }}" required>
         </div>
 
-        {% if request.user.is_staff %}
-        <div class="form-group">
-          <label for="user_name"><b>Enter User Name *</b></label>
-          <input type="text" name="user_name" id="user_name" required>
-        </div>
-        {% else %}
-        <div class="form-group">
-          <label for="user_name"><b>User Name *</b></label>
-          <input type="text" name="user_name" id="user_name">
-        </div>
+        <!-- ✅ ONLY ADMIN chooses user -->
+        {% if user.is_superuser %}
+          <div class="form-group">
+            <label for="user_name"><b>Enter User Name *</b></label>
+            <input type="text" name="user_name" id="user_name" required>
+          </div>
         {% endif %}
 
         <div class="form-group">
@@ -1125,17 +1111,19 @@
     </div>
   </div>
 
-  <!-- ✅ Mobile Footer with Icons -->
+  <!-- ✅ Mobile Footer -->
   <div class="footer">
-    <a href="{% url 'site_analysis' %}">
-      <i class="fas fa-chart-line"></i>
-      Tracking
-    </a>
-    <a href="{% url 'notification_list' %}">
-      <i class="fas fa-history"></i>
-      History
-    </a>
+    {% if user.is_superuser %}
+      <a href="{% url 'site_analysis' %}"><i class="fas fa-chart-line"></i> Tracking</a>
+      <a href="{% url 'notification_list' %}"><i class="fas fa-history"></i> History</a>
+    {% else %}
+      {% if site_name %}
+        <a href="{% url 'inventory_history' site_name=site_name %}"><i class="fas fa-history"></i> Inventory</a>
+        <a href="{% url 'stock_report' site_name=site_name %}"><i class="fas fa-clipboard-list"></i> Stock</a>
+      {% else %}
+        <a href="{% url 'user' %}"><i class="fas fa-home"></i> Home</a>
+      {% endif %}
+    {% endif %}
   </div>
 </body>
 </html>
-

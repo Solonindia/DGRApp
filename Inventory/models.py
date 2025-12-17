@@ -74,3 +74,7 @@ class RealTimeNotification(models.Model):
 
     def __str__(self):
         return f"Real-time Notification for {self.material_code} at {self.timestamp}"
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    site = models.ForeignKey(Site, on_delete=models.CASCADE)
