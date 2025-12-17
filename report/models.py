@@ -65,16 +65,16 @@ class ChecklistResponse(models.Model):
         related_name="checklist_responses"
     )
     Date = models.DateField(null=True, blank=True)
-    report_type = models.CharField(max_length=50)
-    project_name = models.CharField(max_length=100)
-    project_location = models.CharField(max_length=100)
+    report_type = models.CharField(max_length=100)
+    project_name = models.CharField(max_length=200)
+    project_location = models.CharField(max_length=200)
     date_of_submission = models.DateField(auto_now_add=True)
     inspection_date = models.DateField(null=True, blank=True)
     next_inspection_date = models.DateField(null=True, blank=True)
-    make =  models.CharField(max_length=20,null=True, blank=True)
-    Type =  models.CharField(max_length=20,null=True, blank=True)
-    s_no =  models.CharField(max_length=10,null=True, blank=True)
-    rating =  models.CharField(max_length=20,null=True, blank=True)
+    make =  models.CharField(max_length=200,null=True, blank=True)
+    Type =  models.CharField(max_length=200,null=True, blank=True)
+    s_no =  models.CharField(max_length=100,null=True, blank=True)
+    rating =  models.CharField(max_length=200,null=True, blank=True)
     is_draft = models.BooleanField(default=True,null=True, blank=True)
 
     PERIOD_CHOICES = [
@@ -100,13 +100,13 @@ class ChecklistResponse(models.Model):
     image6 = models.ImageField(upload_to='uploads/', null=True, blank=True,
         validators=[FileExtensionValidator(['jpg', 'jpeg', 'png'])])
 
-    customer_name = models.CharField(max_length=30,null=True, blank=True)
-    solon_name = models.CharField(max_length=30,null=True, blank=True)
+    customer_name = models.CharField(max_length=200,null=True, blank=True)
+    solon_name = models.CharField(max_length=200,null=True, blank=True)
     signature_pad_data = models.ImageField(upload_to='signatures/', null=True, blank=True)
     signature = models.ImageField(upload_to='uploads/', null=True, blank=True)
     signature_pad_data1 = models.ImageField(upload_to='signatures/', null=True, blank=True)
     signature1 = models.ImageField(upload_to='uploads/', null=True, blank=True)
-    comments = models.TextField(max_length=500, blank=True, null=True)
+    comments = models.TextField(max_length=1500, blank=True, null=True)
     email_to = models.EmailField(blank=True, null=True)
 
     # sender_email = models.EmailField(max_length=100, null=True, blank=True)
@@ -119,8 +119,8 @@ class ChecklistResponse(models.Model):
 class ChecklistResponseItem(models.Model):
     response = models.ForeignKey(ChecklistResponse, on_delete=models.CASCADE)
     checklist_item = models.ForeignKey(ChecklistItem, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20)
-    remark = models.CharField(max_length=100)
+    status = models.CharField(max_length=200)
+    remark = models.CharField(max_length=1000)
 
     def __str__(self):
         return f"{self.response.project_name} - {self.checklist_item.checkpoint[:30]} - {self.status}"

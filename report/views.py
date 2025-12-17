@@ -105,7 +105,8 @@ def checklist_form_view(request):
     checklist_items = ChecklistItem.objects.filter(
         report_type=report_type,
         frequency_level__lte=selected_level
-    ).order_by('-id')  # latest first
+    ).order_by('id')
+
 
     latest_date = checklist_items.first().Date if checklist_items.exists() else date.today()
 
