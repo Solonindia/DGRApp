@@ -5,6 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <title>{% block title %}Dashboard{% endblock %}</title>
     <style>
         /* General Body and Layout Styles */
@@ -31,15 +33,26 @@
             height: 40px;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 10px;
-        }
-
         .nav-links a {
-            margin-left: 20px;
+            display: flex;
+            flex-direction: column;   /* icon on top */
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 6px 10px;
             text-decoration: none;
             color: rgb(0, 2, 82);
+            font-size: 12px;
+        }
+
+        .nav-links a i {
+            font-size: 18px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
         }
 
         .navbar img {
@@ -154,26 +167,42 @@
 <body>
     <!-- Navbar -->
     <div class="navbar">
-        <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+    <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
 
-        <div class="nav-links">
-            <a href="{% url 'button_page' %}">New Service Report</a>
+    <div class="nav-links">
 
-            {% if user.is_superuser %}
-                <a href="{% url 'add_checklist_item' %}">Add checklist Item</a>
-                <a href="{% url 'admin' %}">Dashboard</a>
-            {% endif %}
+        <a href="{% url 'button_page' %}">
+            <i class="fas fa-plus-square"></i>
+            <span>New Report</span>
+        </a>
 
-            {% if user.is_authenticated %}
-                <form action="{% url 'logout' %}" method="POST" style="display:inline;">
-                    {% csrf_token %}
-                    <a href="{% url 'home' %}" style="text-decoration: none;">
-                    <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
-                    </a>
-                </form>
-            {% endif %}
-        </div>
+        {% if user.is_superuser %}
+            <a href="{% url 'add_checklist_item' %}">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Checklist Item</span>
+            </a>
+
+            <a href="{% url 'admin' %}">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+
+            <a href="{% url 'home' %}">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        {% elif user.is_authenticated %}
+            <a href="{% url 'user' %}">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+
+            <a href="{% url 'home' %}">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        {% endif %}
+
     </div>
+</div>
 
     <!-- Main Content -->
     <div class="main-content">

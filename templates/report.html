@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <title>Service Report</title>
     <style>
-        /* Global Styles for the whole site */
         body {
             margin: 0;
             background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
@@ -16,7 +17,6 @@
             font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Navbar Styles */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -26,21 +26,31 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .logo {
-            height: 40px;
-        }
+        .logo { height: 40px; }
 
-        .nav-links {
+        .nav-links a{
             display: flex;
-            gap: 10px;
-        }
-
-        .nav-links a {
-            margin-left: 20px;
+            flex-direction: column;   /* icon top, text bottom */
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 6px 10px;
+            margin-left: 10px;
             text-decoration: none;
             color: rgb(0, 2, 82);
-            margin-top: 3px;
+            font-size: 12px;          /* text size */
         }
+
+        .nav-links a i{
+            font-size: 18px;          /* icon size */
+            margin: 0;                /* remove old margin */
+        }
+
+        .nav-links{
+            display: flex;
+            gap: 16px;
+        }
+
 
         .navbar img {
             height: 40px;
@@ -117,27 +127,34 @@
       <!-- Navbar -->
         <div class="navbar">
             <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+
             <div class="nav-links">
                 {% if user_type == 'admin' %}
-                    <a href="{% url 'history_servicereport' %}">History</a>
-                    <a href="{% url 'add_checklist_item' %}">Add Checklist Item</a>
-                    <a href="{% url 'admin' %}">Dashboard</a>
+                    <a href="{% url 'history_servicereport' %}">
+                        <i class="fas fa-history"></i> History
+                    </a>
+
+                    <a href="{% url 'add_checklist_item' %}">
+                        <i class="fas fa-plus-circle"></i> Add Checklist Item
+                    </a>
+
+                    <a href="{% url 'admin' %}">
+                        <i class="fas fa-home"></i> Home
+                    </a>
                 {% else %}
-                    <a href="{% url 'user' %}">Dashboard</a>
-                    <a href="{% url 'my_history_servicereport' %}">History</a>
+                    <a href="{% url 'my_history_servicereport' %}">
+                        <i class="fas fa-history"></i> History
+                    </a>
+                    <a href="{% url 'user' %}"><i class="fas fa-home"></i>Home</a>
                 {% endif %}
+
                 {% if user.is_authenticated %}
-                <form action="{% url 'logout' %}" method="POST">
-                    {% csrf_token %}
-                <a href="{% url 'home' %}" style="text-decoration: none;">
-                    <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
-                </a>
-                </form>
+                    <a href="{% url 'home' %}">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
                 {% endif %}
             </div>
         </div>
-    </div>
-
     <!-- Main Content -->
     <div class="content">
         <h2 class="report-heading">Preventive Maintenance Inspection - Service Reports</h2>

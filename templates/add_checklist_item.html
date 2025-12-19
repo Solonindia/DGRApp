@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <title>Add Checklist Item</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <style>
@@ -28,15 +29,26 @@
             height: 40px;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 10px;
-        }
-
         .nav-links a {
-            margin-left: 20px;
+            display: flex;
+            flex-direction: column;   /* icon on top */
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 6px 10px;
             text-decoration: none;
             color: rgb(0, 2, 82);
+            font-size: 12px;
+        }
+
+        .nav-links a i {
+            font-size: 18px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
         }
 
         .form-page {
@@ -130,9 +142,9 @@
     <div class="navbar">
         <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
         <div class="nav-links">
-            <a href="{% url 'button_page' %}">New Service Report</a>
-            <a href="{% url 'history_servicereport' %}">History</a>
-            <a href="{% url 'admin' %}">Dashboard</a>
+            <a href="{% url 'button_page' %}"><i class="fas fa-plus-square"></i>New Report</a>
+            <a href="{% url 'history_servicereport' %}"><i class="fas fa-history"></i>History</a>
+            <a href="{% url 'admin' %}"><i class="fas fa-home"></i>Home</a>
             <a href="{% url 'home' %}" style="text-decoration: none;">
                 <i class="fas fa-sign-out-alt" style="font-size: 18px; margin-right: 8px;"></i>Logout
             </a>
