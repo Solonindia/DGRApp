@@ -145,92 +145,124 @@ from django.contrib import messages
 
 @login_required(login_url='/user/login/')
 def edit_inventory(request, site_name):
-    # Fetch the site based on the site_name passed in the URL
-    # site = Site.objects.get(name=site_name)
 
-     # Check if site_name is 'None' or empty
     if not site_name or site_name.lower() == "none":
-        # If site_name is None or 'None', display an error message or redirect
         messages.error(request, "No valid site provided for editing.")
-        return redirect('user')  # Redirect to user page or dashboard
+        return redirect('user')
 
     try:
-        # Fetch the site based on the site_name passed in the URL
         site = Site.objects.get(name=site_name)
     except Site.DoesNotExist:
-        # If the site does not exist, raise a 404 error
         raise Http404("Site not found")
-    
-    # Fetch inventory data for the specific site
-    # search_query = request.GET.get('material_code', '')
+
     search_query = request.GET.get('material_desc', '')
 
-
     if search_query:
-        inventory_items = Inventory.objects.filter(site=site, user=request.user, material_desc__icontains=search_query)
-
-        # inventory_items = Inventory.objects.filter(site=site, user=request.user, material_code__icontains=search_query)
+        inventory_items = Inventory.objects.filter(
+            site=site, user=request.user,
+            material_desc__icontains=search_query
+        )
     else:
         inventory_items = Inventory.objects.filter(site=site, user=request.user)
 
+    # helper
+    def to_int(v, default=0):
+        try:
+            v = (v or '').strip()
+            return int(v) if v != '' else default
+        except (ValueError, TypeError):
+            return default
+
     if request.method == 'POST':
-        # Iterate over each inventory item and update the consumption value
+
+        # IST time
+        Kolkata_timezone = pytz.timezone('Asia/Kolkata')
+        india_time = timezone.now().astimezone(Kolkata_timezone)
+
         for inventory in inventory_items:
-            consumption = request.POST.get(f'consumption_{inventory.id}')
-            if consumption and int(consumption) != 0:
-                consumption = int(consumption)  # Parse consumption value
 
-                # Check if consumption exceeds opening stock
+            # ✅ NEW: user inward stock
+            adding_stock = to_int(request.POST.get(f'adding_stock_{inventory.id}'), 0)
+            if adding_stock < 0:
+                adding_stock = 0
+
+            # existing outward
+            consumption = to_int(request.POST.get(f'consumption_{inventory.id}'), 0)
+            if consumption < 0:
+                consumption = 0
+
+            # If no change in this row, skip
+            if adding_stock == 0 and consumption == 0:
+                continue
+
+            # ✅ FIRST: apply adding_stock atomically (same as admin)
+            if adding_stock > 0:
+                Inventory.objects.filter(id=inventory.id).update(
+                    invar=F('invar') + adding_stock,
+                    opening_stock=F('opening_stock') + adding_stock
+                )
+                inventory.refresh_from_db(fields=['opening_stock', 'invar'])
+
+            # ✅ THEN: validate + apply consumption
+            if consumption > 0:
                 if consumption > inventory.opening_stock:
-                    messages.error(request, f"Consumption cannot exceed opening stock for material code {inventory.material_code}.")
-                    return render(request, 'edit_inventory.html', {'site': site, 'inventory_items': inventory_items, 'search_query': search_query})
+                    messages.error(
+                        request,
+                        f"Consumption cannot exceed available stock for material code {inventory.material_code}."
+                    )
+                    return render(request, 'edit_inventory.html', {
+                        'site': site,
+                        'inventory_items': inventory_items,
+                        'search_query': search_query
+                    })
 
-                # Calculate closing stock
                 closing_stock = inventory.opening_stock - consumption
 
-                # Get current time in IST
-                utc_time = timezone.now()
-                Kolkata_timezone = pytz.timezone('Asia/Kolkata')
-                india_time = utc_time.astimezone(Kolkata_timezone)
-                india_time = india_time.replace(tzinfo=Kolkata_timezone)  
-                # india_time = timezone.make_aware(india_time, Kolkata_timezone)
-                
-                # Create notifications for the updated row
+                # save notifications (same structure as you already use)
                 Notification.objects.create(
                     site=site,
                     material_code=inventory.material_code,
-                    material_desc = inventory.material_desc,
-                    uom = inventory.uom,
+                    material_desc=inventory.material_desc,
+                    uom=inventory.uom,
                     opening_stock=inventory.opening_stock,
                     consumption=consumption,
                     closing_stock=closing_stock,
                     timestamp=india_time,
-                    unit_value = inventory.unit_value
-
+                    unit_value=inventory.unit_value
                 )
 
                 RealTimeNotification.objects.create(
                     site=site,
                     material_code=inventory.material_code,
-                    material_desc = inventory.material_desc,
-                    uom = inventory.uom,
+                    material_desc=inventory.material_desc,
+                    uom=inventory.uom,
                     opening_stock=inventory.opening_stock,
                     consumption=consumption,
                     closing_stock=closing_stock,
                     timestamp=india_time,
-                    user=request.user  # Track the user who made the change
+                    user=request.user
                 )
 
-                # Update inventory with new closing stock (and set opening stock to the new closing stock)
+                # update opening_stock after consumption
                 inventory.opening_stock = closing_stock
-                inventory.save()  # Save the updated inventory record
+                inventory.save(update_fields=['opening_stock'])
+
+            # ✅ OPTIONAL: If you want to store inward in history too
+            # (only if your models have adding_stock field, else skip)
+            # if adding_stock > 0:
+            #     Notification.objects.create(... action="INWARD" ...)
+            #     RealTimeNotification.objects.create(... action="INWARD" ...)
 
         messages.success(request, 'Inventory updated successfully.')
-        return redirect('inventory_history', site_name=site_name)  # Redirect to inventory history page after update
+        if search_query:
+            return redirect(f"{request.path}?material_desc={search_query}")
+        return redirect(request.path)
 
-    return render(request, 'edit_inventory.html', {'site': site, 'inventory_items': inventory_items, 'search_query': search_query})
-
-
+    return render(request, 'edit_inventory.html', {
+        'site': site,
+        'inventory_items': inventory_items,
+        'search_query': search_query
+    })
 
 
 from django.contrib.auth.decorators import login_required
@@ -441,11 +473,6 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render
 from .models import Notification
-from datetime import datetime
-
-
-
-
 from datetime import datetime, timedelta
 from django.http import HttpResponse
 import csv
@@ -725,56 +752,61 @@ from django.http import HttpResponseRedirect
 
 # updTED CODE
 from django.db.models import F
+from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
 def edit_inventory1(request, inventory_id):
     inventory = get_object_or_404(Inventory, id=inventory_id)
     site_name = request.GET.get('site_name')
 
     selected_site = None
     if site_name:
+        selected_site = Site.objects.filter(name=site_name).first()
+
+    def to_int(val, default=0):
         try:
-            selected_site = Site.objects.get(name=site_name)
-        except Site.DoesNotExist:
-            selected_site = None
+            val = (val or '').strip()
+            return int(val) if val != '' else default
+        except (ValueError, TypeError):
+            return default
+
+    def to_float(val, default=0.0):
+        try:
+            val = (val or '').strip()
+            return float(val) if val != '' else default
+        except (ValueError, TypeError):
+            return default
 
     if request.method == 'POST':
         # basic text fields
-        inventory.material_code = request.POST.get('material_code')
-        inventory.material_desc = request.POST.get('material_desc')
-        inventory.uom = request.POST.get('uom')
-        inventory.owner = request.POST.get('owner')
-        inventory.type = request.POST.get('type')
-        inventory.category = request.POST.get('category')
+        inventory.material_code = request.POST.get('material_code', '') or ''
+        inventory.material_desc = request.POST.get('material_desc', '') or ''
+        inventory.uom = request.POST.get('uom', '') or ''
+        inventory.owner = request.POST.get('owner', '') or ''
+        inventory.type = request.POST.get('type', '') or ''
+        inventory.category = request.POST.get('category', '') or ''
 
-        # numeric fields (safe parse)
-        raw_opening = (request.POST.get('opening_stock') or '').strip()
-        raw_unitval = (request.POST.get('unit_value') or '').strip()
-        try:
-            inventory.opening_stock = int(raw_opening) if raw_opening != '' else 0
-        except ValueError:
-            inventory.opening_stock = 0
-        try:
-            inventory.unit_value = float(raw_unitval) if raw_unitval != '' else 0.0
-        except ValueError:
-            inventory.unit_value = 0.0
+        # numeric fields
+        inventory.opening_stock = to_int(request.POST.get('opening_stock'), 0)
+        inventory.unit_value = to_float(request.POST.get('unit_value'), 0.0)
 
-        # ✅ NEW: Add Stock (inward)
-        raw_add = (request.POST.get('adding_stock') or '').strip()
-        try:
-            adding_stock = int(raw_add) if raw_add != '' else 0
-        except ValueError:
-            adding_stock = 0
+        # ✅ Add Stock (inward)
+        adding_stock = to_int(request.POST.get('adding_stock'), 0)
         if adding_stock < 0:
-            adding_stock = 0  # no negatives
+            adding_stock = 0
 
-        # Save edited values first
+        # Save edited base fields first
         inventory.save()
 
-        # Atomically add to invar and opening_stock
+        # ✅ Atomically add stock to BOTH invar + opening_stock
         if adding_stock > 0:
             Inventory.objects.filter(id=inventory.id).update(
                 invar=F('invar') + adding_stock,
                 opening_stock=F('opening_stock') + adding_stock
             )
+            # refresh values for totals / UI (if you ever render instead of redirect)
+            inventory.refresh_from_db(fields=['invar', 'opening_stock'])
 
         redirect_url = reverse('site_analysis') + (f'?site_name={site_name}' if site_name else '')
         return HttpResponseRedirect(redirect_url)
@@ -796,6 +828,3 @@ def edit_inventory1(request, inventory_id):
         'total_value': total_value,
         'total_site_value': total_site_value
     })
-
-
-
