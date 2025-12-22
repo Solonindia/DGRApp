@@ -175,7 +175,10 @@ def checklist_form_view(request):
             # ✅ Set owner (don’t overwrite an existing owner)
             if request.user.is_authenticated and not response.created_by_id:
                 response.created_by = request.user
-                response.save(update_fields=["created_by"])
+                if response.pk:
+                    response.save(update_fields=["created_by"])
+                else:
+                    response.save()
 
             # --- Images: image1..image6 + captured_image_1..6
             for i in range(1, 7):
