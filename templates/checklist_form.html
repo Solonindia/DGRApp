@@ -322,6 +322,8 @@
 <div id="cameraModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8);">
   <div style="position:absolute; top:10%; left:50%; transform:translateX(-50%); text-align:center;">
     <video id="video" width="320" height="240" autoplay style="border:2px solid white;"></video><br>
+    <button type="button" onclick="switchCamera()">🔄 Switch</button>
+
     <button type="button" onclick="takeSnapshot()" style="margin-top: 10px;">📸 OK</button>
     <button type="button" onclick="closeCamera()" style="margin-top: 10px;">❌</button>
   </div>
@@ -426,22 +428,51 @@
 <script>
 let currentImageIndex = null;
 let stream = null;
+let currentFacingMode = "environment"; // mobile lo default back camera
 
 function openCamera(index) {
     currentImageIndex = index;
     document.getElementById('cameraModal').style.display = 'block';
 
     const video = document.getElementById('video');
-    navigator.mediaDevices.getUserMedia({ video: true })
+
+    // 🔍 Detect mobile vs desktop
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    // 📸 Camera constraints
+    const constraints = {
+        video: isMobile
+            ? { facingMode: currentFacingMode }  // mobile: front/back
+            : true                               // desktop: default (front)
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints)
         .then(s => {
             stream = s;
             video.srcObject = stream;
         })
         .catch(err => {
-            alert("Unable to access camera.");
+            alert("Unable to access camera");
             console.error(err);
         });
 }
+
+
+// function openCamera(index) {
+//     currentImageIndex = index;
+//     document.getElementById('cameraModal').style.display = 'block';
+
+//     const video = document.getElementById('video');
+//     navigator.mediaDevices.getUserMedia({ video: true })
+//         .then(s => {
+//             stream = s;
+//             video.srcObject = stream;
+//         })
+//         .catch(err => {
+//             alert("Unable to access camera.");
+//             console.error(err);
+//         });
+// }
 
 function closeCamera() {
     if (stream) {
@@ -450,6 +481,19 @@ function closeCamera() {
     }
     document.getElementById('cameraModal').style.display = 'none';
 }
+
+function switchCamera() { 
+    // toggle camera - new function
+    currentFacingMode =
+        currentFacingMode === "user" ? "environment" : "user";
+
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+
+    openCamera(currentImageIndex);
+}
+
 
 function takeSnapshot() {
     const canvas = document.getElementById('canvas');
