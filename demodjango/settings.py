@@ -20,12 +20,7 @@ DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 # Other Django settings (e.g., Secret Key)
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = False
-ALLOWED_HOSTS = [
-    'oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
-    '127.0.0.1',
-    'localhost',
-    '169.254.130.4',
-]
+ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
