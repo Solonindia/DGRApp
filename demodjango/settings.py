@@ -21,9 +21,9 @@ DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 ALLOWED_HOSTS = [
-    ".azurewebsites.net",   # ← THIS IS THE KEY FIX
-    "127.0.0.1",
-    "localhost",
+    'oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
+    '127.0.0.1',
+    'localhost'
 ]
 
 INSTALLED_APPS = [
