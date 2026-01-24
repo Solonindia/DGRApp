@@ -6,7 +6,6 @@ def dashboard(request):
 
 from django.contrib import messages
 from .models import Site, Inventory
-import pandas as pd
 from django.contrib.auth.models import User
 from demoapp.views import admin_login_view,user_login_view
 from django.contrib.auth.decorators import login_required
@@ -16,6 +15,7 @@ from django.views.decorators.cache import never_cache
 
 @login_required
 def upload_inventory(request):
+    import pandas as pd
     excel_data = None
     columns = None
     site_name = None
