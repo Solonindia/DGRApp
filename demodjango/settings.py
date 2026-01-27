@@ -22,6 +22,10 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
+SECURE_SSL_REDIRECT = False
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -135,8 +139,6 @@ if DEBUG:
     # STATIC_ROOT = BASE_DIR / 'static'
     # LOGOUT_REDIRECT_URL = '/home/'
     STATICFILES_DIRS = [BASE_DIR / 'static']   # ← for local dev
-
-
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
