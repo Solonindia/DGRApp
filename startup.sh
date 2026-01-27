@@ -1,23 +1,21 @@
 #!/bin/bash
 set -e
 
-echo "✅ Starting Django App on Azure..."
-echo "📍 Working dir: $(pwd)"
-
-# ✅ Always go to project root (manage.py should be here)
+echo "📍 Switching to app root"
 cd /home/site/wwwroot
 
-echo "✅ Python version:"
-python --version
+echo "📍 Exporting PYTHONPATH"
+export PYTHONPATH=/home/site/wwwroot
 
-echo "✅ Running migrations..."
-python -u manage.py migrate --noinput --verbosity 2
+echo "✅ Running migrations"
+python -u manage.py migrate --noinput
 
-echo "✅ Collecting static files..."
+echo "✅ Collecting static files"
 python -u manage.py collectstatic --noinput
 
-echo "✅ Starting Gunicorn..."
+echo "🚀 Starting Gunicorn"
 exec gunicorn demodjango.wsgi:application \
+  --chdir /home/site/wwwroot \
   --bind 0.0.0.0:${PORT:-8000} \
   --workers 2 \
   --timeout 180 \
