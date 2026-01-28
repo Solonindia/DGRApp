@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
-name: Build and deploy Python app to Azure Web App - OandM
+name: Build and deploy Python app to Azure Web App - onm
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.10'
 
       # 🛠️ Local Build Section (Optional)
       # The following section in your workflow is designed to catch build issues early on the client side, before deployment. This can be helpful for debugging and validation. However, if this step significantly increases deployment time and early detection is not critical for your workflow, you may remove this section to streamline the deployment process.
@@ -63,14 +63,14 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_B4842E07623C4BE4B1B444F667B845ED }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F5F84E64C50445F889E52902CAD66DA2 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_813F1677AAB54BE2861B2EADFE6991E5 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_04FAE2853598479DB5ACDBBA9605419A }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F3D92E7CD5B440FAB6118FDEA9AABC26 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_370EE4258D6F4F4A89D5998FC276C1AE }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'OandM'
+          app-name: 'onm'
           slot-name: 'Production'
           
