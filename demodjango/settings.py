@@ -21,7 +21,7 @@ DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = False
 ALLOWED_HOSTS = [
-    'oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
+    'onm-haa0fffsh4gzeaen.canadacentral-01.azurewebsites.net',
     '127.0.0.1',
     'localhost',
     '169.254.130.4',
@@ -52,7 +52,6 @@ MIDDLEWARE = [
 
     # Add this line:
     'demodjango.middleware.no_cache.NoCacheForHtmlMiddleware',
-
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -77,11 +76,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'demodjango.wsgi.application'
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
-    'http://oandm-ghhwf3ftcqhtf6g5.eastus-01.azurewebsites.net',
+    'https://onm-haa0fffsh4gzeaen.canadacentral-01.azurewebsites.net',
+    'http://onm-haa0fffsh4gzeaen.canadacentral-01.azurewebsites.net',
     'http://localhost',
 
 ]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
 
 # Database Configuration
 DATABASES = {
@@ -130,18 +132,14 @@ USE_TZ = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-
 if DEBUG:
     # Local setup
     STATIC_URL = '/static/'
     # STATIC_ROOT = BASE_DIR / 'static'
     # LOGOUT_REDIRECT_URL = '/home/'
     STATICFILES_DIRS = [BASE_DIR / 'static']   # ← for local dev
-
-
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 else:
     # Azure setup
@@ -149,7 +147,6 @@ else:
     STATICFILES_STORAGE = 'storages.backends.azure_storage.AzureStorage'
     DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
     # LOGOUT_REDIRECT_URL = '/home/'
-
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.office365.com'
