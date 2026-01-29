@@ -76,7 +76,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'demodjango.wsgi.application'
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://onm-haa0fffsh4gzeaen.canadacentral-01.azurewebsites.net',
+    "https://onm-haa0fffsh4gzeaen.canadacentral-01.azurewebsites.net",
     'http://onm-haa0fffsh4gzeaen.canadacentral-01.azurewebsites.net',
     'http://localhost',
 
@@ -117,6 +117,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # settings.py
 LOGIN_URL = '/user/login/'              # default for auth redirects
 LOGOUT_REDIRECT_URL = '/user/login/'    # default after logout
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 3600  # 1 hour for session expiration
